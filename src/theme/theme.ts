@@ -5,6 +5,7 @@ import {
   Card,
   Dialog,
   rem,
+  type MantineColorsTuple,
 } from "@mantine/core";
 
 const CONTAINER_SIZES: Record<string, string> = {
@@ -17,7 +18,7 @@ const CONTAINER_SIZES: Record<string, string> = {
   xxl: rem("1600px"),
 };
 
-const slateColors: [string, ...string[]] = [
+const slateColors: MantineColorsTuple = [
   "#f8fafc",
   "#f1f5f9",
   "#e2e8f0",
@@ -30,7 +31,7 @@ const slateColors: [string, ...string[]] = [
   "#020817",
 ];
 
-const blueColors: [string, ...string[]] = [
+const blueColors: MantineColorsTuple = [
   "#eff6ff",
   "#dbeafe",
   "#bfdbfe",
@@ -43,7 +44,7 @@ const blueColors: [string, ...string[]] = [
   "#172554",
 ];
 
-const greenColors: [string, ...string[]] = [
+const greenColors: MantineColorsTuple = [
   "#F0FDF4",
   "#DCFCE7",
   "#BBF7D0",
@@ -56,7 +57,7 @@ const greenColors: [string, ...string[]] = [
   "#052E16",
 ];
 
-const redColors: [string, ...string[]] = [
+const redColors: MantineColorsTuple = [
   "#FEF2F2",
   "#FEE2E2",
   "#FECACA",
@@ -69,7 +70,7 @@ const redColors: [string, ...string[]] = [
   "#450A0A",
 ];
 
-const amberColors: [string, ...string[]] = [
+const amberColors: MantineColorsTuple = [
   "#FFFBEB",
   "#FEF3C7",
   "#FDE68A",

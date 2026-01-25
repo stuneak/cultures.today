@@ -58,6 +58,15 @@ export async function PATCH(
       select: { id: true, name: true, slug: true, state: true },
     });
 
+    // If boundary GeoJSON was updated, sync the PostGIS geometry column
+    if (data.boundaryGeoJson) {
+      await db.$executeRaw`
+        UPDATE "Nation"
+        SET boundary = ST_SetSRID(ST_GeomFromGeoJSON(${data.boundaryGeoJson}), 4326)
+        WHERE id = ${id}
+      `;
+    }
+
     return NextResponse.json(nation);
   } catch (error) {
     console.error("PATCH /api/admin/nations/[id] error:", error);

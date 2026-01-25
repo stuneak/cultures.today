@@ -1,19 +1,13 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { ActionIcon, Tooltip, useMantineColorScheme } from "@mantine/core";
-import {
-  IconPlus,
-  IconMinus,
-  IconCurrentLocation,
-  IconSun,
-  IconMoon,
-  IconInfoCircle,
-} from "@tabler/icons-react";
 import { WorldMap } from "@/components/map/world-map";
-import { NationSelectionPopup } from "@/components/map/nation-selection-popup";
 import { NationModal } from "@/components/nation/nation-modal";
-import { AuthButton } from "@/components/auth/auth-button";
+import { NationSelectionPopup } from "@/components/map/nation-selection-popup";
+import { NationSubmitForm } from "@/components/nation/nation-submit-form";
+import { MainPageControls } from "@/components/controls/main-page-controls";
+import { AddNationButton } from "@/components/controls/add-nation-button";
+import { PolygonDraw } from "@/components/map/polygon-draw";
 import { useMapStore } from "@/stores/map-store";
 import type { LngLat } from "maplibre-gl";
 
@@ -24,133 +18,110 @@ interface NationAtPoint {
   flagUrl: string | null;
 }
 
-export default function Home() {
-  const { colorScheme, toggleColorScheme } = useMantineColorScheme();
-  const { zoomIn, zoomOut, locateMe } = useMapStore();
-
-  // Modal state
-  const [selectedNationSlug, setSelectedNationSlug] = useState<string | null>(null);
-
-  // Selection popup state (for overlapping nations)
-  const [selectionPopup, setSelectionPopup] = useState<{
-    nations: NationAtPoint[];
-    position: { x: number; y: number };
+export default function HomePage() {
+  const [selectedNationSlug, setSelectedNationSlug] = useState<string | null>(
+    null
+  );
+  const [submitFormOpen, setSubmitFormOpen] = useState(false);
+  const [overlappingNations, setOverlappingNations] = useState<
+    NationAtPoint[] | null
+  >(null);
+  const [popupPosition, setPopupPosition] = useState<{
+    x: number;
+    y: number;
   } | null>(null);
+  const [drawnBoundary, setDrawnBoundary] =
+    useState<GeoJSON.Feature<GeoJSON.Polygon> | null>(null);
+
+  const { setIsDrawingMode, isDrawingMode } = useMapStore();
 
   const handleNationClick = useCallback((slug: string) => {
     setSelectedNationSlug(slug);
+    setOverlappingNations(null);
+    setPopupPosition(null);
   }, []);
 
-  const handleMultipleNationsAtPoint = useCallback(
-    (nations: NationAtPoint[], lngLat: LngLat) => {
-      // Get screen coordinates from the map event
-      // The popup will appear near the click location
-      const mapContainer = document.querySelector(".maplibregl-map");
-      if (mapContainer) {
-        const rect = mapContainer.getBoundingClientRect();
-        // Approximate screen position based on viewport center
-        setSelectionPopup({
-          nations,
-          position: {
-            x: rect.left + rect.width / 2,
-            y: rect.top + rect.height / 2,
-          },
-        });
-      }
+  const handleMultipleNations = useCallback(
+    (nations: NationAtPoint[], _lngLat: LngLat) => {
+      setOverlappingNations(nations);
+      setPopupPosition({
+        x: window.innerWidth / 2,
+        y: window.innerHeight / 2,
+      });
     },
     []
   );
 
-  const closeSelectionPopup = useCallback(() => {
-    setSelectionPopup(null);
+  const handleClosePopup = useCallback(() => {
+    setOverlappingNations(null);
+    setPopupPosition(null);
   }, []);
 
-  const closeNationModal = useCallback(() => {
-    setSelectedNationSlug(null);
+  const handleStartDrawing = useCallback(() => {
+    setIsDrawingMode(true);
+  }, [setIsDrawingMode]);
+
+  const handlePolygonComplete = useCallback(
+    (polygon: GeoJSON.Feature<GeoJSON.Polygon>) => {
+      setDrawnBoundary(polygon);
+      setSubmitFormOpen(true);
+    },
+    []
+  );
+
+  const handlePolygonCancel = useCallback(() => {
+    setDrawnBoundary(null);
+  }, []);
+
+  const handleSubmitFormClose = useCallback(() => {
+    setSubmitFormOpen(false);
+    setDrawnBoundary(null);
   }, []);
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden">
-      {/* Full-screen map */}
+    <div className="h-screen w-screen overflow-hidden relative">
+      {/* Full-screen globe map */}
       <WorldMap
         onNationClick={handleNationClick}
-        onMultipleNationsAtPoint={handleMultipleNationsAtPoint}
+        onMultipleNationsAtPoint={handleMultipleNations}
       />
 
-      {/* Right sidebar controls */}
-      <div className="absolute right-4 top-4 flex flex-col gap-2">
-        {/* Auth button */}
-        <AuthButton />
-      </div>
+      {/* Right-side controls */}
+      <MainPageControls />
 
-      {/* Map controls - bottom right */}
-      <div className="absolute right-4 bottom-24 flex flex-col gap-2">
-        <Tooltip label="Zoom in" position="left">
-          <ActionIcon
-            variant="main-page-control"
-            size="lg"
-            onClick={zoomIn}
-          >
-            <IconPlus size={18} />
-          </ActionIcon>
-        </Tooltip>
+      {/* Bottom center "+" button to add nation */}
+      {!isDrawingMode && (
+        <AddNationButton onStartDrawing={handleStartDrawing} />
+      )}
 
-        <Tooltip label="Zoom out" position="left">
-          <ActionIcon
-            variant="main-page-control"
-            size="lg"
-            onClick={zoomOut}
-          >
-            <IconMinus size={18} />
-          </ActionIcon>
-        </Tooltip>
+      {/* Polygon drawing mode UI */}
+      <PolygonDraw
+        onComplete={handlePolygonComplete}
+        onCancel={handlePolygonCancel}
+      />
 
-        <Tooltip label="My location" position="left">
-          <ActionIcon
-            variant="main-page-control"
-            size="lg"
-            onClick={locateMe}
-          >
-            <IconCurrentLocation size={18} />
-          </ActionIcon>
-        </Tooltip>
-
-        <Tooltip label="Toggle theme" position="left">
-          <ActionIcon
-            variant="main-page-control"
-            size="lg"
-            onClick={() => toggleColorScheme()}
-          >
-            {colorScheme === "dark" ? (
-              <IconSun size={18} />
-            ) : (
-              <IconMoon size={18} />
-            )}
-          </ActionIcon>
-        </Tooltip>
-
-        <Tooltip label="About" position="left">
-          <ActionIcon
-            variant="main-page-control"
-            size="lg"
-          >
-            <IconInfoCircle size={18} />
-          </ActionIcon>
-        </Tooltip>
-      </div>
-
-      {/* Nation selection popup (for overlapping regions) */}
-      {selectionPopup && (
+      {/* Overlapping nations selection popup */}
+      {overlappingNations && popupPosition && (
         <NationSelectionPopup
-          nations={selectionPopup.nations}
-          position={selectionPopup.position}
+          nations={overlappingNations}
+          position={popupPosition}
           onSelect={handleNationClick}
-          onClose={closeSelectionPopup}
+          onClose={handleClosePopup}
         />
       )}
 
       {/* Nation details modal */}
-      <NationModal slug={selectedNationSlug} onClose={closeNationModal} />
+      <NationModal
+        slug={selectedNationSlug}
+        onClose={() => setSelectedNationSlug(null)}
+      />
+
+      {/* Nation submission form with pre-filled boundary */}
+      <NationSubmitForm
+        opened={submitFormOpen}
+        onClose={handleSubmitFormClose}
+        initialBoundary={drawnBoundary}
+      />
     </div>
   );
 }

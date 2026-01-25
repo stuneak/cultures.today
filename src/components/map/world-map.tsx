@@ -18,7 +18,10 @@ interface WorldMapProps {
   onMultipleNationsAtPoint: (nations: NationAtPoint[], lngLat: LngLat) => void;
 }
 
-export function WorldMap({ onNationClick, onMultipleNationsAtPoint }: WorldMapProps) {
+export function WorldMap({
+  onNationClick,
+  onMultipleNationsAtPoint,
+}: WorldMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<Map | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -33,7 +36,9 @@ export function WorldMap({ onNationClick, onMultipleNationsAtPoint }: WorldMapPr
 
       try {
         // Query all nations at this point (handles overlapping regions)
-        const response = await fetch(`/api/nations/at-point?lng=${lng}&lat=${lat}`);
+        const response = await fetch(
+          `/api/nations/at-point?lng=${lng}&lat=${lat}`,
+        );
         const data = await response.json();
 
         if (data.nations && data.nations.length > 0) {
@@ -49,14 +54,15 @@ export function WorldMap({ onNationClick, onMultipleNationsAtPoint }: WorldMapPr
         console.error("Failed to query nations at point:", error);
       }
     },
-    [onNationClick, onMultipleNationsAtPoint, isDrawingMode]
+    [onNationClick, onMultipleNationsAtPoint, isDrawingMode],
   );
 
   useEffect(() => {
     if (!mapContainer.current || map.current) return;
 
     const mapStyle =
-      process.env.NEXT_PUBLIC_MAP_STYLE || "https://tiles.openfreemap.org/styles/liberty";
+      process.env.NEXT_PUBLIC_MAP_STYLE ||
+      "https://tiles.openfreemap.org/styles/liberty";
 
     map.current = new maplibregl.Map({
       container: mapContainer.current,
@@ -70,7 +76,7 @@ export function WorldMap({ onNationClick, onMultipleNationsAtPoint }: WorldMapPr
     const mapInstance = map.current;
 
     // Set GLOBE projection for 3D globe view
-    mapInstance.setProjection({ type: "globe" });
+    // mapInstance.setProjection({ type: "globe" });
 
     // Store map instance
     setMapInstance(mapInstance);

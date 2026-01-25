@@ -98,6 +98,15 @@ export async function POST(request: NextRequest) {
       select: { id: true, name: true, slug: true, state: true },
     });
 
+    // If boundary GeoJSON was provided, update the PostGIS geometry column
+    if (data.boundaryGeoJson) {
+      await db.$executeRaw`
+        UPDATE "Nation"
+        SET boundary = ST_SetSRID(ST_GeomFromGeoJSON(${data.boundaryGeoJson}), 4326)
+        WHERE id = ${nation.id}
+      `;
+    }
+
     return NextResponse.json(nation, { status: 201 });
   } catch (error) {
     console.error("POST /api/nations error:", error);
