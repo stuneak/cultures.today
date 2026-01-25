@@ -1,0 +1,104 @@
+// prisma/schema.prisma
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  extensions = [postgis]
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  firstName String
+  lastName  String
+  isAdmin   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  submittedNations Nation[]
+
+  @@index([email])
+}
+
+enum NationState {
+  approved
+  pending
+}
+
+model Nation {
+  id          String      @id @default(cuid())
+  name        String      @unique
+  slug        String      @unique
+  state       NationState @default(pending)
+  description String?
+  flagUrl     String? // user uploaded flag image URL (uploaded on frontend and saved in minio via backend)
+
+  // GeoJSON boundary - stored as native PostGIS geometry
+  // Note: Prisma doesn't support PostGIS directly, we use raw SQL for geometry operations
+  // This field stores the GeoJSON text for Prisma, but actual geometry is in boundary column
+  boundaryGeoJson String? @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  submittedById String?
+  submittedBy   User? @relation(fields: [submittedById], references: [id])
+
+  // Relations
+  languages Language[]
+  contents  Content[]
+
+  @@index([slug])
+  @@index([state])
+}
+
+model Language {
+  id          String @id @default(cuid())
+  name        String
+  description String
+
+  nationId String
+  nation   Nation @relation(fields: [nationId], references: [id], onDelete: Cascade)
+
+  phrases Phrase[]
+}
+
+model Phrase {
+  id               String @id @default(cuid())
+  languageId       String
+  text             String // original phrase text
+  translation      String // translated phrase text
+  audioUrl         String // URL to audio file for pronunciation (recorded on frontend and saved in minio via backend)
+
+  language Language @relation(fields: [languageId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+enum ContentType {
+  IMAGE_UPLOAD
+  VIDEO_UPLOAD
+  VIDEO_YOUTUBE
+}
+
+enum ContentCategory {
+  FOOD
+  MUSIC
+  OTHER
+}
+
+model Content {
+  id           String       @id @default(cuid())
+  title        String
+  contentType  ContentType
+  contentUrl   String?      // URL to image/video if applicable
+  category     ContentCategory @default(OTHER)
+
+  nationId String
+  nation   Nation @relation(fields: [nationId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+}
