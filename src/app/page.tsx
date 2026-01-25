@@ -1,65 +1,156 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useCallback } from "react";
+import { ActionIcon, Tooltip, useMantineColorScheme } from "@mantine/core";
+import {
+  IconPlus,
+  IconMinus,
+  IconCurrentLocation,
+  IconSun,
+  IconMoon,
+  IconInfoCircle,
+} from "@tabler/icons-react";
+import { WorldMap } from "@/components/map/world-map";
+import { NationSelectionPopup } from "@/components/map/nation-selection-popup";
+import { NationModal } from "@/components/nation/nation-modal";
+import { AuthButton } from "@/components/auth/auth-button";
+import { useMapStore } from "@/stores/map-store";
+import type { LngLat } from "maplibre-gl";
+
+interface NationAtPoint {
+  id: string;
+  name: string;
+  slug: string;
+  flagUrl: string | null;
+}
 
 export default function Home() {
+  const { colorScheme, toggleColorScheme } = useMantineColorScheme();
+  const { zoomIn, zoomOut, locateMe } = useMapStore();
+
+  // Modal state
+  const [selectedNationSlug, setSelectedNationSlug] = useState<string | null>(null);
+
+  // Selection popup state (for overlapping nations)
+  const [selectionPopup, setSelectionPopup] = useState<{
+    nations: NationAtPoint[];
+    position: { x: number; y: number };
+  } | null>(null);
+
+  const handleNationClick = useCallback((slug: string) => {
+    setSelectedNationSlug(slug);
+  }, []);
+
+  const handleMultipleNationsAtPoint = useCallback(
+    (nations: NationAtPoint[], lngLat: LngLat) => {
+      // Get screen coordinates from the map event
+      // The popup will appear near the click location
+      const mapContainer = document.querySelector(".maplibregl-map");
+      if (mapContainer) {
+        const rect = mapContainer.getBoundingClientRect();
+        // Approximate screen position based on viewport center
+        setSelectionPopup({
+          nations,
+          position: {
+            x: rect.left + rect.width / 2,
+            y: rect.top + rect.height / 2,
+          },
+        });
+      }
+    },
+    []
+  );
+
+  const closeSelectionPopup = useCallback(() => {
+    setSelectionPopup(null);
+  }, []);
+
+  const closeNationModal = useCallback(() => {
+    setSelectedNationSlug(null);
+  }, []);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div className="relative h-screen w-screen overflow-hidden">
+      {/* Full-screen map */}
+      <WorldMap
+        onNationClick={handleNationClick}
+        onMultipleNationsAtPoint={handleMultipleNationsAtPoint}
+      />
+
+      {/* Right sidebar controls */}
+      <div className="absolute right-4 top-4 flex flex-col gap-2">
+        {/* Auth button */}
+        <AuthButton />
+      </div>
+
+      {/* Map controls - bottom right */}
+      <div className="absolute right-4 bottom-24 flex flex-col gap-2">
+        <Tooltip label="Zoom in" position="left">
+          <ActionIcon
+            variant="main-page-control"
+            size="lg"
+            onClick={zoomIn}
+          >
+            <IconPlus size={18} />
+          </ActionIcon>
+        </Tooltip>
+
+        <Tooltip label="Zoom out" position="left">
+          <ActionIcon
+            variant="main-page-control"
+            size="lg"
+            onClick={zoomOut}
+          >
+            <IconMinus size={18} />
+          </ActionIcon>
+        </Tooltip>
+
+        <Tooltip label="My location" position="left">
+          <ActionIcon
+            variant="main-page-control"
+            size="lg"
+            onClick={locateMe}
+          >
+            <IconCurrentLocation size={18} />
+          </ActionIcon>
+        </Tooltip>
+
+        <Tooltip label="Toggle theme" position="left">
+          <ActionIcon
+            variant="main-page-control"
+            size="lg"
+            onClick={() => toggleColorScheme()}
+          >
+            {colorScheme === "dark" ? (
+              <IconSun size={18} />
+            ) : (
+              <IconMoon size={18} />
+            )}
+          </ActionIcon>
+        </Tooltip>
+
+        <Tooltip label="About" position="left">
+          <ActionIcon
+            variant="main-page-control"
+            size="lg"
+          >
+            <IconInfoCircle size={18} />
+          </ActionIcon>
+        </Tooltip>
+      </div>
+
+      {/* Nation selection popup (for overlapping regions) */}
+      {selectionPopup && (
+        <NationSelectionPopup
+          nations={selectionPopup.nations}
+          position={selectionPopup.position}
+          onSelect={handleNationClick}
+          onClose={closeSelectionPopup}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      )}
+
+      {/* Nation details modal */}
+      <NationModal slug={selectedNationSlug} onClose={closeNationModal} />
     </div>
   );
 }
