@@ -12,15 +12,16 @@ datasource db {
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
-  firstName String
-  lastName  String
-  isAdmin   Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  firstName String   @map("first_name")
+  lastName  String   @map("last_name")
+  isAdmin   Boolean  @default(false) @map("is_admin")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
   submittedNations Nation[]
 
+  @@map("users")
   @@index([email])
 }
 
@@ -35,23 +36,24 @@ model Nation {
   slug        String      @unique
   state       NationState @default(pending)
   description String?
-  flagUrl     String? // user uploaded flag image URL (uploaded on frontend and saved in minio via backend)
+  flagUrl     String?     @map("flag_url")
 
   // GeoJSON boundary - stored as native PostGIS geometry
   // Note: Prisma doesn't support PostGIS directly, we use raw SQL for geometry operations
   // This field stores the GeoJSON text for Prisma, but actual geometry is in boundary column
-  boundaryGeoJson String? @db.Text
+  boundaryGeoJson String? @db.Text @map("boundary_geojson")
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  submittedById String?
-  submittedBy   User? @relation(fields: [submittedById], references: [id])
+  submittedById String? @map("submitted_by_id")
+  submittedBy   User?   @relation(fields: [submittedById], references: [id])
 
   // Relations
   languages Language[]
   contents  Content[]
 
+  @@map("nations")
   @@index([slug])
   @@index([state])
 }
@@ -61,21 +63,25 @@ model Language {
   name        String
   description String
 
-  nationId String
+  nationId String @map("nation_id")
   nation   Nation @relation(fields: [nationId], references: [id], onDelete: Cascade)
 
   phrases Phrase[]
+
+  @@map("languages")
 }
 
 model Phrase {
-  id               String @id @default(cuid())
-  languageId       String
-  text             String // original phrase text
-  translation      String // translated phrase text
-  audioUrl         String // URL to audio file for pronunciation (recorded on frontend and saved in minio via backend)
+  id          String @id @default(cuid())
+  languageId  String @map("language_id")
+  text        String // original phrase text
+  translation String // translated phrase text
+  audioUrl    String @map("audio_url")
 
-  language Language @relation(fields: [languageId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
+  language  Language @relation(fields: [languageId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("phrases")
 }
 
 enum ContentType {
@@ -91,14 +97,16 @@ enum ContentCategory {
 }
 
 model Content {
-  id           String       @id @default(cuid())
-  title        String
-  contentType  ContentType
-  contentUrl   String?      // URL to image/video if applicable
-  category     ContentCategory @default(OTHER)
+  id          String          @id @default(cuid())
+  title       String
+  contentType ContentType     @map("content_type")
+  contentUrl  String?         @map("content_url")
+  category    ContentCategory @default(OTHER)
 
-  nationId String
+  nationId String @map("nation_id")
   nation   Nation @relation(fields: [nationId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime @default(now())
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("contents")
 }

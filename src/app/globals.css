@@ -25,6 +25,6 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-.maplibregl-ctrl-top-right {
+.maplibregl-control-container {
 	display: none !important;
 }
