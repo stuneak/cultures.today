@@ -1,0 +1,55 @@
+@tailwind components;
+@tailwind utilities;
+
+/* Main page controls variant for ActionIcon and Button */
+.mantine-ActionIcon-root,
+.mantine-Button-root {
+  &[data-variant="main-page-control"] {
+    @mixin dark {
+      --ai-bd: calc(0.0625rem * var(--mantine-scale)) solid
+        var(--mantine-color-secondary-7);
+      --ai-hover: var(--mantine-color-secondary-7);
+      --ai-bg: var(--mantine-color-secondary-9);
+      --ai-color: var(--mantine-color-secondary-1);
+    }
+
+    @mixin light {
+      --ai-bd: calc(0.0625rem * var(--mantine-scale)) solid
+        var(--mantine-color-secondary-3);
+      --ai-hover: var(--mantine-color-secondary-2);
+      --ai-bg: var(--mantine-color-secondary-1);
+      --ai-color: var(--mantine-color-secondary-9);
+    }
+
+    background: var(--ai-bg, var(--mantine-primary-color-filled));
+    color: var(--ai-color);
+    border: var(--ai-bd, calc(0.0625rem * var(--mantine-scale)) solid transparent);
+
+    &:hover,
+    &:active {
+      background-color: var(--ai-hover, var(--mantine-primary-color-filled-hover));
+      color: var(--ai-hover-color, var(--ai-color));
+    }
+  }
+}
+
+/* Theme toggle icons */
+.dark {
+  @mixin dark {
+    display: none;
+  }
+
+  @mixin light {
+    display: block;
+  }
+}
+
+.light {
+  @mixin light {
+    display: none;
+  }
+
+  @mixin dark {
+    display: block;
+  }
+}
