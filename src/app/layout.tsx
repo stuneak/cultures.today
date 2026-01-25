@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
 import { MantineProviderWrapper } from "@/components/providers/mantine-provider";
+import { SessionProvider } from "@/components/providers/session-provider";
 import { ColorSchemeScript } from "@mantine/core";
 
 const geist = Geist({ subsets: ["latin"] });
@@ -22,7 +23,9 @@ export default function RootLayout({
         <ColorSchemeScript defaultColorScheme="auto" />
       </head>
       <body className={geist.className}>
-        <MantineProviderWrapper>{children}</MantineProviderWrapper>
+        <SessionProvider>
+          <MantineProviderWrapper>{children}</MantineProviderWrapper>
+        </SessionProvider>
       </body>
     </html>
   );
