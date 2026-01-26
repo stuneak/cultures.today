@@ -38,9 +38,6 @@ model Nation {
   description String?
   flagUrl     String?     @map("flag_url")
 
-  // Note: boundary geometry column is managed via raw SQL (PostGIS)
-  // Not represented in Prisma model as Prisma doesn't support PostGIS types
-
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 

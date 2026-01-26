@@ -31,10 +31,10 @@ CREATE TABLE nations (
     state "NationState" NOT NULL DEFAULT 'pending',
     description TEXT,
     flag_url TEXT,
-    boundary_geojson TEXT,
     created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP(3) NOT NULL,
     submitted_by_id TEXT,
+    boundary geometry(MultiPolygon, 4326),
 
     CONSTRAINT nations_pkey PRIMARY KEY (id)
 );
@@ -103,3 +103,5 @@ ALTER TABLE phrases ADD CONSTRAINT phrases_language_id_fkey FOREIGN KEY (languag
 
 -- AddForeignKey
 ALTER TABLE contents ADD CONSTRAINT contents_nation_id_fkey FOREIGN KEY (nation_id) REFERENCES nations(id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+CREATE INDEX IF NOT EXISTS nations_boundary_idx ON nations USING GIST (boundary);
