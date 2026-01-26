@@ -67,7 +67,6 @@ export function NationReviewModal({
       onClose={onClose}
       title="Review Nation Submission"
       size="lg"
-      radius="md"
     >
       {loading && (
         <Stack gap="md">

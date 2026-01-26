@@ -57,7 +57,6 @@ export function NationModal({ slug, onClose }: NationModalProps) {
       opened={!!slug}
       onClose={onClose}
       size="xl"
-      radius="md"
       title={
         loading ? (
           <Skeleton height={24} width={200} />

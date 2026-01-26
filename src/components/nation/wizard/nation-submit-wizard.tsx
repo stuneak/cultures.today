@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Modal, Stepper, Button, Group, Alert, Stack } from "@mantine/core";
+import { Modal, Button, Group, Alert, Stack, Box } from "@mantine/core";
 import { IconAlertCircle, IconCheck } from "@tabler/icons-react";
 import { BasicInfoStep } from "./steps/basic-info-step";
 import { LanguagesStep } from "./steps/languages-step";
@@ -174,8 +174,8 @@ export function NationSubmitWizard({
       setActiveStep(step);
       return;
     }
-    // Allow going forward only if step was previously completed
-    if (step <= highestCompletedStep + 1 && step <= activeStep + 1) {
+    // Allow going forward to any previously completed step or the next step
+    if (step <= highestCompletedStep + 1) {
       // Validate current step before moving forward
       if (validateStep(activeStep)) {
         setHighestCompletedStep((prev) => Math.max(prev, activeStep));
@@ -238,7 +238,6 @@ export function NationSubmitWizard({
       onClose={onClose}
       title="Submit a new nation"
       size="lg"
-      radius="md"
       closeOnClickOutside={false}
     >
       {success ? (
@@ -248,11 +247,94 @@ export function NationSubmitWizard({
         </Alert>
       ) : (
         <Stack gap="lg">
-          <Stepper active={activeStep} onStepClick={handleStepClick} size="sm">
-            {STEP_LABELS.map((label) => (
-              <Stepper.Step key={label} label={label} />
-            ))}
-          </Stepper>
+          {/* Custom compact stepper */}
+          <Box py="sm">
+            <Box
+              style={{
+                display: "flex",
+                alignItems: "center",
+                width: "100%",
+              }}
+            >
+              {STEP_LABELS.map((label, index) => {
+                const isCompleted = index <= highestCompletedStep;
+                const isActive = index === activeStep;
+                const isClickable =
+                  index < activeStep || index <= highestCompletedStep + 1;
+                const isLast = index === STEP_LABELS.length - 1;
+
+                return (
+                  <Box
+                    key={label}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      flex: isLast ? "0 0 auto" : 1,
+                    }}
+                  >
+                    {/* Step circle */}
+                    <Box
+                      onClick={() => isClickable && handleStepClick(index)}
+                      style={{
+                        width: 36,
+                        height: 36,
+                        borderRadius: "50%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexShrink: 0,
+                        background: isActive
+                          ? "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)"
+                          : isCompleted
+                            ? "linear-gradient(135deg, #10b981 0%, #059669 100%)"
+                            : "var(--mantine-color-gray-1)",
+                        color:
+                          isActive || isCompleted
+                            ? "white"
+                            : "var(--mantine-color-gray-5)",
+                        cursor: isClickable ? "pointer" : "default",
+                        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                        fontWeight: 600,
+                        fontSize: 14,
+                        boxShadow: isActive
+                          ? "0 4px 14px rgba(59, 130, 246, 0.4)"
+                          : isCompleted
+                            ? "0 2px 8px rgba(16, 185, 129, 0.3)"
+                            : "none",
+                        border:
+                          !isActive && !isCompleted
+                            ? "2px solid var(--mantine-color-gray-3)"
+                            : "none",
+                        transform: isActive ? "scale(1.1)" : "scale(1)",
+                      }}
+                    >
+                      {isCompleted && !isActive ? (
+                        <IconCheck size={18} strokeWidth={3} />
+                      ) : (
+                        index + 1
+                      )}
+                    </Box>
+
+                    {/* Connector line */}
+                    {!isLast && (
+                      <Box
+                        style={{
+                          flex: 1,
+                          height: 3,
+                          borderRadius: 2,
+                          background:
+                            index < activeStep || isCompleted
+                              ? "linear-gradient(90deg, #10b981, #059669)"
+                              : "var(--mantine-color-gray-2)",
+                          transition: "all 0.3s ease",
+                        }}
+                      />
+                    )}
+                  </Box>
+                );
+              })}
+            </Box>
+          </Box>
 
           {submitError && (
             <Alert
