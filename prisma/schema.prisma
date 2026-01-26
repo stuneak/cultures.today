@@ -38,10 +38,8 @@ model Nation {
   description String?
   flagUrl     String?     @map("flag_url")
 
-  // GeoJSON boundary - stored as native PostGIS geometry
-  // Note: Prisma doesn't support PostGIS directly, we use raw SQL for geometry operations
-  // This field stores the GeoJSON text for Prisma, but actual geometry is in boundary column
-  boundaryGeoJson String? @db.Text @map("boundary_geojson")
+  // Note: boundary geometry column is managed via raw SQL (PostGIS)
+  // Not represented in Prisma model as Prisma doesn't support PostGIS types
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
