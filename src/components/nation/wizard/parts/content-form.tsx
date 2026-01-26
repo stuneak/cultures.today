@@ -34,13 +34,14 @@ interface ContentFormProps {
   errors?: Record<string, string>;
 }
 
-const ALLOWED_IMAGE_TYPES = [
+const ALLOWED_MEDIA_TYPES = [
   "image/jpeg",
   "image/png",
   "image/webp",
   "image/gif",
+  "video/mp4",
+  "video/webm",
 ];
-const ALLOWED_VIDEO_TYPES = ["video/mp4", "video/webm"];
 
 function getYouTubeEmbedUrl(url: string): string | null {
   const videoId = url.match(
@@ -131,19 +132,21 @@ export function ContentForm({
           }
         >
           <Group mt="xs">
-            <Radio value="IMAGE_UPLOAD" label="Image" />
-            <Radio value="VIDEO_UPLOAD" label="Video" />
+            <Radio value="UPLOAD" label="Upload" />
             <Radio value="VIDEO_YOUTUBE" label="YouTube" />
           </Group>
         </Radio.Group>
 
-        {/* Upload input for IMAGE_UPLOAD or VIDEO_UPLOAD */}
-        {(content.contentType === "IMAGE_UPLOAD" ||
-          content.contentType === "VIDEO_UPLOAD") && (
+        {/* Upload input for UPLOAD type (images and videos) */}
+        {content.contentType === "UPLOAD" && (
           <div>
             {preview ? (
               <div className="relative">
-                {content.contentType === "IMAGE_UPLOAD" ? (
+                {content.contentUrl?.match(/\.(mp4|webm)$/i) ? (
+                  <video controls style={{ width: 200, height: 120 }}>
+                    <source src={preview} type="video/mp4" />
+                  </video>
+                ) : (
                   <Image
                     src={preview}
                     alt="Preview"
@@ -152,10 +155,6 @@ export function ContentForm({
                     fit="cover"
                     radius="sm"
                   />
-                ) : (
-                  <video controls style={{ width: 200, height: 120 }}>
-                    <source src={preview} type="video/mp4" />
-                  </video>
                 )}
                 <ActionIcon
                   size="sm"
@@ -169,11 +168,7 @@ export function ContentForm({
             ) : (
               <FileButton
                 onChange={handleFileSelect}
-                accept={
-                  content.contentType === "IMAGE_UPLOAD"
-                    ? ALLOWED_IMAGE_TYPES.join(",")
-                    : ALLOWED_VIDEO_TYPES.join(",")
-                }
+                accept={ALLOWED_MEDIA_TYPES.join(",")}
               >
                 {(props) => (
                   <Button
@@ -182,8 +177,7 @@ export function ContentForm({
                     leftSection={<IconUpload size={16} />}
                     loading={uploading}
                   >
-                    Upload{" "}
-                    {content.contentType === "IMAGE_UPLOAD" ? "Image" : "Video"}
+                    Upload Media
                   </Button>
                 )}
               </FileButton>
@@ -198,9 +192,7 @@ export function ContentForm({
             )}
 
             <Text size="xs" c="dimmed" mt="xs">
-              {content.contentType === "IMAGE_UPLOAD"
-                ? "PNG, JPG, WebP, GIF (max 100MB)"
-                : "MP4, WebM (max 5 min)"}
+              PNG, JPG, WebP, GIF (max 100MB) or MP4, WebM (max 5 min)
             </Text>
           </div>
         )}

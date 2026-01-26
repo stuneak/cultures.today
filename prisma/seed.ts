@@ -1,7 +1,6 @@
 import {
   PrismaClient,
   ContentType,
-  ContentCategory,
   NationState,
 } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";

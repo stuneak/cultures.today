@@ -228,7 +228,7 @@ export function ReviewStep({ data, onEditStep }: ReviewStepProps) {
               <Badge size="xs" variant="outline">
                 {content.contentType === "VIDEO_YOUTUBE"
                   ? "YouTube"
-                  : content.contentType === "VIDEO_UPLOAD"
+                  : content.contentUrl?.match(/\.(mp4|webm)$/i)
                     ? "Video"
                     : "Image"}
               </Badge>

@@ -14,7 +14,7 @@ export interface LanguageFormData {
 export interface ContentFormData {
   id: string; // local ID for React keys
   title: string;
-  contentType: "IMAGE_UPLOAD" | "VIDEO_UPLOAD" | "VIDEO_YOUTUBE";
+  contentType: "UPLOAD" | "VIDEO_YOUTUBE";
   contentUrl: string;
 }
 
@@ -50,7 +50,7 @@ export const INITIAL_LANGUAGE: () => LanguageFormData = () => ({
 export const INITIAL_CONTENT: () => ContentFormData = () => ({
   id: crypto.randomUUID(),
   title: "",
-  contentType: "IMAGE_UPLOAD",
+  contentType: "UPLOAD",
   contentUrl: "",
 });
 

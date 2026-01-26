@@ -79,23 +79,15 @@ model Phrase {
 }
 
 enum ContentType {
-  IMAGE_UPLOAD
-  VIDEO_UPLOAD
+  UPLOAD        // auto-detect image or video
   VIDEO_YOUTUBE
 }
 
-enum ContentCategory {
-  FOOD
-  MUSIC
-  OTHER
-}
-
 model Content {
-  id          String          @id @default(cuid())
+  id          String      @id @default(cuid())
   title       String
-  contentType ContentType     @map("content_type")
-  contentUrl  String?         @map("content_url")
-  category    ContentCategory @default(OTHER)
+  contentType ContentType @map("content_type")
+  contentUrl  String?     @map("content_url")
 
   nationId String @map("nation_id")
   nation   Nation @relation(fields: [nationId], references: [id], onDelete: Cascade)

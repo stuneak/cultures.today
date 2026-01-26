@@ -33,7 +33,7 @@ export const languageSchema = z.object({
 // Content schema for nation content items
 export const contentSchema = z.object({
   title: z.string().min(1, "Content title is required"),
-  contentType: z.enum(["IMAGE_UPLOAD", "VIDEO_UPLOAD", "VIDEO_YOUTUBE"]),
+  contentType: z.enum(["UPLOAD", "VIDEO_YOUTUBE"]),
   contentUrl: z.string().min(1, "Content URL is required"),
 });
 

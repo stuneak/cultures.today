@@ -8,7 +8,7 @@ import { getMediaUrl } from "@/lib/media-url";
 interface Content {
   id: string;
   title: string;
-  contentType: "IMAGE_UPLOAD" | "VIDEO_UPLOAD" | "VIDEO_YOUTUBE";
+  contentType: "UPLOAD" | "VIDEO_YOUTUBE";
   contentUrl: string | null;
 }
 
@@ -24,9 +24,9 @@ function getYouTubeEmbedUrl(url: string): string | null {
 }
 
 function ContentCard({ item }: { item: Content }) {
-  const isVideo = item.contentType === "VIDEO_UPLOAD";
   const isYouTube = item.contentType === "VIDEO_YOUTUBE";
-  const isImage = item.contentType === "IMAGE_UPLOAD";
+  const isVideo = item.contentType === "UPLOAD" && item.contentUrl?.match(/\.(mp4|webm)$/i);
+  const isImage = item.contentType === "UPLOAD" && !isVideo;
   const youtubeEmbed = isYouTube && item.contentUrl ? getYouTubeEmbedUrl(item.contentUrl) : null;
 
   return (
