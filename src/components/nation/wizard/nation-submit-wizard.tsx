@@ -4,7 +4,6 @@ import { useState, useEffect, useMemo } from "react";
 import { Modal, Stepper, Button, Group, Alert, Stack } from "@mantine/core";
 import { IconAlertCircle, IconCheck } from "@tabler/icons-react";
 import { BasicInfoStep } from "./steps/basic-info-step";
-import { MapPreviewStep } from "./steps/map-preview-step";
 import { LanguagesStep } from "./steps/languages-step";
 import { ContentsStep } from "./steps/contents-step";
 import { ReviewStep } from "./steps/review-step";
@@ -22,7 +21,6 @@ interface NationSubmitWizardProps {
 
 const STEP_LABELS = [
   "Basic Info",
-  "Territory",
   "Languages",
   "Contents",
   "Review",
@@ -95,10 +93,7 @@ export function NationSubmitWizard({
         }
         break;
 
-      case 1: // Map Preview - always valid (boundary is pre-filled)
-        break;
-
-      case 2: // Languages
+      case 1: // Languages
         if (formData.languages.length === 0) {
           newErrors.languages = "At least one language is required";
         }
@@ -129,7 +124,7 @@ export function NationSubmitWizard({
         });
         break;
 
-      case 3: // Contents
+      case 2: // Contents
         if (formData.contents.length === 0) {
           newErrors.contents = "At least one content item is required";
         }
@@ -162,7 +157,7 @@ export function NationSubmitWizard({
 
   const handleNext = () => {
     if (validateStep(activeStep)) {
-      setActiveStep((prev) => Math.min(prev + 1, 4));
+      setActiveStep((prev) => Math.min(prev + 1, 3));
     }
   };
 
@@ -267,8 +262,7 @@ export function NationSubmitWizard({
                 errors={errors}
               />
             )}
-            {activeStep === 1 && <MapPreviewStep data={formData} />}
-            {activeStep === 2 && (
+            {activeStep === 1 && (
               <LanguagesStep
                 data={formData}
                 onChange={handleChange}
@@ -276,7 +270,7 @@ export function NationSubmitWizard({
                 errors={errors}
               />
             )}
-            {activeStep === 3 && (
+            {activeStep === 2 && (
               <ContentsStep
                 data={formData}
                 onChange={handleChange}
@@ -284,7 +278,7 @@ export function NationSubmitWizard({
                 errors={errors}
               />
             )}
-            {activeStep === 4 && (
+            {activeStep === 3 && (
               <ReviewStep data={formData} onEditStep={setActiveStep} />
             )}
           </div>
@@ -298,7 +292,7 @@ export function NationSubmitWizard({
               Back
             </Button>
 
-            {activeStep < 4 ? (
+            {activeStep < 3 ? (
               <Button onClick={handleNext}>Next</Button>
             ) : (
               <Button onClick={handleSubmit} loading={submitting}>
