@@ -125,7 +125,6 @@ export async function POST(request: NextRequest) {
         data: data.contents.map((content) => ({
           title: content.title,
           contentType: content.contentType,
-          category: content.category,
           contentUrl: content.contentUrl,
           nationId: newNation.id,
         })),

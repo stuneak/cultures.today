@@ -202,7 +202,6 @@ export function NationSubmitWizard({
         contents: formData.contents.map((content) => ({
           title: content.title,
           contentType: content.contentType,
-          category: content.category,
           contentUrl: content.contentUrl,
         })),
       };

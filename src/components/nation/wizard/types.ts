@@ -15,7 +15,6 @@ export interface ContentFormData {
   id: string; // local ID for React keys
   title: string;
   contentType: "IMAGE_UPLOAD" | "VIDEO_UPLOAD" | "VIDEO_YOUTUBE";
-  category: "FOOD" | "MUSIC" | "OTHER";
   contentUrl: string;
 }
 
@@ -52,7 +51,6 @@ export const INITIAL_CONTENT: () => ContentFormData = () => ({
   id: crypto.randomUUID(),
   title: "",
   contentType: "IMAGE_UPLOAD",
-  category: "OTHER",
   contentUrl: "",
 });
 

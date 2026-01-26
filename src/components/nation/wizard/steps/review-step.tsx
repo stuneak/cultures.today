@@ -225,9 +225,6 @@ export function ReviewStep({ data, onEditStep }: ReviewStepProps) {
           {data.contents.map((content) => (
             <Group key={content.id} gap="xs">
               <Text size="sm">{content.title}</Text>
-              <Badge size="xs" variant="light">
-                {content.category}
-              </Badge>
               <Badge size="xs" variant="outline">
                 {content.contentType === "VIDEO_YOUTUBE"
                   ? "YouTube"

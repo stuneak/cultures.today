@@ -123,25 +123,6 @@ export function ContentForm({
         />
 
         <Radio.Group
-          label="Category"
-          required
-          value={content.category}
-          onChange={(value) =>
-            onChange({
-              ...content,
-              category: value as ContentFormData["category"],
-            })
-          }
-          error={errors[`${errorPrefix}.category`]}
-        >
-          <Group mt="xs">
-            <Radio value="FOOD" label="Food" />
-            <Radio value="MUSIC" label="Music" />
-            <Radio value="OTHER" label="Other" />
-          </Group>
-        </Radio.Group>
-
-        <Radio.Group
           label="Content Type"
           required
           value={content.contentType}

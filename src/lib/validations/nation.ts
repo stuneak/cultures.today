@@ -34,7 +34,6 @@ export const languageSchema = z.object({
 export const contentSchema = z.object({
   title: z.string().min(1, "Content title is required"),
   contentType: z.enum(["IMAGE_UPLOAD", "VIDEO_UPLOAD", "VIDEO_YOUTUBE"]),
-  category: z.enum(["FOOD", "MUSIC", "OTHER"]),
   contentUrl: z.string().min(1, "Content URL is required"),
 });
 

@@ -1,8 +1,7 @@
 "use client";
 
-import { Card, Text, Group } from "@mantine/core";
+import { Card, Text } from "@mantine/core";
 import { Carousel } from "@mantine/carousel";
-import { IconToolsKitchen2, IconMusic, IconPhoto } from "@tabler/icons-react";
 import Image from "next/image";
 import { getMediaUrl } from "@/lib/media-url";
 
@@ -11,7 +10,6 @@ interface Content {
   title: string;
   contentType: "IMAGE_UPLOAD" | "VIDEO_UPLOAD" | "VIDEO_YOUTUBE";
   contentUrl: string | null;
-  category: "FOOD" | "MUSIC" | "OTHER";
 }
 
 interface ContentSectionProps {
@@ -74,40 +72,17 @@ export function ContentSection({ contents }: ContentSectionProps) {
     );
   }
 
-  const foodContent = contents.filter((c) => c.category === "FOOD");
-  const musicContent = contents.filter((c) => c.category === "MUSIC");
-  const otherContent = contents.filter((c) => c.category === "OTHER");
-
-  const categories = [
-    { label: "All", icon: null, items: contents },
-    { label: "Food", icon: <IconToolsKitchen2 size={14} />, items: foodContent },
-    { label: "Music", icon: <IconMusic size={14} />, items: musicContent },
-    { label: "Other", icon: <IconPhoto size={14} />, items: otherContent },
-  ].filter((cat) => cat.items.length > 0);
-
   return (
     <Carousel
       slideSize="100%"
       slideGap="md"
-      emblaOptions={{ loop: categories.length > 1 }}
+      emblaOptions={{ loop: contents.length > 1 }}
       withIndicators
-      withControls={categories.length > 1}
+      withControls={contents.length > 1}
     >
-      {categories.map((category) => (
-        <Carousel.Slide key={category.label}>
-          <div>
-            <Group gap="xs" mb="md">
-              {category.icon}
-              <Text fw={500}>
-                {category.label} ({category.items.length})
-              </Text>
-            </Group>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {category.items.map((item) => (
-                <ContentCard key={item.id} item={item} />
-              ))}
-            </div>
-          </div>
+      {contents.map((item) => (
+        <Carousel.Slide key={item.id}>
+          <ContentCard item={item} />
         </Carousel.Slide>
       ))}
     </Carousel>
