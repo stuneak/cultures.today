@@ -50,6 +50,7 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
 
   const cursorPosRef = useRef<{ lng: number; lat: number } | null>(null);
   const isMouseDownRef = useRef(false);
+  const lastStampPosRef = useRef<{ lng: number; lat: number } | null>(null);
   const currentPolygonRef = useRef(currentPolygon);
 
   // Keep ref in sync with state
@@ -280,6 +281,7 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
         return;
       }
       isMouseDownRef.current = true;
+      lastStampPosRef.current = { lng: e.lngLat.lng, lat: e.lngLat.lat };
       handleStamp(e.lngLat.lng, e.lngLat.lat);
       mapInstance.dragPan.disable();
     };
@@ -287,6 +289,7 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
     const onMouseUp = () => {
       if (showMode) return;
       isMouseDownRef.current = false;
+      lastStampPosRef.current = null;
       mapInstance.dragPan.enable();
     };
 
@@ -295,9 +298,15 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
 
       if (!showMode) {
         updateCursorPreview();
-        // Continuous drawing while mouse is held down
-        if (isMouseDownRef.current) {
-          handleStamp(e.lngLat.lng, e.lngLat.lat);
+        // Continuous drawing while mouse is held down, but only stamp if moved enough
+        if (isMouseDownRef.current && lastStampPosRef.current) {
+          const dx = e.lngLat.lng - lastStampPosRef.current.lng;
+          const dy = e.lngLat.lat - lastStampPosRef.current.lat;
+          const minDistance = radiusKm * 0.005; // Approximate degrees per km
+          if (Math.sqrt(dx * dx + dy * dy) > minDistance) {
+            handleStamp(e.lngLat.lng, e.lngLat.lat);
+            lastStampPosRef.current = { lng: e.lngLat.lng, lat: e.lngLat.lat };
+          }
         }
       }
     };
@@ -306,6 +315,7 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
     const onDocumentMouseUp = () => {
       if (isMouseDownRef.current) {
         isMouseDownRef.current = false;
+        lastStampPosRef.current = null;
         mapInstance.dragPan.enable();
       }
     };
@@ -321,7 +331,7 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
       mapInstance.off("mousemove", onMouseMove);
       document.removeEventListener("mouseup", onDocumentMouseUp);
     };
-  }, [mapInstance, isDrawingMode, handleStamp, updateCursorPreview, showMode]);
+  }, [mapInstance, isDrawingMode, handleStamp, updateCursorPreview, showMode, radiusKm]);
 
   // Keyboard shortcuts
   useEffect(() => {
