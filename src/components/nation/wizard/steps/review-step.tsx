@@ -190,17 +190,33 @@ export function ReviewStep({ data, onEditStep }: ReviewStepProps) {
             Edit
           </Button>
         </Group>
-        <Stack gap="xs">
+        <Stack gap="md">
           {data.languages.map((lang) => (
-            <Group key={lang.id} gap="xs">
-              <Text size="sm" fw={500}>
+            <div key={lang.id}>
+              <Text size="sm" fw={500} mb="xs">
                 {lang.name}
               </Text>
-              <Badge size="xs" variant="light">
-                {lang.phrases.length} phrase
-                {lang.phrases.length !== 1 ? "s" : ""}
-              </Badge>
-            </Group>
+              <Stack gap="xs" pl="sm">
+                {lang.phrases.map((phrase, idx) => (
+                  <Card key={phrase.id} withBorder p="xs">
+                    <Text size="xs" fw={500}>
+                      {phrase.text}
+                    </Text>
+                    <Text size="xs" c="dimmed">
+                      {phrase.translation}
+                    </Text>
+                    {phrase.audioUrl && (
+                      <audio controls style={{ height: 24, marginTop: 4 }}>
+                        <source
+                          src={getMediaUrl(phrase.audioUrl)}
+                          type="audio/webm"
+                        />
+                      </audio>
+                    )}
+                  </Card>
+                ))}
+              </Stack>
+            </div>
           ))}
         </Stack>
       </Card>
@@ -221,18 +237,48 @@ export function ReviewStep({ data, onEditStep }: ReviewStepProps) {
             Edit
           </Button>
         </Group>
-        <Stack gap="xs">
+        <Stack gap="md">
           {data.contents.map((content) => (
-            <Group key={content.id} gap="xs">
-              <Text size="sm">{content.title}</Text>
-              <Badge size="xs" variant="outline">
-                {content.contentType === "VIDEO_YOUTUBE"
-                  ? "YouTube"
-                  : content.contentUrl?.match(/\.(mp4|webm)$/i)
-                    ? "Video"
-                    : "Image"}
-              </Badge>
-            </Group>
+            <Card key={content.id} withBorder p="sm">
+              <Group gap="xs" mb="xs">
+                <Text size="sm" fw={500}>
+                  {content.title}
+                </Text>
+                <Badge size="xs" variant="outline">
+                  {content.contentType === "VIDEO_YOUTUBE"
+                    ? "YouTube"
+                    : content.contentUrl?.match(/\.(mp4|webm)$/i)
+                      ? "Video"
+                      : "Image"}
+                </Badge>
+              </Group>
+              {content.contentType === "VIDEO_YOUTUBE" && content.contentUrl && (
+                <iframe
+                  src={`https://www.youtube.com/embed/${content.contentUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\s]+)/)?.[1]}`}
+                  width={200}
+                  height={120}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="rounded"
+                />
+              )}
+              {content.contentType === "UPLOAD" && content.contentUrl && (
+                content.contentUrl.match(/\.(mp4|webm)$/i) ? (
+                  <video controls style={{ width: 200, height: 120 }}>
+                    <source src={getMediaUrl(content.contentUrl)} type="video/mp4" />
+                  </video>
+                ) : (
+                  <Image
+                    src={getMediaUrl(content.contentUrl)}
+                    alt={content.title}
+                    w={200}
+                    h={120}
+                    fit="cover"
+                    radius="sm"
+                  />
+                )
+              )}
+            </Card>
           ))}
         </Stack>
       </Card>

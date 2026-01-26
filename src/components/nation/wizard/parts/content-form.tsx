@@ -5,7 +5,6 @@ import {
   TextInput,
   Stack,
   Group,
-  ActionIcon,
   FileButton,
   Button,
   Text,
@@ -14,12 +13,7 @@ import {
   Radio,
   Image,
 } from "@mantine/core";
-import {
-  IconUpload,
-  IconTrash,
-  IconCheck,
-  IconBrandYoutube,
-} from "@tabler/icons-react";
+import { IconUpload, IconBrandYoutube } from "@tabler/icons-react";
 import { useFileUpload } from "@/hooks/use-file-upload";
 import { getMediaUrl } from "@/lib/media-url";
 import type { ContentFormData } from "../types";
@@ -98,22 +92,6 @@ export function ContentForm({
   return (
     <Card withBorder p="md">
       <Stack gap="sm">
-        <Group justify="space-between" align="center">
-          <Text size="sm" fw={500}>
-            {" "}
-          </Text>
-          {canRemove && (
-            <ActionIcon
-              size="sm"
-              color="red"
-              variant="subtle"
-              onClick={onRemove}
-            >
-              <IconTrash size={14} />
-            </ActionIcon>
-          )}
-        </Group>
-
         <TextInput
           label="Title"
           placeholder="Enter content title"
@@ -141,7 +119,7 @@ export function ContentForm({
         {content.contentType === "UPLOAD" && (
           <div>
             {preview ? (
-              <div className="relative">
+              <div>
                 {content.contentUrl?.match(/\.(mp4|webm)$/i) ? (
                   <video controls style={{ width: 200, height: 120 }}>
                     <source src={preview} type="video/mp4" />
@@ -156,14 +134,6 @@ export function ContentForm({
                     radius="sm"
                   />
                 )}
-                <ActionIcon
-                  size="sm"
-                  color="green"
-                  variant="light"
-                  className="absolute top-1 right-1"
-                >
-                  <IconCheck size={14} />
-                </ActionIcon>
               </div>
             ) : (
               <FileButton
@@ -233,6 +203,12 @@ export function ContentForm({
               {errors[`${errorPrefix}.contentUrl`]}
             </Text>
           )}
+
+        {canRemove && (
+          <Button variant="light" color="red" size="xs" onClick={onRemove}>
+            Remove content
+          </Button>
+        )}
       </Stack>
     </Card>
   );

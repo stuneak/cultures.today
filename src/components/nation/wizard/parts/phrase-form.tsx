@@ -15,7 +15,6 @@ import {
 import {
   IconMicrophone,
   IconPlayerStop,
-  IconTrash,
   IconCheck,
   IconRefresh,
 } from "@tabler/icons-react";
@@ -32,6 +31,7 @@ interface PhraseFormProps {
   canRemove: boolean;
   tempSlug: string;
   index: number;
+  errorPrefix: string;
   errors?: Record<string, string>;
 }
 
@@ -47,7 +47,7 @@ export function PhraseForm({
   onRemove,
   canRemove,
   tempSlug,
-  index,
+  errorPrefix,
   errors = {},
 }: PhraseFormProps) {
   // Compute saved audio URL directly from prop
@@ -121,22 +121,6 @@ export function PhraseForm({
   return (
     <Card withBorder p="sm">
       <Stack gap="xs">
-        <Group justify="space-between" align="center">
-          <Text size="sm" fw={500}>
-            Phrase {index + 1}
-          </Text>
-          {canRemove && (
-            <ActionIcon
-              size="sm"
-              color="red"
-              variant="subtle"
-              onClick={onRemove}
-            >
-              <IconTrash size={14} />
-            </ActionIcon>
-          )}
-        </Group>
-
         <TextInput
           label="Original Text"
           placeholder="Enter phrase in the language"
@@ -144,7 +128,7 @@ export function PhraseForm({
           required
           value={phrase.text}
           onChange={(e) => onChange({ ...phrase, text: e.target.value })}
-          error={errors[`phrases.${index}.text`]}
+          error={errors[`${errorPrefix}.text`]}
         />
 
         <TextInput
@@ -154,7 +138,7 @@ export function PhraseForm({
           required
           value={phrase.translation}
           onChange={(e) => onChange({ ...phrase, translation: e.target.value })}
-          error={errors[`phrases.${index}.translation`]}
+          error={errors[`${errorPrefix}.translation`]}
         />
 
         <div>
@@ -266,12 +250,18 @@ export function PhraseForm({
             </Text>
           )}
 
-          {errors[`phrases.${index}.audioUrl`] && (
+          {errors[`${errorPrefix}.audioUrl`] && (
             <Text size="xs" c="red" mt="xs">
-              {errors[`phrases.${index}.audioUrl`]}
+              {errors[`${errorPrefix}.audioUrl`]}
             </Text>
           )}
         </div>
+
+        {canRemove && (
+          <Button variant="light" color="red" size="xs" onClick={onRemove}>
+            Remove phrase
+          </Button>
+        )}
       </Stack>
     </Card>
   );

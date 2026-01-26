@@ -71,11 +71,11 @@ export function LanguageForm({
             <ActionIcon
               size="lg"
               color="red"
-              variant="subtle"
+              variant="filled"
               mt={24}
               onClick={onRemove}
             >
-              <IconTrash size={18} />
+              <IconTrash size={20} />
             </ActionIcon>
           )}
         </Group>
@@ -94,6 +94,7 @@ export function LanguageForm({
                 canRemove={language.phrases.length > 1}
                 tempSlug={tempSlug}
                 index={phraseIndex}
+                errorPrefix={`${errorPrefix}.phrases.${phraseIndex}`}
                 errors={errors}
               />
             ))}
