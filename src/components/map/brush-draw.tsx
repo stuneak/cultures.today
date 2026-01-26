@@ -1,7 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useCallback, useMemo } from "react";
-import { Button, Paper, Text, Group, Slider, SegmentedControl } from "@mantine/core";
+import { useEffect, useRef, useCallback, useMemo, useState } from "react";
+import {
+  Button,
+  Paper,
+  Text,
+  Group,
+  Slider,
+  SegmentedControl,
+} from "@mantine/core";
 import {
   IconCheck,
   IconX,
@@ -10,6 +17,7 @@ import {
   IconEraser,
   IconMinus,
   IconPlus,
+  IconHandGrab,
 } from "@tabler/icons-react";
 import { useMapStore } from "@/stores/map-store";
 import type { MapMouseEvent, GeoJSONSource } from "maplibre-gl";
@@ -25,8 +33,8 @@ interface BrushDrawProps {
 
 // Convert slider value (0-100) to radius in kilometers
 function sliderToRadius(value: number): number {
-  // Exponential scale: 5km at 0, ~200km at 100
-  const minRadius = 5;
+  // Exponential scale: 0.1km (100m) at 0, ~200km at 100
+  const minRadius = 0.1;
   const maxRadius = 200;
   const t = value / 100;
   return minRadius + (maxRadius - minRadius) * (t * t); // Quadratic for finer control at small sizes
@@ -50,6 +58,14 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
   } = useMapStore();
 
   const cursorPosRef = useRef<{ lng: number; lat: number } | null>(null);
+  const isMouseDownRef = useRef(false);
+  const currentPolygonRef = useRef(currentPolygon);
+  const [showMode, setShowMode] = useState(false); // false = draw mode, true = show/pan mode
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    currentPolygonRef.current = currentPolygon;
+  }, [currentPolygon]);
 
   const sourceId = "brush-polygon";
   const cursorSourceId = "brush-cursor";
@@ -60,9 +76,11 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
   const cleanupLayers = useCallback(() => {
     if (!mapInstance) return;
 
-    ["brush-polygon-fill", "brush-polygon-line", "brush-cursor-line"].forEach((layer) => {
-      if (mapInstance.getLayer(layer)) mapInstance.removeLayer(layer);
-    });
+    ["brush-polygon-fill", "brush-polygon-line", "brush-cursor-line"].forEach(
+      (layer) => {
+        if (mapInstance.getLayer(layer)) mapInstance.removeLayer(layer);
+      },
+    );
 
     [sourceId, cursorSourceId].forEach((source) => {
       if (mapInstance.getSource(source)) mapInstance.removeSource(source);
@@ -96,7 +114,9 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
   const updatePolygonVisualization = useCallback(() => {
     if (!mapInstance) return;
 
-    const polygonSource = mapInstance.getSource(sourceId) as GeoJSONSource | undefined;
+    const polygonSource = mapInstance.getSource(sourceId) as
+      | GeoJSONSource
+      | undefined;
     if (polygonSource) {
       if (currentPolygon) {
         polygonSource.setData(currentPolygon);
@@ -108,52 +128,73 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
 
   // Update cursor preview
   const updateCursorPreview = useCallback(() => {
-    if (!mapInstance || !cursorPosRef.current) return;
+    if (!mapInstance) return;
 
-    const cursorSource = mapInstance.getSource(cursorSourceId) as GeoJSONSource | undefined;
-    if (cursorSource) {
-      const cursorCircle = circle(
-        [cursorPosRef.current.lng, cursorPosRef.current.lat],
-        radiusKm,
-        { units: "kilometers" }
-      );
-      cursorSource.setData(cursorCircle);
+    const cursorSource = mapInstance.getSource(cursorSourceId) as
+      | GeoJSONSource
+      | undefined;
+    if (!cursorSource) return;
+
+    // Hide cursor in show mode
+    if (showMode || !cursorPosRef.current) {
+      cursorSource.setData(featureCollection([]));
+      return;
     }
-  }, [mapInstance, radiusKm]);
+
+    const cursorCircle = circle(
+      [cursorPosRef.current.lng, cursorPosRef.current.lat],
+      radiusKm,
+      { units: "kilometers" },
+    );
+    cursorSource.setData(cursorCircle);
+  }, [mapInstance, radiusKm, showMode]);
 
   // Handle stamp (add or erase)
   const handleStamp = useCallback(
     (lng: number, lat: number) => {
       const stampCircle = circle([lng, lat], radiusKm, { units: "kilometers" });
+      const current = currentPolygonRef.current; // Use ref for latest value
 
-      let newPolygon: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon> | null;
+      let newPolygon: GeoJSON.Feature<
+        GeoJSON.Polygon | GeoJSON.MultiPolygon
+      > | null;
 
       if (brushMode === "add") {
-        if (!currentPolygon) {
+        if (!current) {
           newPolygon = stampCircle as GeoJSON.Feature<GeoJSON.Polygon>;
         } else {
-          const merged = union(featureCollection([currentPolygon, stampCircle]));
-          newPolygon = merged as GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon> | null;
+          const merged = union(
+            featureCollection([current, stampCircle]),
+          );
+          newPolygon = merged as GeoJSON.Feature<
+            GeoJSON.Polygon | GeoJSON.MultiPolygon
+          > | null;
         }
       } else {
         // Erase mode
-        if (!currentPolygon) {
+        if (!current) {
           return; // Nothing to erase
         }
-        const subtracted = difference(featureCollection([currentPolygon, stampCircle]));
-        newPolygon = subtracted as GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon> | null;
+        const subtracted = difference(
+          featureCollection([current, stampCircle]),
+        );
+        newPolygon = subtracted as GeoJSON.Feature<
+          GeoJSON.Polygon | GeoJSON.MultiPolygon
+        > | null;
       }
 
       if (newPolygon) {
+        currentPolygonRef.current = newPolygon; // Update ref immediately
         pushToHistory(newPolygon);
         setCurrentPolygon(newPolygon);
       } else {
         // Erased everything
-        pushToHistory(currentPolygon!);
+        currentPolygonRef.current = null; // Update ref immediately
+        pushToHistory(current!);
         setCurrentPolygon(null);
       }
     },
-    [brushMode, currentPolygon, radiusKm, pushToHistory, setCurrentPolygon]
+    [brushMode, radiusKm, pushToHistory, setCurrentPolygon],
   );
 
   // Setup map layers
@@ -199,7 +240,7 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
         });
       }
 
-      mapInstance.getCanvas().style.cursor = "crosshair";
+      mapInstance.getCanvas().style.cursor = showMode ? "grab" : "crosshair";
     };
 
     if (mapInstance.isStyleLoaded()) {
@@ -213,7 +254,7 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
         mapInstance.getCanvas().style.cursor = "";
       }
     };
-  }, [mapInstance, isDrawingMode]);
+  }, [mapInstance, isDrawingMode, showMode]);
 
   // Update cursor color based on brush mode
   useEffect(() => {
@@ -224,7 +265,7 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
       mapInstance.setPaintProperty(
         "brush-cursor-line",
         "line-color",
-        brushMode === "add" ? "#3b82f6" : "#ef4444"
+        brushMode === "add" ? "#3b82f6" : "#ef4444",
       );
     }
   }, [mapInstance, isDrawingMode, brushMode]);
@@ -234,32 +275,63 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
     updatePolygonVisualization();
   }, [currentPolygon, updatePolygonVisualization]);
 
-  // Update cursor when brush size changes
+  // Update cursor when brush size or show mode changes
   useEffect(() => {
     updateCursorPreview();
-  }, [radiusKm, updateCursorPreview]);
+  }, [radiusKm, showMode, updateCursorPreview]);
 
   // Map event handlers
   useEffect(() => {
     if (!mapInstance || !isDrawingMode) return;
 
-    const onClick = (e: MapMouseEvent) => {
+    const onMouseDown = (e: MapMouseEvent) => {
+      if (showMode) {
+        // In show mode, allow panning (don't interfere)
+        return;
+      }
+      isMouseDownRef.current = true;
       handleStamp(e.lngLat.lng, e.lngLat.lat);
+      mapInstance.dragPan.disable();
+    };
+
+    const onMouseUp = () => {
+      if (showMode) return;
+      isMouseDownRef.current = false;
+      mapInstance.dragPan.enable();
     };
 
     const onMouseMove = (e: MapMouseEvent) => {
       cursorPosRef.current = { lng: e.lngLat.lng, lat: e.lngLat.lat };
-      updateCursorPreview();
+
+      if (!showMode) {
+        updateCursorPreview();
+        // Continuous drawing while mouse is held down
+        if (isMouseDownRef.current) {
+          handleStamp(e.lngLat.lng, e.lngLat.lat);
+        }
+      }
     };
 
-    mapInstance.on("click", onClick);
+    // Handle mouse up outside the map
+    const onDocumentMouseUp = () => {
+      if (isMouseDownRef.current) {
+        isMouseDownRef.current = false;
+        mapInstance.dragPan.enable();
+      }
+    };
+
+    mapInstance.on("mousedown", onMouseDown);
+    mapInstance.on("mouseup", onMouseUp);
     mapInstance.on("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onDocumentMouseUp);
 
     return () => {
-      mapInstance.off("click", onClick);
+      mapInstance.off("mousedown", onMouseDown);
+      mapInstance.off("mouseup", onMouseUp);
       mapInstance.off("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onDocumentMouseUp);
     };
-  }, [mapInstance, isDrawingMode, handleStamp, updateCursorPreview]);
+  }, [mapInstance, isDrawingMode, handleStamp, updateCursorPreview, showMode]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -272,13 +344,16 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
         if (currentPolygon) {
           finishDrawing();
         }
-      } else if ((e.key === "z" && (e.ctrlKey || e.metaKey)) || e.key === "Backspace") {
+      } else if (
+        (e.key === "z" && (e.ctrlKey || e.metaKey)) ||
+        e.key === "Backspace"
+      ) {
         e.preventDefault();
         handleUndo();
-      } else if (e.key === "b" || e.key === "B") {
-        setBrushMode("add");
-      } else if (e.key === "e" || e.key === "E") {
-        setBrushMode("erase");
+      } else if (e.key === "w" || e.key === "W") {
+        setBrushMode(brushMode === "add" ? "erase" : "add");
+      } else if (e.key === "s" || e.key === "S") {
+        setShowMode((prev) => !prev);
       } else if (e.key === "[") {
         setBrushSize(brushSize - 10);
       } else if (e.key === "]") {
@@ -296,6 +371,7 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
     setBrushMode,
     setBrushSize,
     brushSize,
+    brushMode,
     currentPolygon,
   ]);
 
@@ -309,68 +385,99 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
       withBorder
     >
       <Text size="sm" mb="xs">
-        Click to stamp. Use brush to add, eraser to subtract.
+        {showMode
+          ? "Pan/zoom the map. Press S to draw."
+          : "Click and drag to paint. Press S to pan."}
       </Text>
 
-      {/* Mode Toggle */}
+      {/* Show Mode Toggle */}
       <Group mb="sm">
-        <SegmentedControl
-          value={brushMode}
-          onChange={(value) => setBrushMode(value as "add" | "erase")}
-          data={[
-            {
-              value: "add",
-              label: (
-                <Group gap={4}>
-                  <IconBrush size={16} />
-                  <span>Add (B)</span>
-                </Group>
-              ),
-            },
-            {
-              value: "erase",
-              label: (
-                <Group gap={4}>
-                  <IconEraser size={16} />
-                  <span>Erase (E)</span>
-                </Group>
-              ),
-            },
-          ]}
-        />
+        <Button
+          size="xs"
+          variant={showMode ? "filled" : "light"}
+          leftSection={<IconHandGrab size={16} />}
+          onClick={() => setShowMode(true)}
+        >
+          Pan
+        </Button>
+        <Button
+          size="xs"
+          variant={!showMode ? "filled" : "light"}
+          leftSection={<IconBrush size={16} />}
+          onClick={() => setShowMode(false)}
+        >
+          Draw
+        </Button>
+        <Text size="xs" c="dimmed">(S)</Text>
       </Group>
 
-      {/* Size Controls */}
-      <Group mb="sm" gap="xs">
-        <Button
-          size="xs"
-          variant="default"
-          onClick={() => setBrushSize(brushSize - 10)}
-          disabled={brushSize <= 0}
-        >
-          <IconMinus size={14} />
-        </Button>
-        <Slider
-          value={brushSize}
-          onChange={setBrushSize}
-          min={0}
-          max={100}
-          step={1}
-          style={{ flex: 1, minWidth: 150 }}
-          label={(v) => `${Math.round(sliderToRadius(v))} km`}
-        />
-        <Button
-          size="xs"
-          variant="default"
-          onClick={() => setBrushSize(brushSize + 10)}
-          disabled={brushSize >= 100}
-        >
-          <IconPlus size={14} />
-        </Button>
-      </Group>
+      {/* Brush Mode Toggle - only visible in draw mode */}
+      {!showMode && (
+        <Group mb="sm">
+          <SegmentedControl
+            value={brushMode}
+            onChange={(value) => setBrushMode(value as "add" | "erase")}
+            data={[
+              {
+                value: "add",
+                label: (
+                  <Group gap={4}>
+                    <IconBrush size={16} />
+                    <span>Add</span>
+                  </Group>
+                ),
+              },
+              {
+                value: "erase",
+                label: (
+                  <Group gap={4}>
+                    <IconEraser size={16} />
+                    <span>Erase</span>
+                  </Group>
+                ),
+              },
+            ]}
+          />
+          <Text size="xs" c="dimmed">(W)</Text>
+        </Group>
+      )}
+
+      {/* Size Controls - only visible in draw mode */}
+      {!showMode && (
+        <Group mb="sm" gap="xs">
+          <Button
+            size="xs"
+            variant="default"
+            onClick={() => setBrushSize(brushSize - 10)}
+            disabled={brushSize <= 0}
+          >
+            <IconMinus size={14} />
+          </Button>
+          <Slider
+            value={brushSize}
+            onChange={setBrushSize}
+            min={0}
+            max={100}
+            step={1}
+            style={{ flex: 1, minWidth: 150 }}
+            label={(v) => {
+              const km = sliderToRadius(v);
+              return km < 1 ? `${Math.round(km * 1000)}m` : `${Math.round(km)}km`;
+            }}
+          />
+          <Button
+            size="xs"
+            variant="default"
+            onClick={() => setBrushSize(brushSize + 10)}
+            disabled={brushSize >= 100}
+          >
+            <IconPlus size={14} />
+          </Button>
+        </Group>
+      )}
 
       <Text size="xs" c="dimmed" mb="sm">
-        Esc: cancel • Enter: finish • Ctrl+Z: undo • [ / ]: resize
+        S: pan/draw • W: add/erase • [ / ]: resize • Ctrl+Z: undo • Enter: finish • Esc: cancel
       </Text>
 
       {/* Action Buttons */}
