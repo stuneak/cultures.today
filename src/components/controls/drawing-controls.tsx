@@ -156,7 +156,7 @@ export function DrawingControls({
           </Tooltip>
 
           {/* Size increase */}
-          <Tooltip {...toolTipStyles} label="Increase size ">
+          <Tooltip {...toolTipStyles} label="Increase size (D) ">
             <ActionIcon
               {...actionIconStyles}
               onClick={() => onBrushSizeChange(brushSize + 10)}
@@ -178,7 +178,7 @@ export function DrawingControls({
           </div>
 
           {/* Size decrease */}
-          <Tooltip {...toolTipStyles} label="Decrease size">
+          <Tooltip {...toolTipStyles} label="Decrease size (A)">
             <ActionIcon
               {...actionIconStyles}
               onClick={() => onBrushSizeChange(brushSize - 10)}

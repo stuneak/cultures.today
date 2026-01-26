@@ -433,13 +433,13 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
       ) {
         e.preventDefault();
         handleUndo();
-      } else if (e.key === "w" || e.key === "W") {
+      } else if (e.code === "KeyW") {
         setBrushMode(brushMode === "add" ? "erase" : "add");
-      } else if (e.key === "s" || e.key === "S") {
+      } else if (e.code === "KeyS") {
         setShowMode(!showMode);
-      } else if (e.key === "[") {
+      } else if (e.code === "KeyA") {
         setBrushSize(brushSize - 10);
-      } else if (e.key === "]") {
+      } else if (e.code === "KeyD") {
         setBrushSize(brushSize + 10);
       }
     };
