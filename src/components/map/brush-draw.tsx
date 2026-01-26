@@ -1,30 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useCallback, useMemo, useState } from "react";
-import {
-  Button,
-  Paper,
-  Text,
-  Group,
-  Slider,
-  SegmentedControl,
-} from "@mantine/core";
-import {
-  IconCheck,
-  IconX,
-  IconArrowBackUp,
-  IconBrush,
-  IconEraser,
-  IconMinus,
-  IconPlus,
-  IconHandGrab,
-} from "@tabler/icons-react";
 import { useMapStore } from "@/stores/map-store";
+import { DrawingControls } from "@/components/controls/drawing-controls";
+import { DrawingHints } from "@/components/controls/drawing-hints";
 import type { MapMouseEvent, GeoJSONSource } from "maplibre-gl";
 import circle from "@turf/circle";
 import union from "@turf/union";
 import difference from "@turf/difference";
-import { feature, featureCollection } from "@turf/helpers";
+import { featureCollection } from "@turf/helpers";
 
 interface BrushDrawProps {
   onComplete: (geojson: GeoJSON.Feature<GeoJSON.MultiPolygon>) => void;
@@ -38,6 +22,11 @@ function sliderToRadius(value: number): number {
   const maxRadius = 200;
   const t = value / 100;
   return minRadius + (maxRadius - minRadius) * (t * t); // Quadratic for finer control at small sizes
+}
+
+function formatBrushSize(value: number): string {
+  const km = sliderToRadius(value);
+  return km < 1 ? `${Math.round(km * 1000)}m` : `${Math.round(km)}km`;
 }
 
 export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
@@ -378,141 +367,22 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
   if (!isDrawingMode) return null;
 
   return (
-    <Paper
-      className="fixed top-4 left-1/2 -translate-x-1/2 z-20"
-      shadow="md"
-      p="md"
-      withBorder
-    >
-      <Text size="sm" mb="xs">
-        {showMode
-          ? "Pan/zoom the map. Press S to draw."
-          : "Click and drag to paint. Press S to pan."}
-      </Text>
-
-      {/* Show Mode Toggle */}
-      <Group mb="sm">
-        <Button
-          size="xs"
-          variant={showMode ? "filled" : "light"}
-          leftSection={<IconHandGrab size={16} />}
-          onClick={() => setShowMode(true)}
-        >
-          Pan
-        </Button>
-        <Button
-          size="xs"
-          variant={!showMode ? "filled" : "light"}
-          leftSection={<IconBrush size={16} />}
-          onClick={() => setShowMode(false)}
-        >
-          Draw
-        </Button>
-        <Text size="xs" c="dimmed">(S)</Text>
-      </Group>
-
-      {/* Brush Mode Toggle - only visible in draw mode */}
-      {!showMode && (
-        <Group mb="sm">
-          <SegmentedControl
-            value={brushMode}
-            onChange={(value) => setBrushMode(value as "add" | "erase")}
-            data={[
-              {
-                value: "add",
-                label: (
-                  <Group gap={4}>
-                    <IconBrush size={16} />
-                    <span>Add</span>
-                  </Group>
-                ),
-              },
-              {
-                value: "erase",
-                label: (
-                  <Group gap={4}>
-                    <IconEraser size={16} />
-                    <span>Erase</span>
-                  </Group>
-                ),
-              },
-            ]}
-          />
-          <Text size="xs" c="dimmed">(W)</Text>
-        </Group>
-      )}
-
-      {/* Size Controls - only visible in draw mode */}
-      {!showMode && (
-        <Group mb="sm" gap="xs">
-          <Button
-            size="xs"
-            variant="default"
-            onClick={() => setBrushSize(brushSize - 10)}
-            disabled={brushSize <= 0}
-          >
-            <IconMinus size={14} />
-          </Button>
-          <Slider
-            value={brushSize}
-            onChange={setBrushSize}
-            min={0}
-            max={100}
-            step={1}
-            style={{ flex: 1, minWidth: 150 }}
-            label={(v) => {
-              const km = sliderToRadius(v);
-              return km < 1 ? `${Math.round(km * 1000)}m` : `${Math.round(km)}km`;
-            }}
-          />
-          <Button
-            size="xs"
-            variant="default"
-            onClick={() => setBrushSize(brushSize + 10)}
-            disabled={brushSize >= 100}
-          >
-            <IconPlus size={14} />
-          </Button>
-        </Group>
-      )}
-
-      <Text size="xs" c="dimmed" mb="sm">
-        S: pan/draw • W: add/erase • [ / ]: resize • Ctrl+Z: undo • Enter: finish • Esc: cancel
-      </Text>
-
-      {/* Action Buttons */}
-      <Group justify="center">
-        <Button
-          size="sm"
-          variant="filled"
-          radius="md"
-          leftSection={<IconArrowBackUp size={16} />}
-          onClick={handleUndo}
-          disabled={!currentPolygon}
-        >
-          Undo
-        </Button>
-        <Button
-          variant="filled"
-          size="sm"
-          radius="md"
-          leftSection={<IconCheck size={16} />}
-          onClick={finishDrawing}
-          disabled={!currentPolygon}
-        >
-          Finish
-        </Button>
-        <Button
-          size="sm"
-          variant="light"
-          radius="md"
-          color="red"
-          leftSection={<IconX size={16} />}
-          onClick={cancelDrawing}
-        >
-          Cancel
-        </Button>
-      </Group>
-    </Paper>
+    <>
+      <DrawingHints showMode={showMode} />
+      <DrawingControls
+        showMode={showMode}
+        onShowModeChange={setShowMode}
+        brushMode={brushMode}
+        onBrushModeChange={setBrushMode}
+        brushSize={brushSize}
+        onBrushSizeChange={setBrushSize}
+        onUndo={handleUndo}
+        onFinish={finishDrawing}
+        onCancel={cancelDrawing}
+        canUndo={!!currentPolygon}
+        canFinish={!!currentPolygon}
+        formatBrushSize={formatBrushSize}
+      />
+    </>
   );
 }
