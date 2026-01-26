@@ -1,7 +1,7 @@
 "use client";
 
 import { Tooltip, Button, Group, ActionIcon } from "@mantine/core";
-import { IconCheck, IconX } from "@tabler/icons-react";
+import { IconCheck, IconX, IconBrush } from "@tabler/icons-react";
 import { useMediaQuery } from "@mantine/hooks";
 
 interface AddNationButtonProps {
@@ -74,8 +74,9 @@ export function AddNationButton({ onStartDrawing }: AddNationButtonProps) {
           size="lg"
           onClick={onStartDrawing}
           radius="xl"
+          leftSection={<IconBrush size={20} />}
         >
-          Paint
+          Draw
         </Button>
       </Tooltip>
     </div>

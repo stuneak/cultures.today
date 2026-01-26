@@ -128,7 +128,7 @@ function MiddleControls() {
   return (
     <nav>
       <ActionIcon.Group orientation="vertical">
-        <Tooltip {...toolTipStyles} label="About this app">
+        <Tooltip {...toolTipStyles} label="About the project">
           <ActionIcon {...actionIconStyles} aria-label="Info">
             <IconInfoCircle {...iconStyles} />
           </ActionIcon>

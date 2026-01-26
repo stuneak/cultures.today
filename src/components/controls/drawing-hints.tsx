@@ -1,7 +1,7 @@
 "use client";
 
-import { Paper, Text, ActionIcon, Tooltip } from "@mantine/core";
-import { IconHandGrab, IconBrush } from "@tabler/icons-react";
+import { Paper, Text, Button, Tooltip } from "@mantine/core";
+import { IconHandGrab, IconBrush, IconEraser } from "@tabler/icons-react";
 
 interface DrawingHintsProps {
   showMode: boolean;
@@ -21,28 +21,30 @@ export function DrawingHints({
         label={showMode ? "Switch to Draw (S)" : "Switch to Pan (S)"}
         position="bottom"
       >
-        <ActionIcon
+        <Button
           variant="filled"
-          size="xl"
+          size="md"
           radius="xl"
-          color={showMode ? "red" : "blue"}
+          color={showMode ? "red" : brushMode === "erase" ? "red" : "blue"}
           onClick={() => onShowModeChange(!showMode)}
           aria-label={showMode ? "Switch to draw mode" : "Switch to pan mode"}
+          leftSection={
+            showMode ? (
+              <IconHandGrab size={20} />
+            ) : brushMode === "erase" ? (
+              <IconEraser size={20} />
+            ) : (
+              <IconBrush size={20} />
+            )
+          }
         >
-          {showMode ? <IconHandGrab size={24} /> : <IconBrush size={24} />}
-        </ActionIcon>
+          {showMode ? "Panning" : brushMode === "add" ? "Drawing" : "Erasing"}
+        </Button>
       </Tooltip>
 
       {/* Hints Panel */}
       <Paper shadow="sm" p="xs" withBorder>
-        <Text size="sm" ta="center" fw={500}>
-          {showMode
-            ? "🖐️ Panning"
-            : brushMode === "add"
-              ? "🖌️ Drawing"
-              : "🧹 Erasing"}
-        </Text>
-        <Text size="xs" c="dimmed" ta="center" mt={4}>
+        <Text size="xs" ta="center">
           {showMode
             ? "Pan/zoom the map. Press S to draw."
             : brushMode === "add"
