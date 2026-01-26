@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, Text, Group, Stack, Accordion } from "@mantine/core";
+import { Card, Text, Group, Stack } from "@mantine/core";
 import { getMediaUrl } from "@/lib/media-url";
 
 interface Phrase {
@@ -30,47 +30,40 @@ export function LanguagesSection({ languages }: LanguagesSectionProps) {
   }
 
   return (
-    <Accordion variant="separated">
+    <Stack gap="md">
       {languages.map((language) => (
-        <Accordion.Item key={language.id} value={language.id}>
-          <Accordion.Control>
-            <Text fw={600}>{language.name}</Text>
-          </Accordion.Control>
-          <Accordion.Panel>
-            <Stack gap="md">
-              {language.phrases.length > 0 && (
-                <div>
-                  <Text fw={500} size="sm" mb="xs">
-                    Common Phrases
-                  </Text>
-                  <Stack gap="sm">
-                    {language.phrases.map((phrase) => (
-                      <Card key={phrase.id} withBorder p="sm">
-                        <Group justify="space-between" align="flex-start">
-                          <div>
-                            <Text fw={500} size="lg">
-                              {phrase.text}
-                            </Text>
-                            <Text size="xs" c="dimmed">
-                              Translation: {phrase.translation}
-                            </Text>
-                          </div>
-                          <audio controls className=" h-8">
-                            <source
-                              src={getMediaUrl(phrase.audioUrl)}
-                              type="audio/mpeg"
-                            />
-                          </audio>
-                        </Group>
-                      </Card>
-                    ))}
-                  </Stack>
-                </div>
-              )}
-            </Stack>
-          </Accordion.Panel>
-        </Accordion.Item>
+        <Card key={language.id} withBorder p="md">
+          <Text fw={600} size="lg" mb="md">
+            {language.name}
+          </Text>
+          {language.phrases.length > 0 && (
+            <div>
+              <Stack gap="sm">
+                {language.phrases.map((phrase) => (
+                  <Card key={phrase.id} withBorder p="sm">
+                    <Group justify="space-between" align="flex-start">
+                      <div>
+                        <Text fw={500} size="lg">
+                          {phrase.text}
+                        </Text>
+                        <Text size="xs" c="dimmed">
+                          Translation: {phrase.translation}
+                        </Text>
+                      </div>
+                      <audio controls className=" h-8">
+                        <source
+                          src={getMediaUrl(phrase.audioUrl)}
+                          type="audio/mpeg"
+                        />
+                      </audio>
+                    </Group>
+                  </Card>
+                ))}
+              </Stack>
+            </div>
+          )}
+        </Card>
       ))}
-    </Accordion>
+    </Stack>
   );
 }

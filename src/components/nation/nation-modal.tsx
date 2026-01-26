@@ -1,7 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Modal, Text, Skeleton, Group, Title, Divider, Card } from "@mantine/core";
+import {
+  Modal,
+  Text,
+  Skeleton,
+  Group,
+  Title,
+  Divider,
+  Card,
+} from "@mantine/core";
 import { IconLanguage, IconPhoto } from "@tabler/icons-react";
 import { LanguagesSection } from "./sections/languages-section";
 import { ContentSection } from "./sections/content-section";
@@ -102,26 +110,13 @@ export function NationModal({ slug, onClose }: NationModalProps) {
           {/* Languages Section */}
           {nation.languages.length > 0 && (
             <div>
-              <Group gap="xs" mb="sm">
-                <IconLanguage size={18} />
-                <Title order={5}>Languages ({nation.languages.length})</Title>
-              </Group>
               <LanguagesSection languages={nation.languages} />
             </div>
-          )}
-
-          {/* Divider between sections */}
-          {nation.languages.length > 0 && nation.contents.length > 0 && (
-            <Divider />
           )}
 
           {/* Content Section */}
           {nation.contents.length > 0 && (
             <div>
-              <Group gap="xs" mb="sm">
-                <IconPhoto size={18} />
-                <Title order={5}>Content ({nation.contents.length})</Title>
-              </Group>
               <ContentSection contents={nation.contents} />
             </div>
           )}
