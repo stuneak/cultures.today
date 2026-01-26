@@ -1,19 +1,26 @@
 "use client";
 
 import { useEffect, useRef, useCallback, useState } from "react";
-import { Button, Paper, Text, Group } from "@mantine/core";
-import { IconCheck, IconX, IconArrowBackUp } from "@tabler/icons-react";
+import { Button, Paper, Text, Group, Badge } from "@mantine/core";
+import { IconCheck, IconX, IconArrowBackUp, IconPlus } from "@tabler/icons-react";
 import { useMapStore } from "@/stores/map-store";
 import type { LngLat, MapMouseEvent, GeoJSONSource } from "maplibre-gl";
 
 interface PolygonDrawProps {
-  onComplete: (geojson: GeoJSON.Feature<GeoJSON.Polygon>) => void;
+  onComplete: (geojson: GeoJSON.Feature<GeoJSON.MultiPolygon>) => void;
   onCancel: () => void;
 }
 
 export function PolygonDraw({ onComplete, onCancel }: PolygonDrawProps) {
-  const { mapInstance, isDrawingMode, setIsDrawingMode, setDrawnPolygon } =
-    useMapStore();
+  const {
+    mapInstance,
+    isDrawingMode,
+    setIsDrawingMode,
+    drawnPolygons,
+    addDrawnPolygon,
+    clearDrawnPolygons,
+    getMultiPolygon,
+  } = useMapStore();
   const pointsRef = useRef<LngLat[]>([]);
   const [pointsCount, setPointsCount] = useState(0);
   const cursorPosRef = useRef<LngLat | null>(null);
@@ -22,6 +29,7 @@ export function PolygonDraw({ onComplete, onCancel }: PolygonDrawProps) {
   const sourceId = "drawing-polygon";
   const previewSourceId = "drawing-preview";
   const verticesSourceId = "drawing-vertices";
+  const completedSourceId = "drawing-completed";
 
   // Cleanup map layers and sources
   const cleanupLayers = useCallback(() => {
@@ -33,17 +41,19 @@ export function PolygonDraw({ onComplete, onCancel }: PolygonDrawProps) {
       "drawing-preview-line",
       "drawing-vertices-circle",
       "drawing-vertices-first",
+      "drawing-completed-fill",
+      "drawing-completed-line",
     ].forEach((layer) => {
       if (mapInstance.getLayer(layer)) mapInstance.removeLayer(layer);
     });
 
-    [sourceId, previewSourceId, verticesSourceId].forEach((source) => {
+    [sourceId, previewSourceId, verticesSourceId, completedSourceId].forEach((source) => {
       if (mapInstance.getSource(source)) mapInstance.removeSource(source);
     });
   }, [mapInstance]);
 
-  // Complete the polygon
-  const completePolygon = useCallback(() => {
+  // Save current polygon to store and reset for next polygon
+  const saveCurrentPolygon = useCallback(() => {
     if (pointsRef.current.length < 3) return;
 
     const coordinates = pointsRef.current.map((p) => [p.lng, p.lat]);
@@ -55,15 +65,59 @@ export function PolygonDraw({ onComplete, onCancel }: PolygonDrawProps) {
       geometry: { type: "Polygon", coordinates: [coordinates] },
     };
 
+    addDrawnPolygon(polygon);
+
+    // Clear current drawing visualization but stay in drawing mode
     pointsRef.current = [];
     setPointsCount(0);
     cursorPosRef.current = null;
     draggingIndexRef.current = null;
-    setDrawnPolygon(polygon);
+
+    // Clear the current drawing sources
+    if (mapInstance) {
+      const polygonSource = mapInstance.getSource(sourceId) as GeoJSONSource | undefined;
+      const previewSource = mapInstance.getSource(previewSourceId) as GeoJSONSource | undefined;
+      const verticesSource = mapInstance.getSource(verticesSourceId) as GeoJSONSource | undefined;
+
+      if (polygonSource) {
+        polygonSource.setData({ type: "FeatureCollection", features: [] });
+      }
+      if (previewSource) {
+        previewSource.setData({ type: "FeatureCollection", features: [] });
+      }
+      if (verticesSource) {
+        verticesSource.setData({ type: "FeatureCollection", features: [] });
+      }
+    }
+  }, [addDrawnPolygon, mapInstance]);
+
+  // Finish drawing and return combined MultiPolygon
+  const finishDrawing = useCallback(() => {
+    // If there's a current drawing with 3+ points, save it first
+    if (pointsRef.current.length >= 3) {
+      const coordinates = pointsRef.current.map((p) => [p.lng, p.lat]);
+      coordinates.push(coordinates[0]);
+
+      const polygon: GeoJSON.Feature<GeoJSON.Polygon> = {
+        type: "Feature",
+        properties: {},
+        geometry: { type: "Polygon", coordinates: [coordinates] },
+      };
+
+      addDrawnPolygon(polygon);
+    }
+
+    const multiPolygon = getMultiPolygon();
+    if (!multiPolygon) return;
+
+    pointsRef.current = [];
+    setPointsCount(0);
+    cursorPosRef.current = null;
+    draggingIndexRef.current = null;
     setIsDrawingMode(false);
     cleanupLayers();
-    onComplete(polygon);
-  }, [cleanupLayers, onComplete, setDrawnPolygon, setIsDrawingMode]);
+    onComplete(multiPolygon);
+  }, [addDrawnPolygon, getMultiPolygon, setIsDrawingMode, cleanupLayers, onComplete]);
 
   // Cancel drawing
   const cancelDrawing = useCallback(() => {
@@ -72,10 +126,10 @@ export function PolygonDraw({ onComplete, onCancel }: PolygonDrawProps) {
     cursorPosRef.current = null;
     draggingIndexRef.current = null;
     setIsDrawingMode(false);
-    setDrawnPolygon(null);
+    clearDrawnPolygons();
     cleanupLayers();
     onCancel();
-  }, [cleanupLayers, onCancel, setIsDrawingMode, setDrawnPolygon]);
+  }, [cleanupLayers, onCancel, setIsDrawingMode, clearDrawnPolygons]);
 
   // Undo last point
   const undoPoint = useCallback(() => {
@@ -188,6 +242,20 @@ export function PolygonDraw({ onComplete, onCancel }: PolygonDrawProps) {
     }
   }, [mapInstance]);
 
+  // Update completed polygons visualization
+  const updateCompletedVisualization = useCallback(() => {
+    if (!mapInstance) return;
+    const completedSource = mapInstance.getSource(completedSourceId) as GeoJSONSource | undefined;
+    if (completedSource && drawnPolygons.length > 0) {
+      completedSource.setData({
+        type: "FeatureCollection",
+        features: drawnPolygons,
+      });
+    } else if (completedSource) {
+      completedSource.setData({ type: "FeatureCollection", features: [] });
+    }
+  }, [mapInstance, drawnPolygons]);
+
   // Find vertex index at given coordinates
   const findVertexAt = useCallback(
     (lngLat: LngLat): number | null => {
@@ -216,6 +284,26 @@ export function PolygonDraw({ onComplete, onCancel }: PolygonDrawProps) {
     if (!mapInstance || !isDrawingMode) return;
 
     const setupDrawing = () => {
+      // Add completed polygons source and layers FIRST
+      if (!mapInstance.getSource(completedSourceId)) {
+        mapInstance.addSource(completedSourceId, {
+          type: "geojson",
+          data: { type: "FeatureCollection", features: [] },
+        });
+        mapInstance.addLayer({
+          id: "drawing-completed-fill",
+          type: "fill",
+          source: completedSourceId,
+          paint: { "fill-color": "#22c55e", "fill-opacity": 0.3 },
+        });
+        mapInstance.addLayer({
+          id: "drawing-completed-line",
+          type: "line",
+          source: completedSourceId,
+          paint: { "line-color": "#22c55e", "line-width": 2 },
+        });
+      }
+
       // Add sources and layers
       if (!mapInstance.getSource(sourceId)) {
         mapInstance.addSource(sourceId, {
@@ -299,6 +387,11 @@ export function PolygonDraw({ onComplete, onCancel }: PolygonDrawProps) {
     };
   }, [mapInstance, isDrawingMode]);
 
+  // Update completed visualization when drawnPolygons changes
+  useEffect(() => {
+    updateCompletedVisualization();
+  }, [drawnPolygons, updateCompletedVisualization]);
+
   // Handle map events for drawing and dragging
   useEffect(() => {
     if (!mapInstance || !isDrawingMode) return;
@@ -334,7 +427,7 @@ export function PolygonDraw({ onComplete, onCancel }: PolygonDrawProps) {
       if (clickedVertex !== null) {
         // If clicking first point with 3+ points, close polygon
         if (clickedVertex === 0 && points.length >= 3) {
-          completePolygon();
+          saveCurrentPolygon();
         }
         return;
       }
@@ -350,7 +443,7 @@ export function PolygonDraw({ onComplete, onCancel }: PolygonDrawProps) {
         const threshold = 5 / Math.pow(2, zoom);
 
         if (distance < threshold) {
-          completePolygon();
+          saveCurrentPolygon();
           return;
         }
       }
@@ -410,7 +503,7 @@ export function PolygonDraw({ onComplete, onCancel }: PolygonDrawProps) {
   }, [
     mapInstance,
     isDrawingMode,
-    completePolygon,
+    saveCurrentPolygon,
     updateMapVisualization,
     findVertexAt,
   ]);
@@ -422,8 +515,12 @@ export function PolygonDraw({ onComplete, onCancel }: PolygonDrawProps) {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         cancelDrawing();
-      } else if (e.key === "Enter" && pointsRef.current.length >= 3) {
-        completePolygon();
+      } else if (e.key === "Enter") {
+        if (pointsRef.current.length >= 3) {
+          saveCurrentPolygon();
+        } else if (pointsRef.current.length === 0 && drawnPolygons.length > 0) {
+          finishDrawing();
+        }
       } else if (
         (e.key === "z" && (e.ctrlKey || e.metaKey)) ||
         e.key === "Backspace"
@@ -439,12 +536,18 @@ export function PolygonDraw({ onComplete, onCancel }: PolygonDrawProps) {
   }, [
     isDrawingMode,
     cancelDrawing,
-    completePolygon,
+    saveCurrentPolygon,
+    finishDrawing,
     undoPoint,
     updateMapVisualization,
+    drawnPolygons.length,
   ]);
 
   if (!isDrawingMode) return null;
+
+  const totalPolygons = drawnPolygons.length;
+  const hasCurrentDrawing = pointsCount >= 3;
+  const canFinish = totalPolygons > 0 || hasCurrentDrawing;
 
   return (
     <Paper
@@ -453,11 +556,16 @@ export function PolygonDraw({ onComplete, onCancel }: PolygonDrawProps) {
       p="md"
       withBorder
     >
-      <Text size="sm" mb="xs">
-        Click to add points. Drag points to adjust.
-      </Text>
+      <Group justify="space-between" mb="xs">
+        <Text size="sm">Click to add points. Drag points to adjust.</Text>
+        {totalPolygons > 0 && (
+          <Badge color="green" variant="light">
+            {totalPolygons} polygon{totalPolygons !== 1 ? "s" : ""} saved
+          </Badge>
+        )}
+      </Group>
       <Text size="xs" c="dimmed" mb="sm">
-        Esc to cancel • Ctrl+Z to undo • {pointsCount} point
+        Esc to cancel • Enter to save polygon • Ctrl+Z to undo • {pointsCount} point
         {pointsCount !== 1 ? "s" : ""}
       </Text>
       <Group justify="center">
@@ -478,18 +586,28 @@ export function PolygonDraw({ onComplete, onCancel }: PolygonDrawProps) {
           variant="filled"
           size="sm"
           radius="md"
-          leftSection={<IconCheck size={16} />}
-          onClick={completePolygon}
+          color="green"
+          leftSection={<IconPlus size={16} />}
+          onClick={saveCurrentPolygon}
           disabled={pointsCount < 3}
         >
-          Complete
+          Save Polygon
+        </Button>
+        <Button
+          variant="filled"
+          size="sm"
+          radius="md"
+          leftSection={<IconCheck size={16} />}
+          onClick={finishDrawing}
+          disabled={!canFinish}
+        >
+          Finish
         </Button>
         <Button
           size="sm"
           variant="light"
           radius="md"
-          color="rose"
-          className="menu-item-color-dark-red"
+          color="red"
           leftSection={<IconX size={16} />}
           onClick={cancelDrawing}
         >
