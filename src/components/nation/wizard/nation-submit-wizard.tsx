@@ -35,7 +35,7 @@ export function NationSubmitWizard({
 }: NationSubmitWizardProps) {
   const [activeStep, setActiveStep] = useState(0);
   const [formData, setFormData] = useState<WizardFormData>(() =>
-    INITIAL_FORM_DATA("")
+    INITIAL_FORM_DATA(""),
   );
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -46,7 +46,7 @@ export function NationSubmitWizard({
   const tempSlug = useMemo(
     () => generateTempSlug(),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [opened]
+    [opened],
   );
 
   // Initialize form with boundary when modal opens
@@ -115,9 +115,8 @@ export function NationSubmitWizard({
           }
           lang.phrases.forEach((phrase, phraseIndex) => {
             if (!phrase.text.trim()) {
-              newErrors[
-                `languages.${langIndex}.phrases.${phraseIndex}.text`
-              ] = "Required";
+              newErrors[`languages.${langIndex}.phrases.${phraseIndex}.text`] =
+                "Required";
             }
             if (!phrase.translation.trim()) {
               newErrors[
@@ -235,8 +234,9 @@ export function NationSubmitWizard({
     <Modal
       opened={opened}
       onClose={onClose}
-      title="Submit a New Nation"
+      title="Submit a new nation"
       size="lg"
+      radius="sm"
       closeOnClickOutside={false}
     >
       {success ? (

@@ -44,7 +44,7 @@ const ALLOWED_VIDEO_TYPES = ["video/mp4", "video/webm"];
 
 function getYouTubeEmbedUrl(url: string): string | null {
   const videoId = url.match(
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\s]+)/
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\s]+)/,
   )?.[1];
   return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
 }
@@ -61,7 +61,7 @@ export function ContentForm({
   const [preview, setPreview] = useState<string | null>(
     content.contentUrl && content.contentType !== "VIDEO_YOUTUBE"
       ? getMediaUrl(content.contentUrl)
-      : null
+      : null,
   );
 
   const {
@@ -99,7 +99,7 @@ export function ContentForm({
       <Stack gap="sm">
         <Group justify="space-between" align="center">
           <Text size="sm" fw={500}>
-            Content {index + 1}
+            {" "}
           </Text>
           {canRemove && (
             <ActionIcon
