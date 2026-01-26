@@ -32,7 +32,7 @@ export const useMapStore = create<MapState>((set, get) => ({
   currentPolygon: null,
   polygonHistory: [],
   brushMode: "add",
-  brushSize: 50, // Default to middle
+  brushSize: 14, // Default to ~5km
   showMode: false,
   setMapInstance: (map) => set({ mapInstance: map }),
   setShowMode: (show) => set({ showMode: show }),

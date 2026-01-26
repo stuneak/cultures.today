@@ -17,8 +17,8 @@ interface BrushDrawProps {
 
 // Convert slider value (0-100) to radius in kilometers
 function sliderToRadius(value: number): number {
-  // Exponential scale: 0.1km (100m) at 0, ~200km at 100
-  const minRadius = 0.1;
+  // Exponential scale: 1km at 0, ~200km at 100
+  const minRadius = 1;  // 1 kilometer minimum
   const maxRadius = 200;
   const t = value / 100;
   return minRadius + (maxRadius - minRadius) * (t * t); // Quadratic for finer control at small sizes
