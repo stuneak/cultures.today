@@ -4,7 +4,7 @@ import { useState, useCallback } from "react";
 import { WorldMap } from "@/components/map/world-map";
 import { NationModal } from "@/components/nation/nation-modal";
 import { NationSelectionPopup } from "@/components/map/nation-selection-popup";
-import { NationSubmitForm } from "@/components/nation/nation-submit-form";
+import { NationSubmitWizard } from "@/components/nation/wizard";
 import { MainPageControls } from "@/components/controls/main-page-controls";
 import { AddNationButton } from "@/components/controls/add-nation-button";
 import { PolygonDraw } from "@/components/map/polygon-draw";
@@ -118,8 +118,8 @@ export default function HomePage() {
         onClose={() => setSelectedNationSlug(null)}
       />
 
-      {/* Nation submission form with pre-filled boundary */}
-      <NationSubmitForm
+      {/* Nation submission wizard with pre-filled boundary */}
+      <NationSubmitWizard
         opened={submitFormOpen}
         onClose={handleSubmitFormClose}
         initialBoundary={drawnBoundary}
