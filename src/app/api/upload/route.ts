@@ -3,6 +3,8 @@ import { uploadFile } from "@/lib/minio";
 import { processVideo } from "@/lib/video-processor";
 import { processFlag } from "@/lib/image-processor";
 
+const MAX_IMAGE_SIZE = 100 * 1024 * 1024; // 100MB
+
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
@@ -12,6 +14,13 @@ export async function POST(request: NextRequest) {
 
     if (!file) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
+    }
+
+    if (file.type.startsWith("image/") && file.size > MAX_IMAGE_SIZE) {
+      return NextResponse.json(
+        { error: "Image must be less than 100MB" },
+        { status: 400 },
+      );
     }
 
     if (!category || !nationSlug) {

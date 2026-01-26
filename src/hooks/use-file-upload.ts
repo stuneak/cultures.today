@@ -2,6 +2,8 @@
 
 import { useState, useCallback } from "react";
 
+const MAX_IMAGE_SIZE = 100 * 1024 * 1024; // 100MB
+
 interface UploadResult {
   key: string;
   url: string;
@@ -32,6 +34,12 @@ export function useFileUpload({
       setUploading(true);
       setProgress(0);
       setError(null);
+
+      if (file.type.startsWith("image/") && file.size > MAX_IMAGE_SIZE) {
+        setError("Image must be less than 100MB");
+        setUploading(false);
+        return null;
+      }
 
       try {
         const formData = new FormData();
