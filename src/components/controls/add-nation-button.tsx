@@ -1,6 +1,6 @@
 "use client";
 
-import { ActionIcon, Tooltip } from "@mantine/core";
+import { ActionIcon, Tooltip, Button } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
 import { useMapStore } from "@/stores/map-store";
 
@@ -17,16 +17,14 @@ export function AddNationButton({ onStartDrawing }: AddNationButtonProps) {
         label={isDrawingMode ? "Drawing in progress..." : "Add a new nation"}
         position="top"
       >
-        <ActionIcon
-          size="xl"
-          radius="md"
+        <Button
           variant="main-page-control"
+          size="lg"
           onClick={onStartDrawing}
-          disabled={isDrawingMode}
-          aria-label="Add nation"
+          radius="xl"
         >
-          <IconPlus size={28} stroke={2} />
-        </ActionIcon>
+          Paint
+        </Button>
       </Tooltip>
     </div>
   );

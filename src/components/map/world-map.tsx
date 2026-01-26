@@ -48,7 +48,7 @@ export function WorldMap({
       container: mapContainer.current,
       style: mapStyle,
       center: [9.753, 50.6844],
-      zoom: 3,
+      zoom: 6,
       minZoom: 3,
       maxZoom: 18,
     });
