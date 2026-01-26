@@ -88,15 +88,51 @@ export async function POST(request: NextRequest) {
     // Get current user if authenticated (optional)
     const session = await getServerSession(authOptions);
 
-    const nation = await db.nation.create({
-      data: {
-        name: data.name,
-        description: data.description,
-        slug,
-        state: "pending",
-        submittedById: session?.user?.id ?? null,
-      },
-      select: { id: true, name: true, slug: true, state: true },
+    // Create nation with nested languages and contents in a transaction
+    const nation = await db.$transaction(async (tx) => {
+      // Create the nation
+      const newNation = await tx.nation.create({
+        data: {
+          name: data.name,
+          description: data.description,
+          flagUrl: data.flagUrl,
+          slug,
+          state: "pending",
+          submittedById: session?.user?.id ?? null,
+        },
+        select: { id: true, name: true, slug: true, state: true },
+      });
+
+      // Create languages with phrases
+      for (const lang of data.languages) {
+        await tx.language.create({
+          data: {
+            name: lang.name,
+            description: lang.description,
+            nationId: newNation.id,
+            phrases: {
+              create: lang.phrases.map((phrase) => ({
+                text: phrase.text,
+                translation: phrase.translation,
+                audioUrl: phrase.audioUrl,
+              })),
+            },
+          },
+        });
+      }
+
+      // Create contents
+      await tx.content.createMany({
+        data: data.contents.map((content) => ({
+          title: content.title,
+          contentType: content.contentType,
+          category: content.category,
+          contentUrl: content.contentUrl,
+          nationId: newNation.id,
+        })),
+      });
+
+      return newNation;
     });
 
     // If boundary GeoJSON was provided, set the PostGIS geometry column
