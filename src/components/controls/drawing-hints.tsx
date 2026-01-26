@@ -20,6 +20,7 @@ export function DrawingHints({ showMode, onShowModeChange, brushMode }: DrawingH
           radius="xl"
           color={showMode ? "gray" : "blue"}
           onClick={() => onShowModeChange(!showMode)}
+          aria-label={showMode ? "Switch to draw mode" : "Switch to pan mode"}
         >
           {showMode ? <IconHandGrab size={24} /> : <IconBrush size={24} />}
         </ActionIcon>
@@ -28,7 +29,7 @@ export function DrawingHints({ showMode, onShowModeChange, brushMode }: DrawingH
       {/* Hints Panel */}
       <Paper shadow="sm" p="xs" withBorder>
         <Text size="sm" ta="center" fw={500}>
-          {showMode ? "Panning" : brushMode === "add" ? "Drawing" : "Erasing"}
+          {showMode ? "🖐️ Panning" : brushMode === "add" ? "🖌️ Drawing" : "🧹 Erasing"}
         </Text>
         <Text size="xs" c="dimmed" ta="center" mt={4}>
           {showMode
