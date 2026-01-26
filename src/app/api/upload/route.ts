@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { uploadFile } from "@/lib/minio";
+import { processVideo } from "@/lib/video-processor";
 
 export async function POST(request: NextRequest) {
   try {
@@ -29,15 +30,33 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const result = await uploadFile(file, category, nationSlug);
+    let fileToUpload: File = file;
+
+    // Process videos to 16:9 720p
+    if (category === "content" && file.type.startsWith("video/")) {
+      try {
+        const buffer = Buffer.from(await file.arrayBuffer());
+        const processedBuffer = await processVideo(buffer, file.name);
+        fileToUpload = new File(
+          [new Uint8Array(processedBuffer)],
+          file.name.replace(/\.\w+$/, ".mp4"),
+          { type: "video/mp4" },
+        );
+      } catch (error) {
+        console.error("Video processing failed, uploading original:", error);
+        // Fall back to uploading original if processing fails
+      }
+    }
+
+    const result = await uploadFile(fileToUpload, category, nationSlug);
 
     return NextResponse.json(
       {
         key: result.key,
         url: result.url,
-        filename: file.name,
-        size: file.size,
-        type: file.type,
+        filename: fileToUpload.name,
+        size: fileToUpload.size,
+        type: fileToUpload.type,
       },
       { status: 201 },
     );
