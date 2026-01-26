@@ -137,9 +137,13 @@ export async function POST(request: NextRequest) {
 
     // If boundary GeoJSON was provided, set the PostGIS geometry column
     if (data.boundaryGeoJson) {
+      // Extract just the geometry from the Feature
+      const feature = JSON.parse(data.boundaryGeoJson);
+      const geometryJson = JSON.stringify(feature.geometry);
+
       await db.$executeRaw`
         UPDATE nations
-        SET boundary = ST_SetSRID(ST_GeomFromGeoJSON(${data.boundaryGeoJson}::json->'geometry'), 4326)
+        SET boundary = ST_SetSRID(ST_GeomFromGeoJSON(${geometryJson}), 4326)
         WHERE id = ${nation.id}
       `;
     }
