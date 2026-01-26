@@ -1,8 +1,9 @@
 "use client";
 
-import Image from "next/image";
-import { Card, Text, Tabs } from "@mantine/core";
+import { Card, Text, Group } from "@mantine/core";
+import { Carousel } from "@mantine/carousel";
 import { IconToolsKitchen2, IconMusic, IconPhoto } from "@tabler/icons-react";
+import Image from "next/image";
 import { getMediaUrl } from "@/lib/media-url";
 
 interface Content {
@@ -17,24 +18,25 @@ interface ContentSectionProps {
   contents: Content[];
 }
 
-function getYouTubeEmbedUrl(url: string): string {
+function getYouTubeEmbedUrl(url: string): string | null {
   const videoId = url.match(
     /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\s]+)/
   )?.[1];
-  return videoId ? `https://www.youtube.com/embed/${videoId}` : url;
+  return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
 }
 
 function ContentCard({ item }: { item: Content }) {
-  const isYouTube = item.contentType === "VIDEO_YOUTUBE";
   const isVideo = item.contentType === "VIDEO_UPLOAD";
+  const isYouTube = item.contentType === "VIDEO_YOUTUBE";
   const isImage = item.contentType === "IMAGE_UPLOAD";
+  const youtubeEmbed = isYouTube && item.contentUrl ? getYouTubeEmbedUrl(item.contentUrl) : null;
 
   return (
-    <Card withBorder p={0} className="overflow-hidden">
-      <div className="relative aspect-video bg-gray-100">
-        {isYouTube && item.contentUrl && (
+    <Card withBorder p="xs">
+      <div className="relative aspect-video bg-gray-100 rounded overflow-hidden">
+        {isYouTube && youtubeEmbed && (
           <iframe
-            src={getYouTubeEmbedUrl(item.contentUrl)}
+            src={youtubeEmbed}
             className="absolute inset-0 w-full h-full"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
@@ -56,9 +58,9 @@ function ContentCard({ item }: { item: Content }) {
           />
         )}
       </div>
-      <div className="p-4">
-        <Text fw={500}>{item.title}</Text>
-      </div>
+      <Text size="sm" fw={500} mt="xs" lineClamp={1}>
+        {item.title}
+      </Text>
     </Card>
   );
 }
@@ -76,58 +78,38 @@ export function ContentSection({ contents }: ContentSectionProps) {
   const musicContent = contents.filter((c) => c.category === "MUSIC");
   const otherContent = contents.filter((c) => c.category === "OTHER");
 
+  const categories = [
+    { label: "All", icon: null, items: contents },
+    { label: "Food", icon: <IconToolsKitchen2 size={14} />, items: foodContent },
+    { label: "Music", icon: <IconMusic size={14} />, items: musicContent },
+    { label: "Other", icon: <IconPhoto size={14} />, items: otherContent },
+  ].filter((cat) => cat.items.length > 0);
+
   return (
-    <Tabs defaultValue="all">
-      <Tabs.List>
-        <Tabs.Tab value="all">All ({contents.length})</Tabs.Tab>
-        {foodContent.length > 0 && (
-          <Tabs.Tab value="food" leftSection={<IconToolsKitchen2 size={14} />}>
-            Food ({foodContent.length})
-          </Tabs.Tab>
-        )}
-        {musicContent.length > 0 && (
-          <Tabs.Tab value="music" leftSection={<IconMusic size={14} />}>
-            Music ({musicContent.length})
-          </Tabs.Tab>
-        )}
-        {otherContent.length > 0 && (
-          <Tabs.Tab value="other" leftSection={<IconPhoto size={14} />}>
-            Other ({otherContent.length})
-          </Tabs.Tab>
-        )}
-      </Tabs.List>
-
-      <Tabs.Panel value="all" pt="md">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {contents.map((item) => (
-            <ContentCard key={item.id} item={item} />
-          ))}
-        </div>
-      </Tabs.Panel>
-
-      <Tabs.Panel value="food" pt="md">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {foodContent.map((item) => (
-            <ContentCard key={item.id} item={item} />
-          ))}
-        </div>
-      </Tabs.Panel>
-
-      <Tabs.Panel value="music" pt="md">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {musicContent.map((item) => (
-            <ContentCard key={item.id} item={item} />
-          ))}
-        </div>
-      </Tabs.Panel>
-
-      <Tabs.Panel value="other" pt="md">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {otherContent.map((item) => (
-            <ContentCard key={item.id} item={item} />
-          ))}
-        </div>
-      </Tabs.Panel>
-    </Tabs>
+    <Carousel
+      slideSize="100%"
+      slideGap="md"
+      emblaOptions={{ loop: categories.length > 1 }}
+      withIndicators
+      withControls={categories.length > 1}
+    >
+      {categories.map((category) => (
+        <Carousel.Slide key={category.label}>
+          <div>
+            <Group gap="xs" mb="md">
+              {category.icon}
+              <Text fw={500}>
+                {category.label} ({category.items.length})
+              </Text>
+            </Group>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {category.items.map((item) => (
+                <ContentCard key={item.id} item={item} />
+              ))}
+            </div>
+          </div>
+        </Carousel.Slide>
+      ))}
+    </Carousel>
   );
 }

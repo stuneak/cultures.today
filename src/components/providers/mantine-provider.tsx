@@ -4,6 +4,7 @@ import { MantineProvider } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
 import { ModalsProvider } from "@mantine/modals";
 import "@mantine/core/styles.css";
+import "@mantine/carousel/styles.css";
 import "@mantine/notifications/styles.css";
 import "@/theme/style.css";
 import {
