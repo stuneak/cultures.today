@@ -13,7 +13,6 @@ interface Phrase {
 interface Language {
   id: string;
   name: string;
-  description: string;
   phrases: Phrase[];
 }
 
@@ -39,10 +38,6 @@ export function LanguagesSection({ languages }: LanguagesSectionProps) {
           </Accordion.Control>
           <Accordion.Panel>
             <Stack gap="md">
-              <Text size="sm" c="dimmed">
-                {language.description}
-              </Text>
-
               {language.phrases.length > 0 && (
                 <div>
                   <Text fw={500} size="sm" mb="xs">

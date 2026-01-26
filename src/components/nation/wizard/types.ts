@@ -8,7 +8,6 @@ export interface PhraseFormData {
 export interface LanguageFormData {
   id: string; // local ID for React keys
   name: string;
-  description: string;
   phrases: PhraseFormData[];
 }
 
@@ -46,7 +45,6 @@ export const INITIAL_PHRASE: () => PhraseFormData = () => ({
 export const INITIAL_LANGUAGE: () => LanguageFormData = () => ({
   id: crypto.randomUUID(),
   name: "",
-  description: "",
   phrases: [INITIAL_PHRASE()],
 });
 

@@ -106,9 +106,6 @@ export function NationSubmitWizard({
           if (!lang.name.trim()) {
             newErrors[`languages.${langIndex}.name`] = "Required";
           }
-          if (!lang.description.trim()) {
-            newErrors[`languages.${langIndex}.description`] = "Required";
-          }
           if (lang.phrases.length === 0) {
             newErrors[`languages.${langIndex}.phrases`] =
               "At least one phrase required";
@@ -193,7 +190,6 @@ export function NationSubmitWizard({
         boundaryGeoJson: formData.boundaryGeoJson,
         languages: formData.languages.map((lang) => ({
           name: lang.name,
-          description: lang.description,
           phrases: lang.phrases.map((phrase) => ({
             text: phrase.text,
             translation: phrase.translation,

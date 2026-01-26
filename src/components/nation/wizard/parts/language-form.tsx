@@ -2,7 +2,6 @@
 
 import {
   TextInput,
-  Textarea,
   Stack,
   Group,
   ActionIcon,
@@ -90,18 +89,6 @@ export function LanguageForm({
               </ActionIcon>
             )}
           </Group>
-
-          <Textarea
-            label="Description"
-            placeholder="Brief description of the language"
-            required
-            rows={2}
-            value={language.description}
-            onChange={(e) =>
-              onChange({ ...language, description: e.target.value })
-            }
-            error={errors[`${errorPrefix}.description`]}
-          />
 
           <div>
             <Text size="sm" fw={500} mb="xs">
