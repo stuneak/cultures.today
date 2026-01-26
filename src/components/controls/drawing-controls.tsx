@@ -86,15 +86,15 @@ export function DrawingControls({
             </ActionIcon>
           </Tooltip>
 
-          {/* Size decrease */}
-          <Tooltip {...toolTipStyles} label="Decrease size ([)">
+          {/* Size increase */}
+          <Tooltip {...toolTipStyles} label="Increase size (])">
             <ActionIcon
               {...actionIconStyles}
-              onClick={() => onBrushSizeChange(brushSize - 10)}
-              disabled={brushSize <= 0}
-              aria-label="Decrease brush size"
+              onClick={() => onBrushSizeChange(brushSize + 10)}
+              disabled={brushSize >= 100}
+              aria-label="Increase brush size"
             >
-              <IconMinus {...iconStyles} />
+              <IconPlus {...iconStyles} />
             </ActionIcon>
           </Tooltip>
 
@@ -118,15 +118,15 @@ export function DrawingControls({
             </Text>
           </div>
 
-          {/* Size increase */}
-          <Tooltip {...toolTipStyles} label="Increase size (])">
+          {/* Size decrease */}
+          <Tooltip {...toolTipStyles} label="Decrease size ([)">
             <ActionIcon
               {...actionIconStyles}
-              onClick={() => onBrushSizeChange(brushSize + 10)}
-              disabled={brushSize >= 100}
-              aria-label="Increase brush size"
+              onClick={() => onBrushSizeChange(brushSize - 10)}
+              disabled={brushSize <= 0}
+              aria-label="Decrease brush size"
             >
-              <IconPlus {...iconStyles} />
+              <IconMinus {...iconStyles} />
             </ActionIcon>
           </Tooltip>
 
