@@ -98,7 +98,12 @@ export function PhraseForm({
 
   // Auto-save when recording stops (preview state entered)
   useEffect(() => {
-    if (recorderState === "preview" && audioBlob && !phrase.audioUrl && !uploading) {
+    if (
+      recorderState === "preview" &&
+      audioBlob &&
+      !phrase.audioUrl &&
+      !uploading
+    ) {
       handleSave();
     }
   }, [recorderState, audioBlob, phrase.audioUrl, uploading, handleSave]);
@@ -218,7 +223,7 @@ export function PhraseForm({
               </Group>
               <Button
                 size="xs"
-                variant="subtle"
+                variant="light"
                 leftSection={<IconRefresh size={14} />}
                 onClick={handleReRecord}
                 disabled={uploading}
@@ -246,7 +251,7 @@ export function PhraseForm({
                 </Group>
                 <Button
                   size="xs"
-                  variant="subtle"
+                  variant="light"
                   leftSection={<IconRefresh size={14} />}
                   onClick={handleReRecord}
                 >

@@ -110,7 +110,7 @@ export function LanguageForm({
             </Stack>
 
             <Button
-              variant="subtle"
+              variant="outline"
               size="xs"
               leftSection={<IconPlus size={14} />}
               mt="sm"

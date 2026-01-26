@@ -19,12 +19,7 @@ interface NationSubmitWizardProps {
   initialBoundary?: GeoJSON.Feature<GeoJSON.MultiPolygon> | null;
 }
 
-const STEP_LABELS = [
-  "Basic Info",
-  "Languages",
-  "Contents",
-  "Review",
-];
+const STEP_LABELS = ["Basic Info", "Languages", "Contents", "Review"];
 
 export function NationSubmitWizard({
   opened,
@@ -298,7 +293,7 @@ export function NationSubmitWizard({
 
           <Group justify="space-between">
             <Button
-              variant="subtle"
+              variant="light"
               onClick={handleBack}
               disabled={activeStep === 0}
             >
