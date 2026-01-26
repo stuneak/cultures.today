@@ -7,7 +7,7 @@ import {
   ActionIcon,
   Button,
   Text,
-  Accordion,
+  Paper,
 } from "@mantine/core";
 import { IconTrash, IconPlus } from "@tabler/icons-react";
 import { PhraseForm } from "./phrase-form";
@@ -55,72 +55,61 @@ export function LanguageForm({
   const errorPrefix = `languages.${index}`;
 
   return (
-    <Accordion.Item value={language.id}>
-      <Accordion.Control>
-        <Group justify="space-between" pr="md">
-          <Text fw={500}>{language.name || `Language ${index + 1}`}</Text>
-          <Text size="sm" c="dimmed">
-            {language.phrases.length} phrase
-            {language.phrases.length !== 1 ? "s" : ""}
-          </Text>
-        </Group>
-      </Accordion.Control>
-      <Accordion.Panel>
-        <Stack gap="md">
-          <Group align="flex-start">
-            <TextInput
-              label="Language Name"
-              placeholder="e.g., Swahili"
-              required
-              style={{ flex: 1 }}
-              value={language.name}
-              onChange={(e) => onChange({ ...language, name: e.target.value })}
-              error={errors[`${errorPrefix}.name`]}
-            />
-            {canRemove && (
-              <ActionIcon
-                size="lg"
-                color="red"
-                variant="subtle"
-                mt={24}
-                onClick={onRemove}
-              >
-                <IconTrash size={18} />
-              </ActionIcon>
-            )}
-          </Group>
-
-          <div>
-            <Text size="sm" fw={500} mb="xs">
-              Phrases (at least 1 required)
-            </Text>
-            <Stack gap="sm">
-              {language.phrases.map((phrase, phraseIndex) => (
-                <PhraseForm
-                  key={phrase.id}
-                  phrase={phrase}
-                  onChange={(p) => handlePhraseChange(phraseIndex, p)}
-                  onRemove={() => handleRemovePhrase(phraseIndex)}
-                  canRemove={language.phrases.length > 1}
-                  tempSlug={tempSlug}
-                  index={phraseIndex}
-                  errors={errors}
-                />
-              ))}
-            </Stack>
-
-            <Button
-              variant="outline"
-              size="xs"
-              leftSection={<IconPlus size={14} />}
-              mt="sm"
-              onClick={handleAddPhrase}
+    <Paper p="md" withBorder radius="md">
+      <Stack gap="md">
+        <Group align="flex-start">
+          <TextInput
+            label="Language Name"
+            placeholder="e.g., Swahili"
+            required
+            style={{ flex: 1 }}
+            value={language.name}
+            onChange={(e) => onChange({ ...language, name: e.target.value })}
+            error={errors[`${errorPrefix}.name`]}
+          />
+          {canRemove && (
+            <ActionIcon
+              size="lg"
+              color="red"
+              variant="subtle"
+              mt={24}
+              onClick={onRemove}
             >
-              Add Phrase
-            </Button>
-          </div>
-        </Stack>
-      </Accordion.Panel>
-    </Accordion.Item>
+              <IconTrash size={18} />
+            </ActionIcon>
+          )}
+        </Group>
+
+        <div>
+          <Text size="sm" fw={500} mb="xs">
+            Phrases (at least 1 required)
+          </Text>
+          <Stack gap="sm">
+            {language.phrases.map((phrase, phraseIndex) => (
+              <PhraseForm
+                key={phrase.id}
+                phrase={phrase}
+                onChange={(p) => handlePhraseChange(phraseIndex, p)}
+                onRemove={() => handleRemovePhrase(phraseIndex)}
+                canRemove={language.phrases.length > 1}
+                tempSlug={tempSlug}
+                index={phraseIndex}
+                errors={errors}
+              />
+            ))}
+          </Stack>
+
+          <Button
+            variant="outline"
+            size="xs"
+            leftSection={<IconPlus size={14} />}
+            mt="sm"
+            onClick={handleAddPhrase}
+          >
+            Add Phrase
+          </Button>
+        </div>
+      </Stack>
+    </Paper>
   );
 }

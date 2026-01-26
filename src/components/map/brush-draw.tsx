@@ -425,16 +425,87 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
       }
     };
 
+    // Touch event handlers for mobile
+    const onTouchStart = (e: TouchEvent) => {
+      if (showMode) return;
+      if (e.touches.length !== 1) return;
+
+      e.preventDefault();
+      const touch = e.touches[0];
+      const rect = mapInstance.getCanvas().getBoundingClientRect();
+      const point = mapInstance.unproject([
+        touch.clientX - rect.left,
+        touch.clientY - rect.top,
+      ]);
+
+      isMouseDownRef.current = true;
+      strokePointsRef.current = [[point.lng, point.lat]];
+      cursorPosRef.current = { lng: point.lng, lat: point.lat };
+      updateStrokePreview();
+      mapInstance.dragPan.disable();
+    };
+
+    const onTouchEnd = (e: TouchEvent) => {
+      if (showMode) return;
+      if (isMouseDownRef.current) {
+        commitStroke();
+      }
+      isMouseDownRef.current = false;
+      mapInstance.dragPan.enable();
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (showMode) return;
+      if (e.touches.length !== 1) return;
+
+      e.preventDefault();
+      const touch = e.touches[0];
+      const rect = mapInstance.getCanvas().getBoundingClientRect();
+      const point = mapInstance.unproject([
+        touch.clientX - rect.left,
+        touch.clientY - rect.top,
+      ]);
+
+      cursorPosRef.current = { lng: point.lng, lat: point.lat };
+      updateCursorPreview();
+
+      if (isMouseDownRef.current) {
+        const points = strokePointsRef.current;
+        const lastPoint = points[points.length - 1];
+        if (lastPoint) {
+          const dx = point.lng - lastPoint[0];
+          const dy = point.lat - lastPoint[1];
+          const minDistance = radiusKm * 0.002;
+          if (Math.sqrt(dx * dx + dy * dy) > minDistance) {
+            strokePointsRef.current.push([point.lng, point.lat]);
+            updateStrokePreview();
+          }
+        }
+      }
+    };
+
+    const canvas = mapInstance.getCanvas();
+
     mapInstance.on("mousedown", onMouseDown);
     mapInstance.on("mouseup", onMouseUp);
     mapInstance.on("mousemove", onMouseMove);
     document.addEventListener("mouseup", onDocumentMouseUp);
+
+    // Add touch events
+    canvas.addEventListener("touchstart", onTouchStart, { passive: false });
+    canvas.addEventListener("touchend", onTouchEnd);
+    canvas.addEventListener("touchmove", onTouchMove, { passive: false });
 
     return () => {
       mapInstance.off("mousedown", onMouseDown);
       mapInstance.off("mouseup", onMouseUp);
       mapInstance.off("mousemove", onMouseMove);
       document.removeEventListener("mouseup", onDocumentMouseUp);
+
+      // Remove touch events
+      canvas.removeEventListener("touchstart", onTouchStart);
+      canvas.removeEventListener("touchend", onTouchEnd);
+      canvas.removeEventListener("touchmove", onTouchMove);
     };
   }, [
     mapInstance,

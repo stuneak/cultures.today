@@ -1,6 +1,6 @@
 "use client";
 
-import { Stack, Button, Text, Accordion } from "@mantine/core";
+import { Stack, Button, Text } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
 import { LanguageForm } from "../parts/language-form";
 import { INITIAL_LANGUAGE } from "../types";
@@ -43,7 +43,7 @@ export function LanguagesStep({
         Add at least one language spoken in this nation, with example phrases.
       </Text>
 
-      <Accordion variant="separated" defaultValue={data.languages[0]?.id}>
+      <Stack gap="lg">
         {data.languages.map((language, index) => (
           <LanguageForm
             key={language.id}
@@ -56,7 +56,7 @@ export function LanguagesStep({
             errors={errors}
           />
         ))}
-      </Accordion>
+      </Stack>
 
       <Button
         variant="light"
