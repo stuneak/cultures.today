@@ -1,16 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  Modal,
-  Text,
-  Skeleton,
-  Group,
-  Title,
-  Divider,
-  Card,
-} from "@mantine/core";
-import { IconLanguage, IconPhoto } from "@tabler/icons-react";
+import { Modal, Text, Skeleton, Group, Title, Card } from "@mantine/core";
 import { LanguagesSection } from "./sections/languages-section";
 import { ContentSection } from "./sections/content-section";
 import { getMediaUrl } from "@/lib/media-url";
@@ -21,14 +12,34 @@ interface NationModalProps {
   onClose: () => void;
 }
 
+interface Phrase {
+  id: string;
+  text: string;
+  translation: string;
+  audioUrl: string;
+}
+
+interface Language {
+  id: string;
+  name: string;
+  phrases: Phrase[];
+}
+
+interface Content {
+  id: string;
+  title: string;
+  contentType: "UPLOAD" | "VIDEO_YOUTUBE";
+  contentUrl: string | null;
+}
+
 interface NationDetails {
   id: string;
   name: string;
   slug: string;
   description: string | null;
   flagUrl: string | null;
-  languages: any[];
-  contents: any[];
+  languages: Language[];
+  contents: Content[];
 }
 
 export function NationModal({ slug, onClose }: NationModalProps) {
@@ -39,17 +50,35 @@ export function NationModal({ slug, onClose }: NationModalProps) {
   useEffect(() => {
     if (!slug) return;
 
-    setLoading(true);
-    setError(null);
+    let ignore = false;
 
-    fetch(`/api/nations/${slug}`)
-      .then((res) => {
+    async function fetchNation() {
+      try {
+        const res = await fetch(`/api/nations/${slug}`);
         if (!res.ok) throw new Error("Nation not found");
-        return res.json();
-      })
-      .then((data) => setNation(data))
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
+        const data = await res.json();
+        if (!ignore) {
+          setNation(data);
+        }
+      } catch (err) {
+        if (!ignore) {
+          setError(err instanceof Error ? err.message : "Failed to load");
+        }
+      } finally {
+        if (!ignore) {
+          setLoading(false);
+        }
+      }
+    }
+
+    setNation(null);
+    setError(null);
+    setLoading(true);
+    fetchNation();
+
+    return () => {
+      ignore = true;
+    };
   }, [slug]);
 
   return (

@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 
-export type RecorderState = "idle" | "recording" | "preview" | "saved";
+export type RecorderState = "idle" | "recording" | "saved";
 
 interface UseAudioRecorderOptions {
   maxDuration?: number; // in seconds, default 300 (5 min)
@@ -21,7 +21,6 @@ interface UseAudioRecorderReturn {
   start: () => Promise<void>;
   stop: () => void;
   reset: () => void;
-  markSaved: () => void;
 }
 
 export function useAudioRecorder(
@@ -128,7 +127,7 @@ export function useAudioRecorder(
         setAudioBlob(blob);
         const url = URL.createObjectURL(blob);
         setAudioUrl(url);
-        setState("preview");
+        setState("saved");
         cleanup();
       };
 
@@ -201,10 +200,6 @@ export function useAudioRecorder(
     setState("idle");
   }, [audioUrl, cleanup]);
 
-  const markSaved = useCallback(() => {
-    setState("saved");
-  }, []);
-
   return {
     state,
     audioBlob,
@@ -216,6 +211,5 @@ export function useAudioRecorder(
     start,
     stop,
     reset,
-    markSaved,
   };
 }

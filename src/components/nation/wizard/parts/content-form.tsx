@@ -93,7 +93,7 @@ export function ContentForm({
     <Card withBorder p="md">
       <Stack gap="sm">
         <TextInput
-          label="Content title"
+          label="Choose title for your content"
           placeholder="e.g., 'Favorite Dishes', 'Traditional Clothing', 'Folk Tales'"
           required
           value={content.title}

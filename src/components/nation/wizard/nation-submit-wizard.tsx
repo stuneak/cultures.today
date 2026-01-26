@@ -224,7 +224,7 @@ export function NationSubmitWizard({
       setSuccess(true);
       setTimeout(() => {
         onClose();
-      }, 2000);
+      }, 5000);
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : "An error occurred");
     } finally {
@@ -241,9 +241,9 @@ export function NationSubmitWizard({
       closeOnClickOutside={false}
     >
       {success ? (
-        <Alert icon={<IconCheck size={16} />} color="green" title="Success!">
-          Your nation has been submitted and is pending review by our
-          moderators.
+        <Alert color="blue" variant="light">
+          Thanks for your submission! Your nation is now pending review by our
+          moderators 🎉
         </Alert>
       ) : (
         <Stack gap="lg">
@@ -283,27 +283,25 @@ export function NationSubmitWizard({
                         alignItems: "center",
                         justifyContent: "center",
                         flexShrink: 0,
-                        background: isActive
-                          ? "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)"
-                          : isCompleted
-                            ? "linear-gradient(135deg, #10b981 0%, #059669 100%)"
-                            : "var(--mantine-color-gray-1)",
+                        background:
+                          isActive || isCompleted
+                            ? "var(--mantine-color-text)"
+                            : "transparent",
                         color:
                           isActive || isCompleted
-                            ? "white"
-                            : "var(--mantine-color-gray-5)",
+                            ? "var(--mantine-color-body)"
+                            : "var(--mantine-color-dimmed)",
                         cursor: isClickable ? "pointer" : "default",
                         transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                         fontWeight: 600,
                         fontSize: 14,
-                        boxShadow: isActive
-                          ? "0 4px 14px rgba(59, 130, 246, 0.4)"
-                          : isCompleted
-                            ? "0 2px 8px rgba(16, 185, 129, 0.3)"
+                        boxShadow:
+                          isActive || isCompleted
+                            ? "var(--mantine-shadow-sm)"
                             : "none",
                         border:
                           !isActive && !isCompleted
-                            ? "2px solid var(--mantine-color-gray-3)"
+                            ? "2px solid var(--mantine-color-default-border)"
                             : "none",
                         transform: isActive ? "scale(1.1)" : "scale(1)",
                       }}
@@ -324,8 +322,8 @@ export function NationSubmitWizard({
                           borderRadius: 2,
                           background:
                             index < activeStep || isCompleted
-                              ? "linear-gradient(90deg, #10b981, #059669)"
-                              : "var(--mantine-color-gray-2)",
+                              ? "var(--mantine-color-text)"
+                              : "var(--mantine-color-default-border)",
                           transition: "all 0.3s ease",
                         }}
                       />
@@ -371,9 +369,7 @@ export function NationSubmitWizard({
                 errors={errors}
               />
             )}
-            {activeStep === 3 && (
-              <ReviewStep data={formData} onEditStep={setActiveStep} />
-            )}
+            {activeStep === 3 && <ReviewStep data={formData} />}
           </div>
 
           <Group justify="space-between">

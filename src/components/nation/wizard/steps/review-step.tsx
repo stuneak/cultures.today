@@ -24,10 +24,9 @@ import type { WizardFormData } from "../types";
 
 interface ReviewStepProps {
   data: WizardFormData;
-  onEditStep: (step: number) => void;
 }
 
-export function ReviewStep({ data, onEditStep }: ReviewStepProps) {
+export function ReviewStep({ data }: ReviewStepProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
 
@@ -124,6 +123,9 @@ export function ReviewStep({ data, onEditStep }: ReviewStepProps) {
         <Group gap="xs" mb="sm">
           <IconMap size={16} />
           <Text fw={600}>Territory</Text>
+          <Badge size="sm" variant="light" color="blue">
+            {polygonCount} {polygonCount === 1 ? "polygon" : "polygons"}
+          </Badge>
         </Group>
         <Card withBorder p={0} className="overflow-hidden" mb="xs">
           <div ref={mapContainerRef} style={{ height: 200, width: "100%" }} />

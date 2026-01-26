@@ -5,7 +5,6 @@ import {
   TextInput,
   Stack,
   Group,
-  ActionIcon,
   Button,
   Text,
   Progress,
@@ -15,7 +14,6 @@ import {
 import {
   IconMicrophone,
   IconPlayerStop,
-  IconCheck,
   IconRefresh,
 } from "@tabler/icons-react";
 import { useFileUpload } from "@/hooks/use-file-upload";
@@ -67,7 +65,6 @@ export function PhraseForm({
     start,
     stop,
     reset,
-    markSaved,
   } = useAudioRecorder({
     maxDuration: 300,
     warnAt: 30,
@@ -83,7 +80,6 @@ export function PhraseForm({
     nationSlug: tempSlug,
     onSuccess: (result) => {
       onChange({ ...phrase, audioUrl: result.url });
-      markSaved();
     },
   });
 
@@ -96,10 +92,10 @@ export function PhraseForm({
     await upload(file);
   }, [audioBlob, upload]);
 
-  // Auto-save when recording stops (preview state entered)
+  // Auto-save when recording stops
   useEffect(() => {
     if (
-      recorderState === "preview" &&
+      recorderState === "saved" &&
       audioBlob &&
       !phrase.audioUrl &&
       !uploading
@@ -196,48 +192,25 @@ export function PhraseForm({
             </Stack>
           )}
 
-          {/* PREVIEW state */}
-          {recorderState === "preview" && previewUrl && (
-            <Stack gap="xs">
-              <Group gap="xs">
-                <audio controls style={{ height: 32 }}>
-                  <source src={previewUrl} type="audio/webm" />
-                </audio>
-                {uploading && <Progress value={progress} size="xs" w={100} />}
-              </Group>
-              <Button
-                size="xs"
-                variant="light"
-                leftSection={<IconRefresh size={14} />}
-                onClick={handleReRecord}
-                disabled={uploading}
-              >
-                Re-record
-              </Button>
-            </Stack>
-          )}
-
           {/* SAVED state */}
           {(recorderState === "saved" || savedAudioUrl) &&
-            recorderState !== "recording" &&
-            recorderState !== "preview" && (
+            recorderState !== "recording" && (
               <Stack gap="xs">
                 <Group gap="xs">
-                  <audio controls style={{ height: 32 }}>
+                  <audio controls style={{ height: 32, width: "100%" }}>
                     <source
                       src={savedAudioUrl || previewUrl || ""}
                       type="audio/webm"
                     />
                   </audio>
-                  <ActionIcon size="sm" color="green" variant="light">
-                    <IconCheck size={14} />
-                  </ActionIcon>
+                  {uploading && <Progress value={progress} size="xs" w={100} />}
                 </Group>
                 <Button
                   size="xs"
                   variant="light"
                   leftSection={<IconRefresh size={14} />}
                   onClick={handleReRecord}
+                  disabled={uploading}
                 >
                   Re-record
                 </Button>
