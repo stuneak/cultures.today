@@ -61,6 +61,7 @@ export function NationModal({ slug, onClose }: NationModalProps) {
                   alt={`${nation.name} flag`}
                   fill
                   className="object-cover rounded"
+                  unoptimized={getMediaUrl(nation.flagUrl).includes("localhost")}
                 />
               </div>
             )}

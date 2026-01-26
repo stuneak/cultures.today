@@ -52,6 +52,7 @@ function ContentCard({ item }: { item: Content }) {
             fill
             className="object-cover"
             sizes="(max-width: 768px) 100vw, 50vw"
+            unoptimized={getMediaUrl(item.contentUrl).includes("localhost")}
           />
         )}
       </div>

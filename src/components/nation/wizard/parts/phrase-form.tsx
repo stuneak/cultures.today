@@ -53,7 +53,7 @@ export function PhraseForm({
   // Compute saved audio URL directly from prop
   const savedAudioUrl = useMemo(
     () => (phrase.audioUrl ? getMediaUrl(phrase.audioUrl) : null),
-    [phrase.audioUrl]
+    [phrase.audioUrl],
   );
 
   const {
@@ -203,7 +203,7 @@ export function PhraseForm({
           {/* PREVIEW state */}
           {recorderState === "preview" && previewUrl && (
             <Stack gap="xs">
-              <audio controls style={{ width: 200, height: 32 }}>
+              <audio controls style={{ height: 32 }}>
                 <source src={previewUrl} type="audio/webm" />
               </audio>
               <Group gap="xs">
@@ -235,7 +235,7 @@ export function PhraseForm({
             recorderState !== "preview" && (
               <Stack gap="xs">
                 <Group gap="xs">
-                  <audio controls style={{ width: 200, height: 32 }}>
+                  <audio controls style={{ height: 32 }}>
                     <source
                       src={savedAudioUrl || previewUrl || ""}
                       type="audio/webm"

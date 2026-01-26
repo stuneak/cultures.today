@@ -39,21 +39,32 @@ export function LanguagesSection({ languages }: LanguagesSectionProps) {
           </Accordion.Control>
           <Accordion.Panel>
             <Stack gap="md">
-              <Text size="sm" c="dimmed">{language.description}</Text>
+              <Text size="sm" c="dimmed">
+                {language.description}
+              </Text>
 
               {language.phrases.length > 0 && (
                 <div>
-                  <Text fw={500} size="sm" mb="xs">Common Phrases</Text>
+                  <Text fw={500} size="sm" mb="xs">
+                    Common Phrases
+                  </Text>
                   <Stack gap="sm">
                     {language.phrases.map((phrase) => (
                       <Card key={phrase.id} withBorder p="sm">
                         <Group justify="space-between" align="flex-start">
                           <div>
-                            <Text fw={500} size="lg">{phrase.text}</Text>
-                            <Text size="sm" c="dimmed">{phrase.translation}</Text>
+                            <Text fw={500} size="lg">
+                              {phrase.text}
+                            </Text>
+                            <Text size="sm" c="dimmed">
+                              {phrase.translation}
+                            </Text>
                           </div>
-                          <audio controls className="w-32 h-8">
-                            <source src={getMediaUrl(phrase.audioUrl)} type="audio/mpeg" />
+                          <audio controls className=" h-8">
+                            <source
+                              src={getMediaUrl(phrase.audioUrl)}
+                              type="audio/mpeg"
+                            />
                           </audio>
                         </Group>
                       </Card>
