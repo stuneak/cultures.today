@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useEffect, useCallback } from "react";
 import {
   TextInput,
   Stack,
@@ -87,14 +87,21 @@ export function PhraseForm({
     },
   });
 
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     if (!audioBlob) return;
     // Create a File from the Blob for upload
     const file = new File([audioBlob], "recording.webm", {
       type: "audio/webm",
     });
     await upload(file);
-  };
+  }, [audioBlob, upload]);
+
+  // Auto-save when recording stops (preview state entered)
+  useEffect(() => {
+    if (recorderState === "preview" && audioBlob && !phrase.audioUrl && !uploading) {
+      handleSave();
+    }
+  }, [recorderState, audioBlob, phrase.audioUrl, uploading, handleSave]);
 
   const handleReRecord = () => {
     reset();
@@ -203,29 +210,21 @@ export function PhraseForm({
           {/* PREVIEW state */}
           {recorderState === "preview" && previewUrl && (
             <Stack gap="xs">
-              <audio controls style={{ height: 32 }}>
-                <source src={previewUrl} type="audio/webm" />
-              </audio>
               <Group gap="xs">
-                <Button
-                  size="xs"
-                  variant="filled"
-                  leftSection={<IconCheck size={14} />}
-                  onClick={handleSave}
-                  loading={uploading}
-                >
-                  Save
-                </Button>
-                <Button
-                  size="xs"
-                  variant="light"
-                  leftSection={<IconRefresh size={14} />}
-                  onClick={handleReRecord}
-                  disabled={uploading}
-                >
-                  Re-record
-                </Button>
+                <audio controls style={{ height: 32 }}>
+                  <source src={previewUrl} type="audio/webm" />
+                </audio>
+                {uploading && <Progress value={progress} size="xs" w={100} />}
               </Group>
+              <Button
+                size="xs"
+                variant="subtle"
+                leftSection={<IconRefresh size={14} />}
+                onClick={handleReRecord}
+                disabled={uploading}
+              >
+                Re-record
+              </Button>
             </Stack>
           )}
 
@@ -255,8 +254,6 @@ export function PhraseForm({
                 </Button>
               </Stack>
             )}
-
-          {uploading && <Progress value={progress} size="xs" mt="xs" />}
 
           {error && (
             <Text size="xs" c="red" mt="xs">
