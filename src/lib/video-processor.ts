@@ -7,6 +7,25 @@ import { promisify } from "util";
 
 const execAsync = promisify(exec);
 
+export async function getVideoDuration(inputBuffer: Buffer): Promise<number> {
+  const tempDir = join(tmpdir(), "cultures-video-processing");
+  await mkdir(tempDir, { recursive: true });
+
+  const tempInput = join(tempDir, `probe-${randomUUID()}.mp4`);
+
+  try {
+    await writeFile(tempInput, inputBuffer);
+
+    const { stdout } = await execAsync(
+      `/opt/homebrew/bin/ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${tempInput}"`
+    );
+
+    return parseFloat(stdout.trim());
+  } finally {
+    await unlink(tempInput).catch(() => {});
+  }
+}
+
 export async function processVideo(
   inputBuffer: Buffer,
   inputFilename: string

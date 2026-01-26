@@ -219,7 +219,7 @@ export function ContentForm({
             <Text size="xs" c="dimmed" mt="xs">
               {content.contentType === "IMAGE_UPLOAD"
                 ? "PNG, JPG, WebP, GIF (max 100MB)"
-                : "MP4, WebM (max 50MB)"}
+                : "MP4, WebM (max 5 min)"}
             </Text>
           </div>
         )}

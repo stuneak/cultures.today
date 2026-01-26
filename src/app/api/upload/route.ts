@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { uploadFile } from "@/lib/minio";
-import { processVideo } from "@/lib/video-processor";
+import { processVideo, getVideoDuration } from "@/lib/video-processor";
 import { processFlag } from "@/lib/image-processor";
 
 const MAX_IMAGE_SIZE = 100 * 1024 * 1024; // 100MB
+const MAX_VIDEO_DURATION = 5 * 60; // 5 minutes in seconds
 
 export async function POST(request: NextRequest) {
   try {
@@ -44,8 +45,24 @@ export async function POST(request: NextRequest) {
 
     // Process videos to 16:9 720p
     if (category === "content" && file.type.startsWith("video/")) {
+      const buffer = Buffer.from(await file.arrayBuffer());
+
+      // Check duration first
       try {
-        const buffer = Buffer.from(await file.arrayBuffer());
+        const duration = await getVideoDuration(buffer);
+        if (duration > MAX_VIDEO_DURATION) {
+          return NextResponse.json(
+            { error: "Video must be 5 minutes or less" },
+            { status: 400 }
+          );
+        }
+      } catch (error) {
+        console.error("Failed to check video duration:", error);
+        // Continue with upload even if duration check fails
+      }
+
+      // Then process
+      try {
         const processedBuffer = await processVideo(buffer, file.name);
         fileToUpload = new File(
           [new Uint8Array(processedBuffer)],
