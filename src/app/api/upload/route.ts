@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { uploadFile } from "@/lib/minio";
 import { processVideo } from "@/lib/video-processor";
+import { processFlag } from "@/lib/image-processor";
 
 export async function POST(request: NextRequest) {
   try {
@@ -44,6 +45,22 @@ export async function POST(request: NextRequest) {
         );
       } catch (error) {
         console.error("Video processing failed, uploading original:", error);
+        // Fall back to uploading original if processing fails
+      }
+    }
+
+    // Process flag images to fit 1024x720 box
+    if (category === "flags" && file.type.startsWith("image/")) {
+      try {
+        const buffer = Buffer.from(await file.arrayBuffer());
+        const processedBuffer = await processFlag(buffer);
+        fileToUpload = new File(
+          [new Uint8Array(processedBuffer)],
+          file.name.replace(/\.\w+$/, ".png"),
+          { type: "image/png" },
+        );
+      } catch (error) {
+        console.error("Flag processing failed, uploading original:", error);
         // Fall back to uploading original if processing fails
       }
     }
