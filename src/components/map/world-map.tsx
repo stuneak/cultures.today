@@ -25,7 +25,7 @@ export function WorldMap({
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<Map | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const { setMapInstance } = useMapStore();
+  const { setMapInstance, setIsMapReady } = useMapStore();
 
   // Store callbacks in refs to avoid re-running useEffect
   const onNationClickRef = useRef(onNationClick);
@@ -102,9 +102,11 @@ export function WorldMap({
         });
 
         setIsLoading(false);
+        setIsMapReady(true);
       } catch (error) {
         console.error("Failed to load nations GeoJSON:", error);
         setIsLoading(false);
+        setIsMapReady(true);
       }
     });
 
@@ -112,11 +114,12 @@ export function WorldMap({
     mapInstance.addControl(new maplibregl.NavigationControl(), "top-right");
 
     return () => {
+      setIsMapReady(false);
       setMapInstance(null);
       mapInstance.remove();
       map.current = null;
     };
-  }, [setMapInstance]);
+  }, [setMapInstance, setIsMapReady]);
 
   // Separate effect for click handler that depends on isDrawingMode
   useEffect(() => {

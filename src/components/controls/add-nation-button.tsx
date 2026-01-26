@@ -3,6 +3,7 @@
 import { Tooltip, Button, Group, ActionIcon } from "@mantine/core";
 import { IconCheck, IconX, IconBrush } from "@tabler/icons-react";
 import { useIconStyles } from "./use-icon-styles";
+import { useMapStore } from "@/stores/map-store";
 
 interface AddNationButtonProps {
   onStartDrawing: () => void;
@@ -51,15 +52,21 @@ export function DrawingBottomBar({
 }
 
 export function AddNationButton({ onStartDrawing }: AddNationButtonProps) {
+  const isMapReady = useMapStore((state) => state.isMapReady);
+
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-10">
-      <Tooltip label="Add a new nation" position="top">
+      <Tooltip
+        label={isMapReady ? "Add a new nation" : "Map is loading..."}
+        position="top"
+      >
         <Button
           variant="main-page-control"
           size="lg"
           onClick={onStartDrawing}
           radius="xl"
           leftSection={<IconBrush size={20} />}
+          disabled={!isMapReady}
         >
           Draw
         </Button>
