@@ -7,7 +7,7 @@ import { NationSelectionPopup } from "@/components/map/nation-selection-popup";
 import { NationSubmitWizard } from "@/components/nation/wizard";
 import { MainPageControls } from "@/components/controls/main-page-controls";
 import { AddNationButton } from "@/components/controls/add-nation-button";
-import { PolygonDraw } from "@/components/map/polygon-draw";
+import { BrushDraw } from "@/components/map/brush-draw";
 import { useMapStore } from "@/stores/map-store";
 import type { LngLat } from "maplibre-gl";
 
@@ -33,7 +33,7 @@ export default function HomePage() {
   const [drawnBoundary, setDrawnBoundary] =
     useState<GeoJSON.Feature<GeoJSON.MultiPolygon> | null>(null);
 
-  const { setIsDrawingMode, isDrawingMode, clearDrawnPolygons } = useMapStore();
+  const { setIsDrawingMode, isDrawingMode, clearDrawing } = useMapStore();
 
   const handleNationClick = useCallback((slug: string) => {
     setSelectedNationSlug(slug);
@@ -77,8 +77,8 @@ export default function HomePage() {
   const handleSubmitFormClose = useCallback(() => {
     setSubmitFormOpen(false);
     setDrawnBoundary(null);
-    clearDrawnPolygons();
-  }, [clearDrawnPolygons]);
+    clearDrawing();
+  }, [clearDrawing]);
 
   return (
     <div className="h-screen w-screen overflow-hidden relative">
@@ -96,8 +96,8 @@ export default function HomePage() {
         <AddNationButton onStartDrawing={handleStartDrawing} />
       )}
 
-      {/* Polygon drawing mode UI */}
-      <PolygonDraw
+      {/* Brush drawing mode UI */}
+      <BrushDraw
         onComplete={handlePolygonComplete}
         onCancel={handlePolygonCancel}
       />
