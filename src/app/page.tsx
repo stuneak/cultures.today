@@ -31,9 +31,9 @@ export default function HomePage() {
     y: number;
   } | null>(null);
   const [drawnBoundary, setDrawnBoundary] =
-    useState<GeoJSON.Feature<GeoJSON.Polygon> | null>(null);
+    useState<GeoJSON.Feature<GeoJSON.MultiPolygon> | null>(null);
 
-  const { setIsDrawingMode, isDrawingMode } = useMapStore();
+  const { setIsDrawingMode, isDrawingMode, clearDrawnPolygons } = useMapStore();
 
   const handleNationClick = useCallback((slug: string) => {
     setSelectedNationSlug(slug);
@@ -62,8 +62,8 @@ export default function HomePage() {
   }, [setIsDrawingMode]);
 
   const handlePolygonComplete = useCallback(
-    (polygon: GeoJSON.Feature<GeoJSON.Polygon>) => {
-      setDrawnBoundary(polygon);
+    (multiPolygon: GeoJSON.Feature<GeoJSON.MultiPolygon>) => {
+      setDrawnBoundary(multiPolygon);
       setSubmitFormOpen(true);
     },
     []
@@ -71,12 +71,14 @@ export default function HomePage() {
 
   const handlePolygonCancel = useCallback(() => {
     setDrawnBoundary(null);
+    // Note: clearDrawnPolygons is called inside PolygonDraw, so not needed here
   }, []);
 
   const handleSubmitFormClose = useCallback(() => {
     setSubmitFormOpen(false);
     setDrawnBoundary(null);
-  }, []);
+    clearDrawnPolygons();
+  }, [clearDrawnPolygons]);
 
   return (
     <div className="h-screen w-screen overflow-hidden relative">
