@@ -236,7 +236,7 @@ export function NationSubmitWizard({
     <Modal
       opened={opened}
       onClose={onClose}
-      title="Submit a new nation"
+      title="Share your nation with us"
       size="lg"
       closeOnClickOutside={false}
     >
