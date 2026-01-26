@@ -381,10 +381,12 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
 
   return (
     <>
-      <DrawingHints showMode={showMode} />
-      <DrawingControls
+      <DrawingHints
         showMode={showMode}
         onShowModeChange={setShowMode}
+        brushMode={brushMode}
+      />
+      <DrawingControls
         brushMode={brushMode}
         onBrushModeChange={setBrushMode}
         brushSize={brushSize}

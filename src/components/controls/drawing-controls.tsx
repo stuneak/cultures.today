@@ -3,7 +3,6 @@
 import { ActionIcon, Tooltip, Slider, Text } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import {
-  IconHandGrab,
   IconBrush,
   IconEraser,
   IconMinus,
@@ -20,8 +19,6 @@ const toolTipStyles = {
 };
 
 interface DrawingControlsProps {
-  showMode: boolean;
-  onShowModeChange: (showMode: boolean) => void;
   brushMode: "add" | "erase";
   onBrushModeChange: (mode: "add" | "erase") => void;
   brushSize: number;
@@ -51,8 +48,6 @@ function useIconStyles() {
 }
 
 export function DrawingControls({
-  showMode,
-  onShowModeChange,
   brushMode,
   onBrushModeChange,
   brushSize,
@@ -70,94 +65,70 @@ export function DrawingControls({
     <div className="drawing-controls-container ml-2">
       <nav>
         <ActionIcon.Group orientation="vertical">
-          {/* Pan/Draw Toggle */}
-          <Tooltip {...toolTipStyles} label={showMode ? "Pan mode (S)" : "Draw mode (S)"}>
+          {/* Add/Erase Toggle */}
+          <Tooltip
+            {...toolTipStyles}
+            label={brushMode === "add" ? "Add mode (W)" : "Erase mode (W)"}
+          >
             <ActionIcon
               {...actionIconStyles}
-              onClick={() => onShowModeChange(!showMode)}
-              aria-label={showMode ? "Switch to draw" : "Switch to pan"}
-              color={showMode ? "gray" : "blue"}
+              onClick={() =>
+                onBrushModeChange(brushMode === "add" ? "erase" : "add")
+              }
+              aria-label={brushMode === "add" ? "Switch to erase" : "Switch to add"}
+              color={brushMode === "add" ? "blue" : "red"}
             >
-              {showMode ? (
-                <IconHandGrab {...iconStyles} />
-              ) : (
+              {brushMode === "add" ? (
                 <IconBrush {...iconStyles} />
+              ) : (
+                <IconEraser {...iconStyles} />
               )}
             </ActionIcon>
           </Tooltip>
 
-          {/* Add/Erase Toggle - only in draw mode */}
-          {!showMode && (
-            <Tooltip
-              {...toolTipStyles}
-              label={brushMode === "add" ? "Add mode (W)" : "Erase mode (W)"}
+          {/* Size decrease */}
+          <Tooltip {...toolTipStyles} label="Decrease size ([)">
+            <ActionIcon
+              {...actionIconStyles}
+              onClick={() => onBrushSizeChange(brushSize - 10)}
+              disabled={brushSize <= 0}
+              aria-label="Decrease brush size"
             >
-              <ActionIcon
-                {...actionIconStyles}
-                onClick={() =>
-                  onBrushModeChange(brushMode === "add" ? "erase" : "add")
-                }
-                aria-label={brushMode === "add" ? "Switch to erase" : "Switch to add"}
-                color={brushMode === "add" ? "blue" : "red"}
-              >
-                {brushMode === "add" ? (
-                  <IconBrush {...iconStyles} />
-                ) : (
-                  <IconEraser {...iconStyles} />
-                )}
-              </ActionIcon>
-            </Tooltip>
-          )}
+              <IconMinus {...iconStyles} />
+            </ActionIcon>
+          </Tooltip>
 
-          {/* Size decrease - only in draw mode */}
-          {!showMode && (
-            <Tooltip {...toolTipStyles} label="Decrease size ([)">
-              <ActionIcon
-                {...actionIconStyles}
-                onClick={() => onBrushSizeChange(brushSize - 10)}
-                disabled={brushSize <= 0}
-                aria-label="Decrease brush size"
-              >
-                <IconMinus {...iconStyles} />
-              </ActionIcon>
-            </Tooltip>
-          )}
-
-          {/* Slider - only in draw mode */}
-          {!showMode && (
-            <div className="brush-slider-container">
-              <div className="brush-slider-vertical">
-                <Slider
-                  value={brushSize}
-                  onChange={onBrushSizeChange}
-                  min={0}
-                  max={100}
-                  step={1}
-                  size="lg"
-                  label={formatBrushSize}
-                  labelAlwaysOn={false}
-                  inverted
-                />
-              </div>
-              <Text size="xs" ta="center" c="dimmed" mt={8}>
-                {formatBrushSize(brushSize)}
-              </Text>
+          {/* Slider */}
+          <div className="brush-slider-container">
+            <div className="brush-slider-vertical">
+              <Slider
+                value={brushSize}
+                onChange={onBrushSizeChange}
+                min={0}
+                max={100}
+                step={1}
+                size="lg"
+                label={formatBrushSize}
+                labelAlwaysOn={false}
+                inverted
+              />
             </div>
-          )}
+            <Text size="xs" ta="center" c="dimmed" mt={8}>
+              {formatBrushSize(brushSize)}
+            </Text>
+          </div>
 
-          {/* Size increase - only in draw mode */}
-          {!showMode && (
-            <Tooltip {...toolTipStyles} label="Increase size (])">
-              <ActionIcon
-                {...actionIconStyles}
-                onClick={() => onBrushSizeChange(brushSize + 10)}
-                disabled={brushSize >= 100}
-                aria-label="Increase brush size"
-              >
-                <IconPlus {...iconStyles} />
-              </ActionIcon>
-            </Tooltip>
-          )}
+          {/* Size increase */}
+          <Tooltip {...toolTipStyles} label="Increase size (])">
+            <ActionIcon
+              {...actionIconStyles}
+              onClick={() => onBrushSizeChange(brushSize + 10)}
+              disabled={brushSize >= 100}
+              aria-label="Increase brush size"
+            >
+              <IconPlus {...iconStyles} />
+            </ActionIcon>
+          </Tooltip>
 
           {/* Undo */}
           <Tooltip {...toolTipStyles} label="Undo (Ctrl+Z)">
