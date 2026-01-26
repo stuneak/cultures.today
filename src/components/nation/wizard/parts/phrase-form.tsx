@@ -1,20 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo } from "react";
 import {
   TextInput,
   Stack,
   Group,
   ActionIcon,
-  FileButton,
   Button,
   Text,
   Progress,
   Card,
+  Tooltip,
 } from "@mantine/core";
-import { IconUpload, IconTrash, IconCheck } from "@tabler/icons-react";
+import {
+  IconMicrophone,
+  IconPlayerStop,
+  IconTrash,
+  IconCheck,
+  IconRefresh,
+} from "@tabler/icons-react";
 import { useFileUpload } from "@/hooks/use-file-upload";
+import { useAudioRecorder } from "@/hooks/use-audio-recorder";
 import { getMediaUrl } from "@/lib/media-url";
+import { Waveform } from "@/components/ui/waveform";
 import type { PhraseFormData } from "../types";
 
 interface PhraseFormProps {
@@ -27,12 +35,11 @@ interface PhraseFormProps {
   errors?: Record<string, string>;
 }
 
-const ALLOWED_AUDIO_TYPES = [
-  "audio/mpeg",
-  "audio/wav",
-  "audio/ogg",
-  "audio/mp3",
-];
+function formatDuration(seconds: number): string {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
+}
 
 export function PhraseForm({
   phrase,
@@ -43,9 +50,28 @@ export function PhraseForm({
   index,
   errors = {},
 }: PhraseFormProps) {
-  const [audioPreview, setAudioPreview] = useState<string | null>(
-    phrase.audioUrl ? getMediaUrl(phrase.audioUrl) : null
+  // Compute saved audio URL directly from prop
+  const savedAudioUrl = useMemo(
+    () => (phrase.audioUrl ? getMediaUrl(phrase.audioUrl) : null),
+    [phrase.audioUrl]
   );
+
+  const {
+    state: recorderState,
+    audioBlob,
+    audioUrl: previewUrl,
+    duration,
+    analyserNode,
+    error: recorderError,
+    isWarning,
+    start,
+    stop,
+    reset,
+    markSaved,
+  } = useAudioRecorder({
+    maxDuration: 300,
+    warnAt: 30,
+  });
 
   const {
     upload,
@@ -57,14 +83,28 @@ export function PhraseForm({
     nationSlug: tempSlug,
     onSuccess: (result) => {
       onChange({ ...phrase, audioUrl: result.url });
-      setAudioPreview(getMediaUrl(result.url));
+      markSaved();
     },
   });
 
-  const handleFileSelect = async (file: File | null) => {
-    if (!file) return;
+  const handleSave = async () => {
+    if (!audioBlob) return;
+    // Create a File from the Blob for upload
+    const file = new File([audioBlob], "recording.webm", {
+      type: "audio/webm",
+    });
     await upload(file);
   };
+
+  const handleReRecord = () => {
+    reset();
+    // Clear saved audio if re-recording
+    if (recorderState === "saved" || savedAudioUrl) {
+      onChange({ ...phrase, audioUrl: "" });
+    }
+  };
+
+  const error = recorderError || uploadError;
 
   return (
     <Card withBorder p="sm">
@@ -74,7 +114,12 @@ export function PhraseForm({
             Phrase {index + 1}
           </Text>
           {canRemove && (
-            <ActionIcon size="sm" color="red" variant="subtle" onClick={onRemove}>
+            <ActionIcon
+              size="sm"
+              color="red"
+              variant="subtle"
+              onClick={onRemove}
+            >
               <IconTrash size={14} />
             </ActionIcon>
           )}
@@ -105,39 +150,117 @@ export function PhraseForm({
             Audio Recording *
           </Text>
 
-          {audioPreview ? (
-            <Group gap="xs">
-              <audio controls className="h-8" style={{ width: 200 }}>
-                <source src={audioPreview} type="audio/mpeg" />
-              </audio>
-              <ActionIcon size="sm" color="green" variant="light">
-                <IconCheck size={14} />
-              </ActionIcon>
-            </Group>
-          ) : (
-            <FileButton
-              onChange={handleFileSelect}
-              accept={ALLOWED_AUDIO_TYPES.join(",")}
+          {/* IDLE state */}
+          {recorderState === "idle" && !savedAudioUrl && (
+            <Button
+              size="xs"
+              variant="light"
+              leftSection={<IconMicrophone size={14} />}
+              onClick={start}
             >
-              {(props) => (
+              Record
+            </Button>
+          )}
+
+          {/* RECORDING state */}
+          {recorderState === "recording" && (
+            <Stack gap="xs">
+              <Group gap="xs">
+                <Waveform
+                  analyserNode={analyserNode}
+                  isRecording={true}
+                  width={160}
+                  height={32}
+                />
                 <Button
-                  {...props}
                   size="xs"
-                  variant="light"
-                  leftSection={<IconUpload size={14} />}
+                  variant="filled"
+                  color="red"
+                  leftSection={<IconPlayerStop size={14} />}
+                  onClick={stop}
+                >
+                  Stop
+                </Button>
+              </Group>
+              <Tooltip
+                label="Recordings over 5 minutes will be cut off"
+                disabled={!isWarning}
+                opened={isWarning}
+                position="bottom"
+                withArrow
+              >
+                <Text
+                  size="xs"
+                  c={isWarning ? "orange" : "dimmed"}
+                  fw={isWarning ? 500 : 400}
+                >
+                  {formatDuration(duration)}
+                </Text>
+              </Tooltip>
+            </Stack>
+          )}
+
+          {/* PREVIEW state */}
+          {recorderState === "preview" && previewUrl && (
+            <Stack gap="xs">
+              <audio controls style={{ width: 200, height: 32 }}>
+                <source src={previewUrl} type="audio/webm" />
+              </audio>
+              <Group gap="xs">
+                <Button
+                  size="xs"
+                  variant="filled"
+                  leftSection={<IconCheck size={14} />}
+                  onClick={handleSave}
                   loading={uploading}
                 >
-                  Upload Audio
+                  Save
                 </Button>
-              )}
-            </FileButton>
+                <Button
+                  size="xs"
+                  variant="light"
+                  leftSection={<IconRefresh size={14} />}
+                  onClick={handleReRecord}
+                  disabled={uploading}
+                >
+                  Re-record
+                </Button>
+              </Group>
+            </Stack>
           )}
+
+          {/* SAVED state */}
+          {(recorderState === "saved" || savedAudioUrl) &&
+            recorderState !== "recording" &&
+            recorderState !== "preview" && (
+              <Stack gap="xs">
+                <Group gap="xs">
+                  <audio controls style={{ width: 200, height: 32 }}>
+                    <source
+                      src={savedAudioUrl || previewUrl || ""}
+                      type="audio/webm"
+                    />
+                  </audio>
+                  <ActionIcon size="sm" color="green" variant="light">
+                    <IconCheck size={14} />
+                  </ActionIcon>
+                </Group>
+                <Button
+                  size="xs"
+                  variant="subtle"
+                  leftSection={<IconRefresh size={14} />}
+                  onClick={handleReRecord}
+                >
+                  Re-record
+                </Button>
+              </Stack>
+            )}
 
           {uploading && <Progress value={progress} size="xs" mt="xs" />}
 
-          {uploadError && (
+          {error && (
             <Text size="xs" c="red" mt="xs">
-              {uploadError}
+              {error}
             </Text>
           )}
 

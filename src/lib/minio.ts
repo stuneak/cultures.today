@@ -11,7 +11,7 @@ const ALLOWED_TYPES: Record<string, string[]> = {
     "image/svg+xml",
     "image/gif",
   ],
-  audio: ["audio/mpeg", "audio/wav", "audio/ogg", "audio/mp3"],
+  audio: ["audio/mpeg", "audio/wav", "audio/ogg", "audio/mp3", "audio/webm"],
   video: ["video/mp4", "video/webm", "video/ogg"],
 };
 
