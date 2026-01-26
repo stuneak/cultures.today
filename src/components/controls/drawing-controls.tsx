@@ -125,20 +125,23 @@ export function DrawingControls({
 
           {/* Slider - only in draw mode */}
           {!showMode && (
-            <div className="py-2 px-1" style={{ pointerEvents: "auto", width: 44 }}>
-              <Text size="xs" ta="center" c="dimmed" mb={4}>
+            <div className="brush-slider-container">
+              <div className="brush-slider-vertical">
+                <Slider
+                  value={brushSize}
+                  onChange={onBrushSizeChange}
+                  min={0}
+                  max={100}
+                  step={1}
+                  size="lg"
+                  label={formatBrushSize}
+                  labelAlwaysOn={false}
+                  inverted
+                />
+              </div>
+              <Text size="xs" ta="center" c="dimmed" mt={8}>
                 {formatBrushSize(brushSize)}
               </Text>
-              <Slider
-                value={brushSize}
-                onChange={onBrushSizeChange}
-                min={0}
-                max={100}
-                step={1}
-                w={36}
-                label={formatBrushSize}
-                labelAlwaysOn={false}
-              />
             </div>
           )}
 
