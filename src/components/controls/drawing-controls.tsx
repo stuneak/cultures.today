@@ -8,8 +8,6 @@ import {
   IconMinus,
   IconPlus,
   IconArrowBackUp,
-  IconCheck,
-  IconX,
 } from "@tabler/icons-react";
 import { useRef, useCallback } from "react";
 import "./drawing-controls.css";
@@ -25,10 +23,7 @@ interface DrawingControlsProps {
   brushSize: number;
   onBrushSizeChange: (size: number) => void;
   onUndo: () => void;
-  onFinish: () => void;
-  onCancel: () => void;
   canUndo: boolean;
-  canFinish: boolean;
   formatBrushSize: (value: number) => string;
 }
 
@@ -120,10 +115,7 @@ export function DrawingControls({
   brushSize,
   onBrushSizeChange,
   onUndo,
-  onFinish,
-  onCancel,
   canUndo,
-  canFinish,
   formatBrushSize,
 }: DrawingControlsProps) {
   const { actionIconStyles, iconStyles } = useIconStyles();
@@ -198,31 +190,6 @@ export function DrawingControls({
               aria-label="Undo"
             >
               <IconArrowBackUp {...iconStyles} />
-            </ActionIcon>
-          </Tooltip>
-
-          {/* Finish */}
-          <Tooltip {...toolTipStyles} label="Finish (Enter)">
-            <ActionIcon
-              {...actionIconStyles}
-              onClick={onFinish}
-              disabled={!canFinish}
-              aria-label="Finish drawing"
-              color="green"
-            >
-              <IconCheck {...iconStyles} />
-            </ActionIcon>
-          </Tooltip>
-
-          {/* Cancel */}
-          <Tooltip {...toolTipStyles} label="Cancel (Esc)">
-            <ActionIcon
-              {...actionIconStyles}
-              onClick={onCancel}
-              aria-label="Cancel drawing"
-              color="red"
-            >
-              <IconX {...iconStyles} />
             </ActionIcon>
           </Tooltip>
         </ActionIcon.Group>
