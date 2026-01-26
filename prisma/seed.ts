@@ -68,7 +68,6 @@ async function main() {
       description:
         "An island country in East Asia, known for its unique blend of ancient traditions and cutting-edge technology.",
       flagUrl: "flags/japan.svg",
-      boundaryGeoJson: JSON.stringify(japanGeoJson),
       languages: {
         create: {
           name: "Japanese",
@@ -158,7 +157,6 @@ async function main() {
       description:
         "The largest country in South America, known for its Amazon rainforest and football.",
       flagUrl: "flags/brazil.svg",
-      boundaryGeoJson: JSON.stringify(brazilGeoJson),
       languages: {
         create: {
           name: "Portuguese",

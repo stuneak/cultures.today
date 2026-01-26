@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
           name: true,
           slug: true,
           flagUrl: true,
-          boundaryGeoJson: true,
+          // boundaryGeoJson removed - use /api/nations/geojson for boundaries
         },
         orderBy: { name: "asc" },
         take: query.limit,
@@ -90,19 +90,20 @@ export async function POST(request: NextRequest) {
 
     const nation = await db.nation.create({
       data: {
-        ...data,
+        name: data.name,
+        description: data.description,
         slug,
-        state: "pending", // Always starts as pending
+        state: "pending",
         submittedById: session?.user?.id ?? null,
       },
       select: { id: true, name: true, slug: true, state: true },
     });
 
-    // If boundary GeoJSON was provided, update the PostGIS geometry column
+    // If boundary GeoJSON was provided, set the PostGIS geometry column
     if (data.boundaryGeoJson) {
       await db.$executeRaw`
-        UPDATE "Nation"
-        SET boundary = ST_SetSRID(ST_GeomFromGeoJSON(${data.boundaryGeoJson}), 4326)
+        UPDATE nations
+        SET boundary = ST_SetSRID(ST_GeomFromGeoJSON(${data.boundaryGeoJson}::json->'geometry'), 4326)
         WHERE id = ${nation.id}
       `;
     }

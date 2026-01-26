@@ -52,17 +52,20 @@ export async function PATCH(
     const body = await request.json();
     const data = nationUpdateSchema.parse(body);
 
+    // Separate boundaryGeoJson from other data (it's not a Prisma field anymore)
+    const { boundaryGeoJson, ...prismaData } = data;
+
     const nation = await db.nation.update({
       where: { id },
-      data,
+      data: prismaData,
       select: { id: true, name: true, slug: true, state: true },
     });
 
     // If boundary GeoJSON was updated, sync the PostGIS geometry column
-    if (data.boundaryGeoJson) {
+    if (boundaryGeoJson) {
       await db.$executeRaw`
-        UPDATE "Nation"
-        SET boundary = ST_SetSRID(ST_GeomFromGeoJSON(${data.boundaryGeoJson}), 4326)
+        UPDATE nations
+        SET boundary = ST_SetSRID(ST_GeomFromGeoJSON(${boundaryGeoJson}::json->'geometry'), 4326)
         WHERE id = ${id}
       `;
     }

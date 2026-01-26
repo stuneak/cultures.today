@@ -3,26 +3,32 @@ import { db } from "@/lib/db";
 
 export async function GET() {
   try {
-    // Only return approved nations for public map
-    const nations = await db.nation.findMany({
-      where: {
-        state: "approved",
-        boundaryGeoJson: { not: null },
-      },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        flagUrl: true,
-        boundaryGeoJson: true,
-      },
-    });
+    // Use raw SQL to get boundary as GeoJSON directly from PostGIS
+    const nations = await db.$queryRaw<
+      Array<{
+        id: string;
+        name: string;
+        slug: string;
+        flagUrl: string | null;
+        boundaryGeojson: string | null;
+      }>
+    >`
+      SELECT
+        id,
+        name,
+        slug,
+        flag_url as "flagUrl",
+        ST_AsGeoJSON(boundary) as "boundaryGeojson"
+      FROM nations
+      WHERE state = 'approved'
+        AND boundary IS NOT NULL
+    `;
 
     const features = nations
       .map((nation) => {
         try {
-          const geoJson = nation.boundaryGeoJson
-            ? JSON.parse(nation.boundaryGeoJson)
+          const geometry = nation.boundaryGeojson
+            ? JSON.parse(nation.boundaryGeojson)
             : null;
 
           return {
@@ -34,7 +40,7 @@ export async function GET() {
               slug: nation.slug,
               flagUrl: nation.flagUrl,
             },
-            geometry: geoJson?.geometry,
+            geometry,
           };
         } catch {
           return null;
