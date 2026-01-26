@@ -171,10 +171,24 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
     }
   }, [mapInstance, radiusKm]);
 
+  // Clear the stroke preview
+  const clearStrokePreview = useCallback(() => {
+    strokePointsRef.current = [];
+    if (mapInstance) {
+      const strokeSource = mapInstance.getSource(strokeSourceId) as GeoJSONSource | undefined;
+      if (strokeSource) {
+        strokeSource.setData(featureCollection([]));
+      }
+    }
+  }, [mapInstance]);
+
   // Commit the stroke when mouse is released
   const commitStroke = useCallback(() => {
     const points = strokePointsRef.current;
-    if (points.length === 0) return;
+    if (points.length === 0) {
+      clearStrokePreview();
+      return;
+    }
 
     // Create the stroke shape
     let strokeShape: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon> | null;
@@ -189,7 +203,7 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
     }
 
     if (!strokeShape) {
-      strokePointsRef.current = [];
+      clearStrokePreview();
       return;
     }
 
@@ -206,23 +220,15 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
     } else {
       // Erase mode
       if (!current) {
-        strokePointsRef.current = [];
+        clearStrokePreview();
         return; // Nothing to erase
       }
       const subtracted = difference(featureCollection([current, strokeShape]));
       newPolygon = subtracted as GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon> | null;
     }
 
-    // Clear stroke points
-    strokePointsRef.current = [];
-
     // Clear stroke preview
-    if (mapInstance) {
-      const strokeSource = mapInstance.getSource(strokeSourceId) as GeoJSONSource | undefined;
-      if (strokeSource) {
-        strokeSource.setData(featureCollection([]));
-      }
-    }
+    clearStrokePreview();
 
     if (newPolygon) {
       currentPolygonRef.current = newPolygon;
@@ -234,7 +240,7 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
       pushToHistory(current!);
       setCurrentPolygon(null);
     }
-  }, [brushMode, radiusKm, pushToHistory, setCurrentPolygon, mapInstance]);
+  }, [brushMode, radiusKm, pushToHistory, setCurrentPolygon, clearStrokePreview]);
 
   // Setup map layers
   useEffect(() => {
