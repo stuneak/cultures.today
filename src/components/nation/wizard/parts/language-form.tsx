@@ -60,7 +60,7 @@ export function LanguageForm({
         <Group align="flex-start">
           <TextInput
             label="Language Name"
-            placeholder="e.g., Swahili"
+            placeholder="Swahili, Mandarin, Navajo, etc."
             required
             style={{ flex: 1 }}
             value={language.name}

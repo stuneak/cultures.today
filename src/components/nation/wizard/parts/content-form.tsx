@@ -93,8 +93,8 @@ export function ContentForm({
     <Card withBorder p="md">
       <Stack gap="sm">
         <TextInput
-          label="Title"
-          placeholder="Enter content title"
+          label="Content title"
+          placeholder="e.g., 'Favorite Dishes', 'Traditional Clothing', 'Folk Tales'"
           required
           value={content.title}
           onChange={(e) => onChange({ ...content, title: e.target.value })}
@@ -102,7 +102,7 @@ export function ContentForm({
         />
 
         <Radio.Group
-          label="Content Type"
+          label=""
           required
           value={content.contentType}
           onChange={(value) =>

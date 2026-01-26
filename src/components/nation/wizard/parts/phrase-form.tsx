@@ -123,7 +123,7 @@ export function PhraseForm({
       <Stack gap="xs">
         <TextInput
           label="Original Text"
-          placeholder="Enter phrase in the language"
+          placeholder="Phrase in the language, e.g., Hola"
           size="xs"
           required
           value={phrase.text}
@@ -133,7 +133,7 @@ export function PhraseForm({
 
         <TextInput
           label="Translation"
-          placeholder="Enter English translation"
+          placeholder="English translation, e.g., Hello"
           size="xs"
           required
           value={phrase.translation}

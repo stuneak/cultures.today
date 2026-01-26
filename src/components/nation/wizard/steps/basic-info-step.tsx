@@ -38,7 +38,7 @@ export function BasicInfoStep({
   errors,
 }: BasicInfoStepProps) {
   const [flagPreview, setFlagPreview] = useState<string | null>(
-    data.flagUrl ? getMediaUrl(data.flagUrl) : null
+    data.flagUrl ? getMediaUrl(data.flagUrl) : null,
   );
 
   const {
@@ -73,8 +73,8 @@ export function BasicInfoStep({
   return (
     <Stack gap="md">
       <TextInput
-        label="Nation Name"
-        placeholder="Enter the nation's name"
+        label="What’s your nation called?"
+        placeholder="Enter the name of your nation"
         required
         value={data.name}
         onChange={(e) => onChange({ name: e.target.value })}
@@ -82,9 +82,10 @@ export function BasicInfoStep({
       />
 
       <Textarea
-        label="Description"
-        placeholder="Describe this nation's history and culture"
-        rows={4}
+        label="What makes your nation special?"
+        placeholder="Welcome! Tell us all about your nation, its people, culture, traditions, food, festivals, and anything that makes it special. Share your nation’s story so others can discover it!"
+        rows={6}
+        required
         value={data.description}
         onChange={(e) => onChange({ description: e.target.value })}
         error={errors.description}

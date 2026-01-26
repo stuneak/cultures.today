@@ -40,7 +40,8 @@ export function ContentsStep({
   return (
     <Stack gap="md">
       <Text size="sm" c="dimmed">
-        Add cultural content such as food, music, or other media.
+        We’d love to see your nation’s culture! Share its food, music, dances,
+        videos, or anything else that tells its story.
       </Text>
 
       <Stack gap="sm">

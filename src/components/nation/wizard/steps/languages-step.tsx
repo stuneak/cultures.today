@@ -40,7 +40,8 @@ export function LanguagesStep({
   return (
     <Stack gap="md">
       <Text size="sm" c="dimmed">
-        Add at least one language spoken in this nation, with example phrases.
+        Which languages are spoken in your nation? Add at least one, and give a
+        few example phrases to bring it to life!
       </Text>
 
       <Stack gap="lg">

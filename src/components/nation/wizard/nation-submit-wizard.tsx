@@ -86,8 +86,12 @@ export function NationSubmitWizard({
 
     switch (step) {
       case 0: // Basic Info
-        if (!formData.name || formData.name.trim().length < 2) {
-          newErrors.name = "Name must be at least 2 characters";
+        if (!formData.name) {
+          newErrors.name = "Name is required";
+        }
+
+        if (!formData.description) {
+          newErrors.description = "Description is required";
         }
         break;
 
