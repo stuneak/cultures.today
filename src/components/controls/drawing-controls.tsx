@@ -142,7 +142,8 @@ export function DrawingControls({
               aria-label={
                 brushMode === "add" ? "Switch to erase" : "Switch to add"
               }
-              color={brushMode === "add" ? "blue" : "red"}
+              variant="filled"
+              color={brushMode === "add" ? "red" : "blue"}
             >
               {brushMode === "add" ? (
                 <IconEraser {...iconStyles} />

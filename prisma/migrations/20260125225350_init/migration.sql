@@ -5,10 +5,7 @@ CREATE EXTENSION IF NOT EXISTS "postgis";
 CREATE TYPE "NationState" AS ENUM ('approved', 'pending');
 
 -- CreateEnum
-CREATE TYPE "ContentType" AS ENUM ('IMAGE_UPLOAD', 'VIDEO_UPLOAD', 'VIDEO_YOUTUBE');
-
--- CreateEnum
-CREATE TYPE "ContentCategory" AS ENUM ('FOOD', 'MUSIC', 'OTHER');
+CREATE TYPE "ContentType" AS ENUM ('UPLOAD', 'VIDEO_YOUTUBE');
 
 -- CreateTable
 CREATE TABLE users (
@@ -43,7 +40,6 @@ CREATE TABLE nations (
 CREATE TABLE languages (
     id TEXT NOT NULL,
     name TEXT NOT NULL,
-    description TEXT NOT NULL,
     nation_id TEXT NOT NULL,
 
     CONSTRAINT languages_pkey PRIMARY KEY (id)
@@ -67,7 +63,6 @@ CREATE TABLE contents (
     title TEXT NOT NULL,
     content_type "ContentType" NOT NULL,
     content_url TEXT,
-    category "ContentCategory" NOT NULL DEFAULT 'OTHER',
     nation_id TEXT NOT NULL,
     created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 

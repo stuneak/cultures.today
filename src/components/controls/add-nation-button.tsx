@@ -20,7 +20,7 @@ export function DrawingBottomBar({
 }: DrawingBottomBarProps) {
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-10">
-      <Group gap="md">
+      <Group gap="xs">
         <Tooltip label="Finish drawing (Enter)" position="top">
           <Button
             variant="main-page-control"
@@ -36,7 +36,7 @@ export function DrawingBottomBar({
         </Tooltip>
         <Tooltip label="Cancel drawing (Esc)" position="top">
           <Button
-            variant="main-page-control"
+            variant="filled"
             size="lg"
             radius="xl"
             color="red"
