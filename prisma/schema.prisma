@@ -54,9 +54,8 @@ model Nation {
 }
 
 model Language {
-  id          String @id @default(cuid())
-  name        String
-  description String
+  id   String @id @default(cuid())
+  name String
 
   nationId String @map("nation_id")
   nation   Nation @relation(fields: [nationId], references: [id], onDelete: Cascade)

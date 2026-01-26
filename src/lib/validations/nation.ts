@@ -27,7 +27,6 @@ export const phraseSchema = z.object({
 // Language schema with nested phrases
 export const languageSchema = z.object({
   name: z.string().min(1, "Language name is required"),
-  description: z.string().min(1, "Language description is required"),
   phrases: z.array(phraseSchema).min(1, "At least one phrase is required"),
 });
 

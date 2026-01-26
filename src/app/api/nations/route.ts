@@ -108,7 +108,6 @@ export async function POST(request: NextRequest) {
         await tx.language.create({
           data: {
             name: lang.name,
-            description: lang.description,
             nationId: newNation.id,
             phrases: {
               create: lang.phrases.map((phrase) => ({
