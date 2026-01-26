@@ -20,31 +20,15 @@ import {
   Button,
   Menu,
 } from "@mantine/core";
-import { useMediaQuery } from "@mantine/hooks";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useMapStore } from "@/stores/map-store";
+import { useIconStyles } from "./use-icon-styles";
 import "./styles.css";
 
 const toolTipStyles = {
   position: "left" as const,
   openDelay: 500,
 };
-
-function useIconStyles() {
-  const isMobile = useMediaQuery("(max-width: 600px)");
-
-  const actionIconStyles = {
-    variant: "main-page-control" as const,
-    size: isMobile ? ("lg" as const) : ("xl" as const),
-    radius: "lg" as const,
-  };
-
-  const iconStyles = {
-    size: isMobile ? 20 : 24,
-    stroke: 1.5,
-  };
-  return { actionIconStyles, iconStyles };
-}
 
 function TopControls() {
   const { data: session, status } = useSession();

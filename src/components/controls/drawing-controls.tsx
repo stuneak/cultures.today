@@ -1,7 +1,6 @@
 "use client";
 
 import { ActionIcon, Tooltip } from "@mantine/core";
-import { useMediaQuery } from "@mantine/hooks";
 import {
   IconBrush,
   IconEraser,
@@ -10,6 +9,7 @@ import {
   IconArrowBackUp,
 } from "@tabler/icons-react";
 import { useRef, useCallback } from "react";
+import { useIconStyles } from "./use-icon-styles";
 import "./drawing-controls.css";
 
 const toolTipStyles = {
@@ -25,22 +25,6 @@ interface DrawingControlsProps {
   onUndo: () => void;
   canUndo: boolean;
   showMode: boolean;
-}
-
-function useIconStyles() {
-  const isMobile = useMediaQuery("(max-width: 600px)");
-
-  const actionIconStyles = {
-    variant: "main-page-control" as const,
-    size: isMobile ? ("lg" as const) : ("xl" as const),
-    radius: "lg" as const,
-  };
-
-  const iconStyles = {
-    size: isMobile ? 20 : 24,
-    stroke: 1.5,
-  };
-  return { actionIconStyles, iconStyles };
 }
 
 interface VerticalSliderProps {
