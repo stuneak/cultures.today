@@ -9,16 +9,23 @@ interface DrawingHintsProps {
   brushMode: "add" | "erase";
 }
 
-export function DrawingHints({ showMode, onShowModeChange, brushMode }: DrawingHintsProps) {
+export function DrawingHints({
+  showMode,
+  onShowModeChange,
+  brushMode,
+}: DrawingHintsProps) {
   return (
     <div className="fixed top-4 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2">
       {/* Mode Toggle Button */}
-      <Tooltip label={showMode ? "Switch to Draw (S)" : "Switch to Pan (S)"} position="bottom">
+      <Tooltip
+        label={showMode ? "Switch to Draw (S)" : "Switch to Pan (S)"}
+        position="bottom"
+      >
         <ActionIcon
           variant="filled"
           size="xl"
           radius="xl"
-          color={showMode ? "gray" : "blue"}
+          color={showMode ? "red" : "blue"}
           onClick={() => onShowModeChange(!showMode)}
           aria-label={showMode ? "Switch to draw mode" : "Switch to pan mode"}
         >
@@ -29,7 +36,11 @@ export function DrawingHints({ showMode, onShowModeChange, brushMode }: DrawingH
       {/* Hints Panel */}
       <Paper shadow="sm" p="xs" withBorder>
         <Text size="sm" ta="center" fw={500}>
-          {showMode ? "🖐️ Panning" : brushMode === "add" ? "🖌️ Drawing" : "🧹 Erasing"}
+          {showMode
+            ? "🖐️ Panning"
+            : brushMode === "add"
+              ? "🖌️ Drawing"
+              : "🧹 Erasing"}
         </Text>
         <Text size="xs" c="dimmed" ta="center" mt={4}>
           {showMode

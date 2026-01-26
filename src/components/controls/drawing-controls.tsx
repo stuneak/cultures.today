@@ -1,6 +1,6 @@
 "use client";
 
-import { ActionIcon, Tooltip, Slider, Text } from "@mantine/core";
+import { ActionIcon, Tooltip } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import {
   IconBrush,
@@ -11,6 +11,7 @@ import {
   IconCheck,
   IconX,
 } from "@tabler/icons-react";
+import { useRef, useCallback } from "react";
 import "./drawing-controls.css";
 
 const toolTipStyles = {
@@ -47,6 +48,66 @@ function useIconStyles() {
   return { actionIconStyles, iconStyles };
 }
 
+interface VerticalSliderProps {
+  value: number;
+  onChange: (value: number) => void;
+  min: number;
+  max: number;
+}
+
+function VerticalSlider({ value, onChange, min, max }: VerticalSliderProps) {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const isDragging = useRef(false);
+
+  const calculateValue = useCallback(
+    (clientY: number) => {
+      if (!trackRef.current) return value;
+      const rect = trackRef.current.getBoundingClientRect();
+      const percentage = 1 - (clientY - rect.top) / rect.height;
+      const clampedPercentage = Math.max(0, Math.min(1, percentage));
+      return Math.round(min + clampedPercentage * (max - min));
+    },
+    [min, max, value]
+  );
+
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent) => {
+      isDragging.current = true;
+      (e.target as HTMLElement).setPointerCapture(e.pointerId);
+      onChange(calculateValue(e.clientY));
+    },
+    [calculateValue, onChange]
+  );
+
+  const handlePointerMove = useCallback(
+    (e: React.PointerEvent) => {
+      if (!isDragging.current) return;
+      onChange(calculateValue(e.clientY));
+    },
+    [calculateValue, onChange]
+  );
+
+  const handlePointerUp = useCallback(() => {
+    isDragging.current = false;
+  }, []);
+
+  const percentage = ((value - min) / (max - min)) * 100;
+
+  return (
+    <div
+      ref={trackRef}
+      className="vertical-slider-track"
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerLeave={handlePointerUp}
+    >
+      <div className="vertical-slider-fill" style={{ height: `${percentage}%` }} />
+      <div className="vertical-slider-thumb" style={{ bottom: `${percentage}%` }} />
+    </div>
+  );
+}
+
 export function DrawingControls({
   brushMode,
   onBrushModeChange,
@@ -75,7 +136,9 @@ export function DrawingControls({
               onClick={() =>
                 onBrushModeChange(brushMode === "add" ? "erase" : "add")
               }
-              aria-label={brushMode === "add" ? "Switch to erase" : "Switch to add"}
+              aria-label={
+                brushMode === "add" ? "Switch to erase" : "Switch to add"
+              }
               color={brushMode === "add" ? "blue" : "red"}
             >
               {brushMode === "add" ? (
@@ -87,7 +150,7 @@ export function DrawingControls({
           </Tooltip>
 
           {/* Size increase */}
-          <Tooltip {...toolTipStyles} label="Increase size (])">
+          <Tooltip {...toolTipStyles} label="Increase size ">
             <ActionIcon
               {...actionIconStyles}
               onClick={() => onBrushSizeChange(brushSize + 10)}
@@ -99,27 +162,17 @@ export function DrawingControls({
           </Tooltip>
 
           {/* Slider */}
-          <div className="brush-slider-container">
-            <div className="brush-slider-vertical">
-              <Slider
-                value={brushSize}
-                onChange={onBrushSizeChange}
-                min={0}
-                max={100}
-                step={1}
-                size="lg"
-                label={formatBrushSize}
-                labelAlwaysOn={false}
-                inverted
-              />
-            </div>
-            <Text size="xs" ta="center" c="dimmed" mt={8}>
-              {formatBrushSize(brushSize)}
-            </Text>
+          <div className="brush-slider-vertical">
+            <VerticalSlider
+              value={brushSize}
+              onChange={onBrushSizeChange}
+              min={0}
+              max={100}
+            />
           </div>
 
           {/* Size decrease */}
-          <Tooltip {...toolTipStyles} label="Decrease size ([)">
+          <Tooltip {...toolTipStyles} label="Decrease size">
             <ActionIcon
               {...actionIconStyles}
               onClick={() => onBrushSizeChange(brushSize - 10)}
