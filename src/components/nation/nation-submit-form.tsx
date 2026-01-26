@@ -16,7 +16,7 @@ import { IconAlertCircle, IconCheck } from "@tabler/icons-react";
 interface NationSubmitFormProps {
   opened: boolean;
   onClose: () => void;
-  initialBoundary?: GeoJSON.Feature<GeoJSON.Polygon> | null;
+  initialBoundary?: GeoJSON.Feature<GeoJSON.MultiPolygon> | null;
 }
 
 export function NationSubmitForm({
@@ -43,17 +43,11 @@ export function NationSubmitForm({
   // Store boundary when polygon is drawn on map
   useEffect(() => {
     if (initialBoundary) {
-      const multiPolygonFeature = {
-        type: "Feature",
-        properties: {},
-        geometry: {
-          type: "MultiPolygon",
-          coordinates: [initialBoundary.geometry.coordinates],
-        },
-      };
-      setBoundaryGeoJson(JSON.stringify(multiPolygonFeature));
+      setBoundaryGeoJson(JSON.stringify(initialBoundary));
     }
   }, [initialBoundary]);
+
+  const polygonCount = initialBoundary?.geometry?.coordinates?.length ?? 0;
 
   // Reset form when modal closes
   useEffect(() => {
@@ -124,7 +118,9 @@ export function NationSubmitForm({
             )}
 
             <Text size="sm" c="dimmed">
-              Your drawn boundary has been saved. Fill in the details below to complete your submission.
+              {polygonCount > 0
+                ? `Your ${polygonCount} drawn polygon${polygonCount !== 1 ? "s have" : " has"} been saved. Fill in the details below.`
+                : "Fill in the details below to complete your submission."}
             </Text>
 
             <TextInput
