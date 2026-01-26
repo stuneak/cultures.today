@@ -47,9 +47,9 @@ export function WorldMap({
     map.current = new maplibregl.Map({
       container: mapContainer.current,
       style: mapStyle,
-      center: [0, 20],
-      zoom: 1.5,
-      minZoom: 1,
+      center: [9.753, 50.6844],
+      zoom: 3,
+      minZoom: 3,
       maxZoom: 18,
     });
 
@@ -62,6 +62,8 @@ export function WorldMap({
       try {
         const response = await fetch("/api/nations/geojson");
         const geojson = await response.json();
+
+        mapInstance.setProjection({ type: "globe" });
 
         mapInstance.addSource("nations", {
           type: "geojson",

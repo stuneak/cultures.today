@@ -56,8 +56,8 @@ export function LanguagesSection({ languages }: LanguagesSectionProps) {
                             <Text fw={500} size="lg">
                               {phrase.text}
                             </Text>
-                            <Text size="sm" c="dimmed">
-                              {phrase.translation}
+                            <Text size="xs" c="dimmed">
+                              Translation: {phrase.translation}
                             </Text>
                           </div>
                           <audio controls className=" h-8">

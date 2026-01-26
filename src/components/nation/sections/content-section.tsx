@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Card, Text, Badge, Tabs } from "@mantine/core";
+import { Card, Text, Tabs } from "@mantine/core";
 import { IconToolsKitchen2, IconMusic, IconPhoto } from "@tabler/icons-react";
 import { getMediaUrl } from "@/lib/media-url";
 
@@ -57,13 +57,7 @@ function ContentCard({ item }: { item: Content }) {
         )}
       </div>
       <div className="p-4">
-        <div className="flex items-center gap-2">
-          <Text fw={500}>{item.title}</Text>
-          <Badge size="xs" variant="light">
-            {item.contentType === "VIDEO_YOUTUBE" ? "YouTube" :
-             item.contentType === "VIDEO_UPLOAD" ? "Video" : "Image"}
-          </Badge>
-        </div>
+        <Text fw={500}>{item.title}</Text>
       </div>
     </Card>
   );
