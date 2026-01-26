@@ -129,75 +129,80 @@ export function DrawingControls({
     <div className="drawing-controls-container ml-2">
       <nav>
         <ActionIcon.Group orientation="vertical">
-          {/* Add/Erase Toggle */}
-          <Tooltip
-            {...toolTipStyles}
-            label={brushMode === "add" ? "Erase mode (W)" : "Draw mode (W)"}
-          >
-            <ActionIcon
-              {...actionIconStyles}
-              onClick={() =>
-                onBrushModeChange(brushMode === "add" ? "erase" : "add")
-              }
-              aria-label={
-                brushMode === "add" ? "Switch to erase" : "Switch to add"
-              }
-              variant="filled"
-              color={brushMode === "add" ? "red" : "blue"}
-            >
-              {brushMode === "add" ? (
-                <IconEraser {...iconStyles} />
-              ) : (
+          {/* Add/Erase Vertical Switch */}
+          <div className="mode-switch-vertical">
+            <Tooltip {...toolTipStyles} label="Draw mode (W)">
+              <button
+                className={`mode-switch-option ${brushMode === "add" ? "active" : ""}`}
+                onClick={() => onBrushModeChange("add")}
+                aria-label="Switch to draw mode"
+                data-mode="add"
+              >
                 <IconBrush {...iconStyles} />
-              )}
-            </ActionIcon>
-          </Tooltip>
-
-          {/* Size increase */}
-          <Tooltip {...toolTipStyles} label="Increase size (D) ">
-            <ActionIcon
-              {...actionIconStyles}
-              onClick={() => onBrushSizeChange(brushSize + 10)}
-              disabled={brushSize >= 100}
-              aria-label="Increase brush size"
-            >
-              <IconPlus {...iconStyles} />
-            </ActionIcon>
-          </Tooltip>
-
-          {/* Slider */}
-          <div className="brush-slider-vertical">
-            <VerticalSlider
-              value={brushSize}
-              onChange={onBrushSizeChange}
-              min={0}
-              max={100}
-            />
+              </button>
+            </Tooltip>
+            <Tooltip {...toolTipStyles} label="Erase mode (W)">
+              <button
+                className={`mode-switch-option ${brushMode === "erase" ? "active" : ""}`}
+                onClick={() => onBrushModeChange("erase")}
+                aria-label="Switch to erase mode"
+                data-mode="erase"
+              >
+                <IconEraser {...iconStyles} />
+              </button>
+            </Tooltip>
           </div>
 
-          {/* Size decrease */}
-          <Tooltip {...toolTipStyles} label="Decrease size (A)">
-            <ActionIcon
-              {...actionIconStyles}
-              onClick={() => onBrushSizeChange(brushSize - 10)}
-              disabled={brushSize <= 0}
-              aria-label="Decrease brush size"
-            >
-              <IconMinus {...iconStyles} />
-            </ActionIcon>
-          </Tooltip>
+          <div className="brush-size-controls-vertical">
+            <Tooltip {...toolTipStyles} label="Increase size (D) ">
+              <ActionIcon
+                {...actionIconStyles}
+                onClick={() => onBrushSizeChange(brushSize + 10)}
+                disabled={brushSize >= 100}
+                aria-label="Increase brush size"
+              >
+                <IconPlus {...iconStyles} />
+              </ActionIcon>
+            </Tooltip>
 
-          {/* Undo */}
-          <Tooltip {...toolTipStyles} label="Undo (Ctrl+Z)">
-            <ActionIcon
-              {...actionIconStyles}
-              onClick={onUndo}
-              disabled={!canUndo}
-              aria-label="Undo"
-            >
-              <IconArrowBackUp {...iconStyles} />
-            </ActionIcon>
-          </Tooltip>
+            {/* Slider */}
+            <div className="brush-slider-vertical">
+              <VerticalSlider
+                value={brushSize}
+                onChange={onBrushSizeChange}
+                min={0}
+                max={100}
+              />
+            </div>
+
+            {/* Size decrease */}
+            <Tooltip {...toolTipStyles} label="Decrease size (A)">
+              <ActionIcon
+                {...actionIconStyles}
+                onClick={() => onBrushSizeChange(brushSize - 10)}
+                disabled={brushSize <= 0}
+                aria-label="Decrease brush size"
+              >
+                <IconMinus {...iconStyles} />
+              </ActionIcon>
+            </Tooltip>
+          </div>
+
+          <div>
+            {/* Undo */}
+            <Tooltip {...toolTipStyles} label="Undo (Ctrl+Z)">
+              <ActionIcon
+                {...actionIconStyles}
+                onClick={onUndo}
+                disabled={!canUndo}
+                aria-label="Undo"
+              >
+                <IconArrowBackUp {...iconStyles} />
+              </ActionIcon>
+            </Tooltip>
+          </div>
+
+          {/* Size increase */}
         </ActionIcon.Group>
       </nav>
     </div>
