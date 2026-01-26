@@ -39,6 +39,7 @@ export function NationSubmitWizard({
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [highestCompletedStep, setHighestCompletedStep] = useState(-1);
 
   // Generate temp slug once per wizard session
   const tempSlug = useMemo(
@@ -55,6 +56,7 @@ export function NationSubmitWizard({
       setErrors({});
       setSuccess(false);
       setSubmitError(null);
+      setHighestCompletedStep(-1);
     }
   }, [opened, initialBoundary]);
 
@@ -66,6 +68,7 @@ export function NationSubmitWizard({
       setErrors({});
       setSuccess(false);
       setSubmitError(null);
+      setHighestCompletedStep(-1);
     }
   }, [opened]);
 
@@ -157,6 +160,7 @@ export function NationSubmitWizard({
 
   const handleNext = () => {
     if (validateStep(activeStep)) {
+      setHighestCompletedStep((prev) => Math.max(prev, activeStep));
       setActiveStep((prev) => Math.min(prev + 1, 3));
     }
   };
@@ -166,9 +170,18 @@ export function NationSubmitWizard({
   };
 
   const handleStepClick = (step: number) => {
-    // Only allow going back, or going to steps that are already validated
+    // Allow going back to any previous step
     if (step < activeStep) {
       setActiveStep(step);
+      return;
+    }
+    // Allow going forward only if step was previously completed
+    if (step <= highestCompletedStep + 1 && step <= activeStep + 1) {
+      // Validate current step before moving forward
+      if (validateStep(activeStep)) {
+        setHighestCompletedStep((prev) => Math.max(prev, activeStep));
+        setActiveStep(step);
+      }
     }
   };
 
