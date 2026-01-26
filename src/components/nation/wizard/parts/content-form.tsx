@@ -121,16 +121,20 @@ export function ContentForm({
             {preview ? (
               <div>
                 {content.contentUrl?.match(/\.(mp4|webm)$/i) ? (
-                  <video controls style={{ width: 200, height: 120 }}>
+                  <video
+                    controls
+                    style={{ width: "100%", aspectRatio: "16/9" }}
+                  >
                     <source src={preview} type="video/mp4" />
                   </video>
                 ) : (
                   <Image
                     src={preview}
                     alt="Preview"
-                    w={200}
-                    h={120}
-                    fit="cover"
+                    w="100%"
+                    h="auto"
+                    mah={300}
+                    fit="contain"
                     radius="sm"
                   />
                 )}
@@ -183,11 +187,11 @@ export function ContentForm({
             />
 
             {youtubeEmbed && (
-              <div className="mt-2">
+              <div className="mt-2" style={{ aspectRatio: "16/9" }}>
                 <iframe
                   src={youtubeEmbed}
-                  width={200}
-                  height={120}
+                  width="100%"
+                  height="100%"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                   className="rounded"

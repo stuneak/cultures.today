@@ -1,6 +1,6 @@
 "use client";
 
-import { Stack, Button, Text } from "@mantine/core";
+import { Stack, Button, Text, Alert } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
 import { LanguageForm } from "../parts/language-form";
 import { INITIAL_LANGUAGE } from "../types";
@@ -39,10 +39,10 @@ export function LanguagesStep({
 
   return (
     <Stack gap="md">
-      <Text size="sm" c="dimmed">
-        Which languages are spoken in your nation? Add at least one, and give a
-        few example phrases to bring it to life!
-      </Text>
+      <Alert variant="light" color="blue">
+        Which languages does your nation speak? Add one with a few example
+        phrases 👀
+      </Alert>
 
       <Stack gap="lg">
         {data.languages.map((language, index) => (

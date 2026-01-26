@@ -1,6 +1,6 @@
 "use client";
 
-import { Stack, Button, Text } from "@mantine/core";
+import { Stack, Button, Text, Alert } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
 import { ContentForm } from "../parts/content-form";
 import { INITIAL_CONTENT } from "../types";
@@ -39,10 +39,11 @@ export function ContentsStep({
 
   return (
     <Stack gap="md">
-      <Text size="sm" c="dimmed">
-        We’d love to see your nation’s culture! Share its food, music, dances,
-        videos, or anything else that tells its story.
-      </Text>
+      <Alert variant="light" color="blue">
+        We’d love to see and celebrate your nation’s culture! Share its food,
+        music, dances, videos, traditions, or anything else that tells its
+        unique story 🌏
+      </Alert>
 
       <Stack gap="sm">
         {data.contents.map((content, index) => (

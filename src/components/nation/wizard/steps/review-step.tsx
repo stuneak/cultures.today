@@ -9,8 +9,14 @@ import {
   Image,
   Badge,
   Button,
+  Alert,
 } from "@mantine/core";
-import { IconEdit, IconLanguage, IconPhoto, IconMap } from "@tabler/icons-react";
+import {
+  IconEdit,
+  IconLanguage,
+  IconPhoto,
+  IconMap,
+} from "@tabler/icons-react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { getMediaUrl } from "@/lib/media-url";
@@ -95,7 +101,7 @@ export function ReviewStep({ data, onEditStep }: ReviewStepProps) {
 
       const bounds = new maplibregl.LngLatBounds(
         [Math.min(...lngs), Math.min(...lats)],
-        [Math.max(...lngs), Math.max(...lats)]
+        [Math.max(...lngs), Math.max(...lats)],
       );
 
       map.fitBounds(bounds, { padding: 40 });
@@ -109,34 +115,34 @@ export function ReviewStep({ data, onEditStep }: ReviewStepProps) {
 
   return (
     <Stack gap="md">
-      <Text size="sm" c="dimmed">
-        Review your submission before submitting.
-      </Text>
+      <Alert variant="light" color="blue">
+        Almost there! Take a moment to review your submission before sending 💌
+      </Alert>
+
+      {/* Territory */}
+      <Card withBorder>
+        <Group gap="xs" mb="sm">
+          <IconMap size={16} />
+          <Text fw={600}>Territory</Text>
+        </Group>
+        <Card withBorder p={0} className="overflow-hidden" mb="xs">
+          <div ref={mapContainerRef} style={{ height: 200, width: "100%" }} />
+        </Card>
+      </Card>
 
       {/* Basic Info */}
       <Card withBorder>
-        <Group justify="space-between" mb="sm">
-          <Text fw={600}>Basic Info</Text>
-          <Button
-            variant="subtle"
-            size="xs"
-            leftSection={<IconEdit size={14} />}
-            onClick={() => onEditStep(0)}
-          >
-            Edit
-          </Button>
-        </Group>
         <Stack gap="xs">
           <div>
             <Text size="xs" c="dimmed">
-              Name
+              What’s your nation called?
             </Text>
             <Text>{data.name}</Text>
           </div>
           {data.description && (
             <div>
               <Text size="xs" c="dimmed">
-                Description
+                What makes your nation special?
               </Text>
               <Text size="sm">{data.description}</Text>
             </div>
@@ -160,43 +166,15 @@ export function ReviewStep({ data, onEditStep }: ReviewStepProps) {
         </Stack>
       </Card>
 
-      {/* Territory */}
-      <Card withBorder>
-        <Group gap="xs" mb="sm">
-          <IconMap size={16} />
-          <Text fw={600}>Territory</Text>
-        </Group>
-        <Card withBorder p={0} className="overflow-hidden" mb="xs">
-          <div ref={mapContainerRef} style={{ height: 200, width: "100%" }} />
-        </Card>
-        <Text size="sm" c="dimmed">
-          {polygonCount} polygon{polygonCount !== 1 ? "s" : ""} defined
-        </Text>
-      </Card>
-
       {/* Languages */}
       <Card withBorder>
-        <Group justify="space-between" mb="sm">
-          <Group gap="xs">
-            <IconLanguage size={16} />
-            <Text fw={600}>Languages ({data.languages.length})</Text>
-          </Group>
-          <Button
-            variant="subtle"
-            size="xs"
-            leftSection={<IconEdit size={14} />}
-            onClick={() => onEditStep(1)}
-          >
-            Edit
-          </Button>
-        </Group>
         <Stack gap="md">
           {data.languages.map((lang) => (
             <div key={lang.id}>
               <Text size="sm" fw={500} mb="xs">
                 {lang.name}
               </Text>
-              <Stack gap="xs" pl="sm">
+              <Stack gap="xs">
                 {lang.phrases.map((phrase, idx) => (
                   <Card key={phrase.id} withBorder p="xs">
                     <Text size="xs" fw={500}>
@@ -206,7 +184,10 @@ export function ReviewStep({ data, onEditStep }: ReviewStepProps) {
                       {phrase.translation}
                     </Text>
                     {phrase.audioUrl && (
-                      <audio controls style={{ height: 24, marginTop: 4 }}>
+                      <audio
+                        controls
+                        style={{ height: 24, marginTop: 4, width: "100%" }}
+                      >
                         <source
                           src={getMediaUrl(phrase.audioUrl)}
                           type="audio/webm"
@@ -222,66 +203,57 @@ export function ReviewStep({ data, onEditStep }: ReviewStepProps) {
       </Card>
 
       {/* Contents */}
-      <Card withBorder>
-        <Group justify="space-between" mb="sm">
-          <Group gap="xs">
-            <IconPhoto size={16} />
-            <Text fw={600}>Contents ({data.contents.length})</Text>
-          </Group>
-          <Button
-            variant="subtle"
-            size="xs"
-            leftSection={<IconEdit size={14} />}
-            onClick={() => onEditStep(2)}
-          >
-            Edit
-          </Button>
-        </Group>
-        <Stack gap="md">
-          {data.contents.map((content) => (
-            <Card key={content.id} withBorder p="sm">
-              <Group gap="xs" mb="xs">
-                <Text size="sm" fw={500}>
-                  {content.title}
-                </Text>
-                <Badge size="xs" variant="outline">
-                  {content.contentType === "VIDEO_YOUTUBE"
-                    ? "YouTube"
-                    : content.contentUrl?.match(/\.(mp4|webm)$/i)
-                      ? "Video"
-                      : "Image"}
-                </Badge>
-              </Group>
-              {content.contentType === "VIDEO_YOUTUBE" && content.contentUrl && (
+
+      <Stack gap="md">
+        {data.contents.map((content) => (
+          <Card key={content.id} withBorder p="sm">
+            <Group gap="xs" mb="xs">
+              <Text size="sm" fw={500}>
+                {content.title}
+              </Text>
+              <Badge size="xs" variant="outline">
+                {content.contentType === "VIDEO_YOUTUBE"
+                  ? "YouTube"
+                  : content.contentUrl?.match(/\.(mp4|webm)$/i)
+                    ? "Video"
+                    : "Image"}
+              </Badge>
+            </Group>
+            {content.contentType === "VIDEO_YOUTUBE" && content.contentUrl && (
+              <div style={{ aspectRatio: "16/9" }}>
                 <iframe
                   src={`https://www.youtube.com/embed/${content.contentUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\s]+)/)?.[1]}`}
-                  width={200}
-                  height={120}
+                  width="100%"
+                  height="100%"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                   className="rounded"
                 />
-              )}
-              {content.contentType === "UPLOAD" && content.contentUrl && (
-                content.contentUrl.match(/\.(mp4|webm)$/i) ? (
-                  <video controls style={{ width: 200, height: 120 }}>
-                    <source src={getMediaUrl(content.contentUrl)} type="video/mp4" />
-                  </video>
-                ) : (
-                  <Image
+              </div>
+            )}
+            {content.contentType === "UPLOAD" &&
+              content.contentUrl &&
+              (content.contentUrl.match(/\.(mp4|webm)$/i) ? (
+                <video controls style={{ width: "100%", aspectRatio: "16/9" }}>
+                  <source
                     src={getMediaUrl(content.contentUrl)}
-                    alt={content.title}
-                    w={200}
-                    h={120}
-                    fit="cover"
-                    radius="sm"
+                    type="video/mp4"
                   />
-                )
-              )}
-            </Card>
-          ))}
-        </Stack>
-      </Card>
+                </video>
+              ) : (
+                <Image
+                  src={getMediaUrl(content.contentUrl)}
+                  alt={content.title}
+                  w="100%"
+                  h="auto"
+                  mah={300}
+                  fit="contain"
+                  radius="sm"
+                />
+              ))}
+          </Card>
+        ))}
+      </Stack>
     </Stack>
   );
 }
