@@ -1,0 +1,16 @@
+.drawing-controls-container {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  pointer-events: none;
+  z-index: 20;
+
+  & nav {
+    pointer-events: auto;
+  }
+}
