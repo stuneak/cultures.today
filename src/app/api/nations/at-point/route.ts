@@ -28,8 +28,8 @@ export async function GET(request: NextRequest) {
     const nations = await db.$queryRaw<
       Array<{ id: string; name: string; slug: string; flagUrl: string | null }>
     >`
-      SELECT id, name, slug, "flagUrl"
-      FROM "Nation"
+      SELECT id, name, slug, flag_url as "flagUrl"
+      FROM nations
       WHERE state = 'approved'
         AND boundary IS NOT NULL
         AND ST_Contains(boundary, ST_SetSRID(ST_Point(${longitude}, ${latitude}), 4326))
