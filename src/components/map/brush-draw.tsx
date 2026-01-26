@@ -8,7 +8,8 @@ import type { MapMouseEvent, GeoJSONSource } from "maplibre-gl";
 import circle from "@turf/circle";
 import union from "@turf/union";
 import difference from "@turf/difference";
-import { featureCollection } from "@turf/helpers";
+import buffer from "@turf/buffer";
+import { featureCollection, lineString } from "@turf/helpers";
 
 interface BrushDrawProps {
   onComplete: (geojson: GeoJSON.Feature<GeoJSON.MultiPolygon>) => void;
@@ -50,7 +51,7 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
 
   const cursorPosRef = useRef<{ lng: number; lat: number } | null>(null);
   const isMouseDownRef = useRef(false);
-  const lastStampPosRef = useRef<{ lng: number; lat: number } | null>(null);
+  const strokePointsRef = useRef<[number, number][]>([]);
   const currentPolygonRef = useRef(currentPolygon);
 
   // Keep ref in sync with state
@@ -60,6 +61,7 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
 
   const sourceId = "brush-polygon";
   const cursorSourceId = "brush-cursor";
+  const strokeSourceId = "brush-stroke";
 
   const radiusKm = useMemo(() => sliderToRadius(brushSize), [brushSize]);
 
@@ -67,13 +69,13 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
   const cleanupLayers = useCallback(() => {
     if (!mapInstance) return;
 
-    ["brush-polygon-fill", "brush-polygon-line", "brush-cursor-line"].forEach(
+    ["brush-polygon-fill", "brush-polygon-line", "brush-cursor-line", "brush-stroke-fill", "brush-stroke-line"].forEach(
       (layer) => {
         if (mapInstance.getLayer(layer)) mapInstance.removeLayer(layer);
       },
     );
 
-    [sourceId, cursorSourceId].forEach((source) => {
+    [sourceId, cursorSourceId, strokeSourceId].forEach((source) => {
       if (mapInstance.getSource(source)) mapInstance.removeSource(source);
     });
   }, [mapInstance]);
@@ -140,53 +142,99 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
     cursorSource.setData(cursorCircle);
   }, [mapInstance, radiusKm, showMode]);
 
-  // Handle stamp (add or erase)
-  const handleStamp = useCallback(
-    (lng: number, lat: number) => {
-      const stampCircle = circle([lng, lat], radiusKm, { units: "kilometers" });
-      const current = currentPolygonRef.current; // Use ref for latest value
+  // Update live stroke preview while drawing
+  const updateStrokePreview = useCallback(() => {
+    if (!mapInstance) return;
 
-      let newPolygon: GeoJSON.Feature<
-        GeoJSON.Polygon | GeoJSON.MultiPolygon
-      > | null;
+    const strokeSource = mapInstance.getSource(strokeSourceId) as
+      | GeoJSONSource
+      | undefined;
+    if (!strokeSource) return;
 
-      if (brushMode === "add") {
-        if (!current) {
-          newPolygon = stampCircle as GeoJSON.Feature<GeoJSON.Polygon>;
-        } else {
-          const merged = union(
-            featureCollection([current, stampCircle]),
-          );
-          newPolygon = merged as GeoJSON.Feature<
-            GeoJSON.Polygon | GeoJSON.MultiPolygon
-          > | null;
-        }
+    const points = strokePointsRef.current;
+    if (points.length < 2) {
+      // Single point - show a circle
+      if (points.length === 1) {
+        const singleCircle = circle(points[0], radiusKm, { units: "kilometers" });
+        strokeSource.setData(singleCircle);
       } else {
-        // Erase mode
-        if (!current) {
-          return; // Nothing to erase
-        }
-        const subtracted = difference(
-          featureCollection([current, stampCircle]),
-        );
-        newPolygon = subtracted as GeoJSON.Feature<
-          GeoJSON.Polygon | GeoJSON.MultiPolygon
-        > | null;
+        strokeSource.setData(featureCollection([]));
       }
+      return;
+    }
 
-      if (newPolygon) {
-        currentPolygonRef.current = newPolygon; // Update ref immediately
-        pushToHistory(newPolygon);
-        setCurrentPolygon(newPolygon);
+    // Create a buffered line from all points
+    const line = lineString(points);
+    const bufferedLine = buffer(line, radiusKm, { units: "kilometers" });
+    if (bufferedLine) {
+      strokeSource.setData(bufferedLine);
+    }
+  }, [mapInstance, radiusKm]);
+
+  // Commit the stroke when mouse is released
+  const commitStroke = useCallback(() => {
+    const points = strokePointsRef.current;
+    if (points.length === 0) return;
+
+    // Create the stroke shape
+    let strokeShape: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon> | null;
+
+    if (points.length === 1) {
+      // Single click - create a circle
+      strokeShape = circle(points[0], radiusKm, { units: "kilometers" }) as GeoJSON.Feature<GeoJSON.Polygon>;
+    } else {
+      // Multiple points - create a buffered line
+      const line = lineString(points);
+      strokeShape = buffer(line, radiusKm, { units: "kilometers" }) as GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon> | null;
+    }
+
+    if (!strokeShape) {
+      strokePointsRef.current = [];
+      return;
+    }
+
+    const current = currentPolygonRef.current;
+    let newPolygon: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon> | null;
+
+    if (brushMode === "add") {
+      if (!current) {
+        newPolygon = strokeShape;
       } else {
-        // Erased everything
-        currentPolygonRef.current = null; // Update ref immediately
-        pushToHistory(current!);
-        setCurrentPolygon(null);
+        const merged = union(featureCollection([current, strokeShape]));
+        newPolygon = merged as GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon> | null;
       }
-    },
-    [brushMode, radiusKm, pushToHistory, setCurrentPolygon],
-  );
+    } else {
+      // Erase mode
+      if (!current) {
+        strokePointsRef.current = [];
+        return; // Nothing to erase
+      }
+      const subtracted = difference(featureCollection([current, strokeShape]));
+      newPolygon = subtracted as GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon> | null;
+    }
+
+    // Clear stroke points
+    strokePointsRef.current = [];
+
+    // Clear stroke preview
+    if (mapInstance) {
+      const strokeSource = mapInstance.getSource(strokeSourceId) as GeoJSONSource | undefined;
+      if (strokeSource) {
+        strokeSource.setData(featureCollection([]));
+      }
+    }
+
+    if (newPolygon) {
+      currentPolygonRef.current = newPolygon;
+      pushToHistory(newPolygon);
+      setCurrentPolygon(newPolygon);
+    } else {
+      // Erased everything
+      currentPolygonRef.current = null;
+      pushToHistory(current!);
+      setCurrentPolygon(null);
+    }
+  }, [brushMode, radiusKm, pushToHistory, setCurrentPolygon, mapInstance]);
 
   // Setup map layers
   useEffect(() => {
@@ -210,6 +258,26 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
           type: "line",
           source: sourceId,
           paint: { "line-color": "#3b82f6", "line-width": 3 },
+        });
+      }
+
+      // Live stroke preview source and layers
+      if (!mapInstance.getSource(strokeSourceId)) {
+        mapInstance.addSource(strokeSourceId, {
+          type: "geojson",
+          data: featureCollection([]),
+        });
+        mapInstance.addLayer({
+          id: "brush-stroke-fill",
+          type: "fill",
+          source: strokeSourceId,
+          paint: { "fill-color": "#3b82f6", "fill-opacity": 0.4 },
+        });
+        mapInstance.addLayer({
+          id: "brush-stroke-line",
+          type: "line",
+          source: strokeSourceId,
+          paint: { "line-color": "#3b82f6", "line-width": 2 },
         });
       }
 
@@ -247,17 +315,20 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
     };
   }, [mapInstance, isDrawingMode, showMode]);
 
-  // Update cursor color based on brush mode
+  // Update cursor and stroke color based on brush mode
   useEffect(() => {
     if (!mapInstance || !isDrawingMode) return;
 
-    const layer = mapInstance.getLayer("brush-cursor-line");
-    if (layer) {
-      mapInstance.setPaintProperty(
-        "brush-cursor-line",
-        "line-color",
-        brushMode === "add" ? "#3b82f6" : "#ef4444",
-      );
+    const color = brushMode === "add" ? "#3b82f6" : "#ef4444";
+
+    if (mapInstance.getLayer("brush-cursor-line")) {
+      mapInstance.setPaintProperty("brush-cursor-line", "line-color", color);
+    }
+    if (mapInstance.getLayer("brush-stroke-fill")) {
+      mapInstance.setPaintProperty("brush-stroke-fill", "fill-color", color);
+    }
+    if (mapInstance.getLayer("brush-stroke-line")) {
+      mapInstance.setPaintProperty("brush-stroke-line", "line-color", color);
     }
   }, [mapInstance, isDrawingMode, brushMode]);
 
@@ -281,15 +352,17 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
         return;
       }
       isMouseDownRef.current = true;
-      lastStampPosRef.current = { lng: e.lngLat.lng, lat: e.lngLat.lat };
-      handleStamp(e.lngLat.lng, e.lngLat.lat);
+      strokePointsRef.current = [[e.lngLat.lng, e.lngLat.lat]];
+      updateStrokePreview();
       mapInstance.dragPan.disable();
     };
 
     const onMouseUp = () => {
       if (showMode) return;
+      if (isMouseDownRef.current) {
+        commitStroke();
+      }
       isMouseDownRef.current = false;
-      lastStampPosRef.current = null;
       mapInstance.dragPan.enable();
     };
 
@@ -298,14 +371,18 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
 
       if (!showMode) {
         updateCursorPreview();
-        // Continuous drawing while mouse is held down, but only stamp if moved enough
-        if (isMouseDownRef.current && lastStampPosRef.current) {
-          const dx = e.lngLat.lng - lastStampPosRef.current.lng;
-          const dy = e.lngLat.lat - lastStampPosRef.current.lat;
-          const minDistance = radiusKm * 0.005; // Approximate degrees per km
-          if (Math.sqrt(dx * dx + dy * dy) > minDistance) {
-            handleStamp(e.lngLat.lng, e.lngLat.lat);
-            lastStampPosRef.current = { lng: e.lngLat.lng, lat: e.lngLat.lat };
+        // Collect points while drawing
+        if (isMouseDownRef.current) {
+          const points = strokePointsRef.current;
+          const lastPoint = points[points.length - 1];
+          if (lastPoint) {
+            const dx = e.lngLat.lng - lastPoint[0];
+            const dy = e.lngLat.lat - lastPoint[1];
+            const minDistance = radiusKm * 0.002; // Minimum distance between points
+            if (Math.sqrt(dx * dx + dy * dy) > minDistance) {
+              strokePointsRef.current.push([e.lngLat.lng, e.lngLat.lat]);
+              updateStrokePreview();
+            }
           }
         }
       }
@@ -314,8 +391,8 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
     // Handle mouse up outside the map
     const onDocumentMouseUp = () => {
       if (isMouseDownRef.current) {
+        commitStroke();
         isMouseDownRef.current = false;
-        lastStampPosRef.current = null;
         mapInstance.dragPan.enable();
       }
     };
@@ -331,7 +408,7 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
       mapInstance.off("mousemove", onMouseMove);
       document.removeEventListener("mouseup", onDocumentMouseUp);
     };
-  }, [mapInstance, isDrawingMode, handleStamp, updateCursorPreview, showMode, radiusKm]);
+  }, [mapInstance, isDrawingMode, commitStroke, updateCursorPreview, updateStrokePreview, showMode, radiusKm]);
 
   // Keyboard shortcuts
   useEffect(() => {

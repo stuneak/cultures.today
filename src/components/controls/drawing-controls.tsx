@@ -67,7 +67,7 @@ function VerticalSlider({ value, onChange, min, max }: VerticalSliderProps) {
       const clampedPercentage = Math.max(0, Math.min(1, percentage));
       return Math.round(min + clampedPercentage * (max - min));
     },
-    [min, max, value]
+    [min, max, value],
   );
 
   const handlePointerDown = useCallback(
@@ -76,7 +76,7 @@ function VerticalSlider({ value, onChange, min, max }: VerticalSliderProps) {
       (e.target as HTMLElement).setPointerCapture(e.pointerId);
       onChange(calculateValue(e.clientY));
     },
-    [calculateValue, onChange]
+    [calculateValue, onChange],
   );
 
   const handlePointerMove = useCallback(
@@ -84,7 +84,7 @@ function VerticalSlider({ value, onChange, min, max }: VerticalSliderProps) {
       if (!isDragging.current) return;
       onChange(calculateValue(e.clientY));
     },
-    [calculateValue, onChange]
+    [calculateValue, onChange],
   );
 
   const handlePointerUp = useCallback(() => {
@@ -102,8 +102,14 @@ function VerticalSlider({ value, onChange, min, max }: VerticalSliderProps) {
       onPointerUp={handlePointerUp}
       onPointerLeave={handlePointerUp}
     >
-      <div className="vertical-slider-fill" style={{ height: `${percentage}%` }} />
-      <div className="vertical-slider-thumb" style={{ bottom: `${percentage}%` }} />
+      <div
+        className="vertical-slider-fill"
+        style={{ height: `${percentage}%` }}
+      />
+      <div
+        className="vertical-slider-thumb"
+        style={{ bottom: `${percentage}%` }}
+      />
     </div>
   );
 }
@@ -129,7 +135,7 @@ export function DrawingControls({
           {/* Add/Erase Toggle */}
           <Tooltip
             {...toolTipStyles}
-            label={brushMode === "add" ? "Add mode (W)" : "Erase mode (W)"}
+            label={brushMode === "add" ? "Erase mode (W)" : "Draw mode (W)"}
           >
             <ActionIcon
               {...actionIconStyles}
@@ -142,9 +148,9 @@ export function DrawingControls({
               color={brushMode === "add" ? "blue" : "red"}
             >
               {brushMode === "add" ? (
-                <IconBrush {...iconStyles} />
-              ) : (
                 <IconEraser {...iconStyles} />
+              ) : (
+                <IconBrush {...iconStyles} />
               )}
             </ActionIcon>
           </Tooltip>

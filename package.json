@@ -23,6 +23,7 @@
     "@prisma/adapter-pg": "^7.3.0",
     "@prisma/client": "^7.3.0",
     "@tabler/icons-react": "^3.36.1",
+    "@turf/buffer": "^7.3.2",
     "@turf/circle": "^7.3.2",
     "@turf/difference": "^7.3.2",
     "@turf/helpers": "^7.3.2",
