@@ -46,8 +46,8 @@ export function DrawingHints({
           {showMode
             ? "Pan/zoom the map. Press S to draw."
             : brushMode === "add"
-              ? "Click and drag to paint. W: erase, S: pan"
-              : "Click and drag to erase. W: draw, S: pan"}
+              ? "Drag to paint. W: erase, S: pan, Esc: cancel, Enter: create"
+              : "Drag to erase. W: draw, S: pan, Esc: cancel, Enter: create"}
         </Text>
       </Paper>
     </div>
