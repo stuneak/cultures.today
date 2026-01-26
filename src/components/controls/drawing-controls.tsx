@@ -24,7 +24,7 @@ interface DrawingControlsProps {
   onBrushSizeChange: (size: number) => void;
   onUndo: () => void;
   canUndo: boolean;
-  formatBrushSize: (value: number) => string;
+  showMode: boolean;
 }
 
 function useIconStyles() {
@@ -116,9 +116,14 @@ export function DrawingControls({
   onBrushSizeChange,
   onUndo,
   canUndo,
-  formatBrushSize,
+  showMode,
 }: DrawingControlsProps) {
   const { actionIconStyles, iconStyles } = useIconStyles();
+
+  // Hide all controls in panning mode
+  if (showMode) {
+    return null;
+  }
 
   return (
     <div className="drawing-controls-container ml-2">

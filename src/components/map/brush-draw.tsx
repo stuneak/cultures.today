@@ -20,15 +20,10 @@ interface BrushDrawProps {
 // Convert slider value (0-100) to radius in kilometers
 function sliderToRadius(value: number): number {
   // Exponential scale: 1km at 0, ~200km at 100
-  const minRadius = 1;  // 1 kilometer minimum
+  const minRadius = 1; // 1 kilometer minimum
   const maxRadius = 200;
   const t = value / 100;
   return minRadius + (maxRadius - minRadius) * (t * t); // Quadratic for finer control at small sizes
-}
-
-function formatBrushSize(value: number): string {
-  const km = sliderToRadius(value);
-  return km < 1 ? `${Math.round(km * 1000)}m` : `${Math.round(km)}km`;
 }
 
 export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
@@ -70,11 +65,15 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
   const cleanupLayers = useCallback(() => {
     if (!mapInstance) return;
 
-    ["brush-polygon-fill", "brush-polygon-line", "brush-cursor-line", "brush-stroke-fill", "brush-stroke-line"].forEach(
-      (layer) => {
-        if (mapInstance.getLayer(layer)) mapInstance.removeLayer(layer);
-      },
-    );
+    [
+      "brush-polygon-fill",
+      "brush-polygon-line",
+      "brush-cursor-line",
+      "brush-stroke-fill",
+      "brush-stroke-line",
+    ].forEach((layer) => {
+      if (mapInstance.getLayer(layer)) mapInstance.removeLayer(layer);
+    });
 
     [sourceId, cursorSourceId, strokeSourceId].forEach((source) => {
       if (mapInstance.getSource(source)) mapInstance.removeSource(source);
@@ -156,7 +155,9 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
     if (points.length < 2) {
       // Single point - show a circle
       if (points.length === 1) {
-        const singleCircle = circle(points[0], radiusKm, { units: "kilometers" });
+        const singleCircle = circle(points[0], radiusKm, {
+          units: "kilometers",
+        });
         strokeSource.setData(singleCircle);
       } else {
         strokeSource.setData(featureCollection([]));
@@ -176,7 +177,9 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
   const clearStrokePreview = useCallback(() => {
     strokePointsRef.current = [];
     if (mapInstance) {
-      const strokeSource = mapInstance.getSource(strokeSourceId) as GeoJSONSource | undefined;
+      const strokeSource = mapInstance.getSource(strokeSourceId) as
+        | GeoJSONSource
+        | undefined;
       if (strokeSource) {
         strokeSource.setData(featureCollection([]));
       }
@@ -192,15 +195,21 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
     }
 
     // Create the stroke shape
-    let strokeShape: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon> | null;
+    let strokeShape: GeoJSON.Feature<
+      GeoJSON.Polygon | GeoJSON.MultiPolygon
+    > | null;
 
     if (points.length === 1) {
       // Single click - create a circle
-      strokeShape = circle(points[0], radiusKm, { units: "kilometers" }) as GeoJSON.Feature<GeoJSON.Polygon>;
+      strokeShape = circle(points[0], radiusKm, {
+        units: "kilometers",
+      }) as GeoJSON.Feature<GeoJSON.Polygon>;
     } else {
       // Multiple points - create a buffered line
       const line = lineString(points);
-      strokeShape = buffer(line, radiusKm, { units: "kilometers" }) as GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon> | null;
+      strokeShape = buffer(line, radiusKm, {
+        units: "kilometers",
+      }) as GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon> | null;
     }
 
     if (!strokeShape) {
@@ -209,14 +218,18 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
     }
 
     const current = currentPolygonRef.current;
-    let newPolygon: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon> | null;
+    let newPolygon: GeoJSON.Feature<
+      GeoJSON.Polygon | GeoJSON.MultiPolygon
+    > | null;
 
     if (brushMode === "add") {
       if (!current) {
         newPolygon = strokeShape;
       } else {
         const merged = union(featureCollection([current, strokeShape]));
-        newPolygon = merged as GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon> | null;
+        newPolygon = merged as GeoJSON.Feature<
+          GeoJSON.Polygon | GeoJSON.MultiPolygon
+        > | null;
       }
     } else {
       // Erase mode
@@ -225,7 +238,9 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
         return; // Nothing to erase
       }
       const subtracted = difference(featureCollection([current, strokeShape]));
-      newPolygon = subtracted as GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon> | null;
+      newPolygon = subtracted as GeoJSON.Feature<
+        GeoJSON.Polygon | GeoJSON.MultiPolygon
+      > | null;
     }
 
     // Clear stroke preview
@@ -241,7 +256,13 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
       pushToHistory(current!);
       setCurrentPolygon(null);
     }
-  }, [brushMode, radiusKm, pushToHistory, setCurrentPolygon, clearStrokePreview]);
+  }, [
+    brushMode,
+    radiusKm,
+    pushToHistory,
+    setCurrentPolygon,
+    clearStrokePreview,
+  ]);
 
   // Setup map layers
   useEffect(() => {
@@ -415,7 +436,15 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
       mapInstance.off("mousemove", onMouseMove);
       document.removeEventListener("mouseup", onDocumentMouseUp);
     };
-  }, [mapInstance, isDrawingMode, commitStroke, updateCursorPreview, updateStrokePreview, showMode, radiusKm]);
+  }, [
+    mapInstance,
+    isDrawingMode,
+    commitStroke,
+    updateCursorPreview,
+    updateStrokePreview,
+    showMode,
+    radiusKm,
+  ]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -477,7 +506,7 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
         onBrushSizeChange={setBrushSize}
         onUndo={handleUndo}
         canUndo={!!currentPolygon}
-        formatBrushSize={formatBrushSize}
+        showMode={showMode}
       />
       <DrawingBottomBar
         onFinish={finishDrawing}
