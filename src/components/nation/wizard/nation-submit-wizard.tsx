@@ -236,7 +236,7 @@ export function NationSubmitWizard({
       onClose={onClose}
       title="Submit a new nation"
       size="lg"
-      radius="sm"
+      radius="md"
       closeOnClickOutside={false}
     >
       {success ? (

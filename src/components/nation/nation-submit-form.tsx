@@ -98,6 +98,7 @@ export function NationSubmitForm({
       onClose={onClose}
       title="Submit a New Nation"
       size="md"
+      radius="md"
     >
       {success ? (
         <Alert icon={<IconCheck size={16} />} color="green" title="Success!">
