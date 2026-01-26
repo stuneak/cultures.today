@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useCallback, useMemo, useState } from "react";
+import { useEffect, useRef, useCallback, useMemo } from "react";
 import { useMapStore } from "@/stores/map-store";
 import { DrawingControls } from "@/components/controls/drawing-controls";
 import { DrawingHints } from "@/components/controls/drawing-hints";
@@ -44,12 +44,13 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
     brushSize,
     setBrushSize,
     getMultiPolygon,
+    showMode,
+    setShowMode,
   } = useMapStore();
 
   const cursorPosRef = useRef<{ lng: number; lat: number } | null>(null);
   const isMouseDownRef = useRef(false);
   const currentPolygonRef = useRef(currentPolygon);
-  const [showMode, setShowMode] = useState(false); // false = draw mode, true = show/pan mode
 
   // Keep ref in sync with state
   useEffect(() => {
@@ -342,7 +343,7 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
       } else if (e.key === "w" || e.key === "W") {
         setBrushMode(brushMode === "add" ? "erase" : "add");
       } else if (e.key === "s" || e.key === "S") {
-        setShowMode((prev) => !prev);
+        setShowMode(!showMode);
       } else if (e.key === "[") {
         setBrushSize(brushSize - 10);
       } else if (e.key === "]") {
@@ -362,6 +363,8 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
     brushSize,
     brushMode,
     currentPolygon,
+    showMode,
+    setShowMode,
   ]);
 
   if (!isDrawingMode) return null;

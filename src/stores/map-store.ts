@@ -8,8 +8,10 @@ interface MapState {
   polygonHistory: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon>[];
   brushMode: "add" | "erase";
   brushSize: number; // 0-100 slider value
+  showMode: boolean; // false = draw mode, true = pan mode
   setMapInstance: (map: Map | null) => void;
   setIsDrawingMode: (isDrawing: boolean) => void;
+  setShowMode: (show: boolean) => void;
   setCurrentPolygon: (polygon: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon> | null) => void;
   pushToHistory: (polygon: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon>) => void;
   undo: () => void;
@@ -31,13 +33,16 @@ export const useMapStore = create<MapState>((set, get) => ({
   polygonHistory: [],
   brushMode: "add",
   brushSize: 50, // Default to middle
+  showMode: false,
   setMapInstance: (map) => set({ mapInstance: map }),
+  setShowMode: (show) => set({ showMode: show }),
   setIsDrawingMode: (isDrawing) =>
     set({
       isDrawingMode: isDrawing,
       currentPolygon: isDrawing ? null : get().currentPolygon,
       polygonHistory: isDrawing ? [] : get().polygonHistory,
       brushMode: "add",
+      showMode: false, // Always start in drawing mode
     }),
   setCurrentPolygon: (polygon) => set({ currentPolygon: polygon }),
   pushToHistory: (polygon) =>
