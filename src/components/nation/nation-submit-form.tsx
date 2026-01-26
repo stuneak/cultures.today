@@ -9,11 +9,9 @@ import {
   Stack,
   Text,
   Alert,
-  Badge,
-  Group,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { IconAlertCircle, IconCheck, IconMapPin } from "@tabler/icons-react";
+import { IconAlertCircle, IconCheck } from "@tabler/icons-react";
 
 interface NationSubmitFormProps {
   opened: boolean;
@@ -29,12 +27,12 @@ export function NationSubmitForm({
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [boundaryGeoJson, setBoundaryGeoJson] = useState<string>("");
 
   const form = useForm({
     initialValues: {
       name: "",
       description: "",
-      boundaryGeoJson: "",
     },
     validate: {
       name: (value) =>
@@ -42,10 +40,9 @@ export function NationSubmitForm({
     },
   });
 
-  // Pre-fill boundary when polygon is drawn on map
+  // Store boundary when polygon is drawn on map
   useEffect(() => {
     if (initialBoundary) {
-      // Convert Polygon to MultiPolygon for consistency with schema
       const multiPolygonFeature = {
         type: "Feature",
         properties: {},
@@ -54,12 +51,8 @@ export function NationSubmitForm({
           coordinates: [initialBoundary.geometry.coordinates],
         },
       };
-      form.setFieldValue(
-        "boundaryGeoJson",
-        JSON.stringify(multiPolygonFeature, null, 2)
-      );
+      setBoundaryGeoJson(JSON.stringify(multiPolygonFeature));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialBoundary]);
 
   // Reset form when modal closes
@@ -68,6 +61,7 @@ export function NationSubmitForm({
       form.reset();
       setSuccess(false);
       setError(null);
+      setBoundaryGeoJson("");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [opened]);
@@ -82,7 +76,7 @@ export function NationSubmitForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...values,
-          boundaryGeoJson: values.boundaryGeoJson || undefined,
+          boundaryGeoJson: boundaryGeoJson || undefined,
         }),
       });
 
@@ -104,14 +98,12 @@ export function NationSubmitForm({
     }
   };
 
-  const hasBoundary = !!form.values.boundaryGeoJson;
-
   return (
     <Modal
       opened={opened}
       onClose={onClose}
       title="Submit a New Nation"
-      size="lg"
+      size="md"
     >
       {success ? (
         <Alert icon={<IconCheck size={16} />} color="green" title="Success!">
@@ -132,22 +124,8 @@ export function NationSubmitForm({
             )}
 
             <Text size="sm" c="dimmed">
-              Anyone can submit a nation. Submissions will be reviewed by
-              moderators before appearing on the map.
+              Your drawn boundary has been saved. Fill in the details below to complete your submission.
             </Text>
-
-            {/* Show boundary status */}
-            {hasBoundary && (
-              <Group gap="xs">
-                <Badge
-                  leftSection={<IconMapPin size={12} />}
-                  color="green"
-                  variant="light"
-                >
-                  Boundary drawn on map
-                </Badge>
-              </Group>
-            )}
 
             <TextInput
               label="Nation Name"
@@ -161,23 +139,6 @@ export function NationSubmitForm({
               placeholder="Describe this nation's history and culture"
               rows={4}
               {...form.getInputProps("description")}
-            />
-
-            <Textarea
-              label="Boundary GeoJSON"
-              placeholder={
-                hasBoundary
-                  ? "Boundary captured from map drawing"
-                  : "Paste GeoJSON with MultiPolygon geometry"
-              }
-              rows={4}
-              {...form.getInputProps("boundaryGeoJson")}
-              description={
-                hasBoundary
-                  ? "Automatically filled from your map drawing"
-                  : "Advanced: Paste valid GeoJSON with MultiPolygon geometry for map display"
-              }
-              disabled={!!initialBoundary}
             />
 
             <Button type="submit" loading={submitting} fullWidth>

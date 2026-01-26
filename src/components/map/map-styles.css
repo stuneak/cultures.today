@@ -24,3 +24,26 @@
 .maplibregl-map.globe-view {
   background: radial-gradient(circle at center, #87CEEB 0%, #1a1a2e 100%);
 }
+
+
+
+.main-page-controls-ai-rose {
+	&:hover {
+		background-color: var(--mantine-color-rose-6);
+	}
+}
+
+.menu-item-color-dark-red {
+	--mi-default-color: var(--mantine-color-red-4);
+	color: var(--mi-default-color);
+
+	@mixin dark {
+		&[data-hovered='true'] {
+			background-color: color-mix(
+				in srgb,
+				var(--mi-default-color) 20%,
+				transparent
+			);
+		}
+	}
+}

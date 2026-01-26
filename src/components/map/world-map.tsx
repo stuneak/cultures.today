@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useCallback, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import maplibregl, { Map, MapMouseEvent, LngLat } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "./map-styles.css";
@@ -25,38 +25,18 @@ export function WorldMap({
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<Map | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const { setMapInstance, isDrawingMode } = useMapStore();
+  const { setMapInstance } = useMapStore();
 
-  const handleMapClick = useCallback(
-    async (e: MapMouseEvent) => {
-      // Skip if in drawing mode
-      if (isDrawingMode) return;
+  // Store callbacks in refs to avoid re-running useEffect
+  const onNationClickRef = useRef(onNationClick);
+  const onMultipleNationsRef = useRef(onMultipleNationsAtPoint);
 
-      const { lng, lat } = e.lngLat;
+  useEffect(() => {
+    onNationClickRef.current = onNationClick;
+    onMultipleNationsRef.current = onMultipleNationsAtPoint;
+  }, [onNationClick, onMultipleNationsAtPoint]);
 
-      try {
-        // Query all nations at this point (handles overlapping regions)
-        const response = await fetch(
-          `/api/nations/at-point?lng=${lng}&lat=${lat}`,
-        );
-        const data = await response.json();
-
-        if (data.nations && data.nations.length > 0) {
-          if (data.nations.length === 1) {
-            // Single nation - open modal directly
-            onNationClick(data.nations[0].slug);
-          } else {
-            // Multiple overlapping nations - show selection popup
-            onMultipleNationsAtPoint(data.nations, e.lngLat);
-          }
-        }
-      } catch (error) {
-        console.error("Failed to query nations at point:", error);
-      }
-    },
-    [onNationClick, onMultipleNationsAtPoint, isDrawingMode],
-  );
-
+  // Initialize map only once
   useEffect(() => {
     if (!mapContainer.current || map.current) return;
 
@@ -74,9 +54,6 @@ export function WorldMap({
     });
 
     const mapInstance = map.current;
-
-    // Set GLOBE projection for 3D globe view
-    // mapInstance.setProjection({ type: "globe" });
 
     // Store map instance
     setMapInstance(mapInstance);
@@ -129,9 +106,6 @@ export function WorldMap({
       }
     });
 
-    // Click handler for map
-    mapInstance.on("click", handleMapClick);
-
     // Add navigation controls
     mapInstance.addControl(new maplibregl.NavigationControl(), "top-right");
 
@@ -140,7 +114,43 @@ export function WorldMap({
       mapInstance.remove();
       map.current = null;
     };
-  }, [handleMapClick, setMapInstance]);
+  }, [setMapInstance]);
+
+  // Separate effect for click handler that depends on isDrawingMode
+  useEffect(() => {
+    const mapInstance = map.current;
+    if (!mapInstance) return;
+
+    const handleMapClick = async (e: MapMouseEvent) => {
+      // Skip if in drawing mode - let PolygonDraw handle clicks
+      if (useMapStore.getState().isDrawingMode) return;
+
+      const { lng, lat } = e.lngLat;
+
+      try {
+        const response = await fetch(
+          `/api/nations/at-point?lng=${lng}&lat=${lat}`,
+        );
+        const data = await response.json();
+
+        if (data.nations && data.nations.length > 0) {
+          if (data.nations.length === 1) {
+            onNationClickRef.current(data.nations[0].slug);
+          } else {
+            onMultipleNationsRef.current(data.nations, e.lngLat);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to query nations at point:", error);
+      }
+    };
+
+    mapInstance.on("click", handleMapClick);
+
+    return () => {
+      mapInstance.off("click", handleMapClick);
+    };
+  }, []);
 
   return (
     <div className="relative w-full h-full" style={{ minHeight: "400px" }}>

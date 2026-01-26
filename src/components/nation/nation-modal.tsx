@@ -1,11 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Modal, Tabs, Text, Skeleton, Group, Title } from "@mantine/core";
-import {
-  IconLanguage,
-  IconPhoto,
-} from "@tabler/icons-react";
+import { Modal, Text, Skeleton, Group, Title, Divider } from "@mantine/core";
+import { IconLanguage, IconPhoto } from "@tabler/icons-react";
 import { LanguagesSection } from "./sections/languages-section";
 import { ContentSection } from "./sections/content-section";
 import { getMediaUrl } from "@/lib/media-url";
@@ -87,36 +84,47 @@ export function NationModal({ slug, onClose }: NationModalProps) {
       )}
 
       {nation && !loading && (
-        <div className="space-y-4">
-          {/* Header info */}
-          <div>
-            {nation.description && (
-              <Text size="sm" c="dimmed" mb="md">
-                {nation.description}
-              </Text>
-            )}
-          </div>
+        <div className="space-y-6">
+          {/* Description */}
+          {nation.description && (
+            <Text size="sm" c="dimmed">
+              {nation.description}
+            </Text>
+          )}
 
-          {/* Tabbed content */}
-          <Tabs defaultValue="languages">
-            <Tabs.List>
-              <Tabs.Tab value="languages" leftSection={<IconLanguage size={16} />}>
-                Languages ({nation.languages.length})
-              </Tabs.Tab>
-              <Tabs.Tab value="content" leftSection={<IconPhoto size={16} />}>
-                Content ({nation.contents.length})
-              </Tabs.Tab>
-            </Tabs.List>
-
-            <div className="pt-4">
-              <Tabs.Panel value="languages">
-                <LanguagesSection languages={nation.languages} />
-              </Tabs.Panel>
-              <Tabs.Panel value="content">
-                <ContentSection contents={nation.contents} />
-              </Tabs.Panel>
+          {/* Languages Section */}
+          {nation.languages.length > 0 && (
+            <div>
+              <Group gap="xs" mb="sm">
+                <IconLanguage size={18} />
+                <Title order={5}>Languages ({nation.languages.length})</Title>
+              </Group>
+              <LanguagesSection languages={nation.languages} />
             </div>
-          </Tabs>
+          )}
+
+          {/* Divider between sections */}
+          {nation.languages.length > 0 && nation.contents.length > 0 && (
+            <Divider />
+          )}
+
+          {/* Content Section */}
+          {nation.contents.length > 0 && (
+            <div>
+              <Group gap="xs" mb="sm">
+                <IconPhoto size={18} />
+                <Title order={5}>Content ({nation.contents.length})</Title>
+              </Group>
+              <ContentSection contents={nation.contents} />
+            </div>
+          )}
+
+          {/* Empty state */}
+          {nation.languages.length === 0 && nation.contents.length === 0 && (
+            <Text c="dimmed" ta="center" py="md">
+              No additional information available for this nation yet.
+            </Text>
+          )}
         </div>
       )}
     </Modal>
