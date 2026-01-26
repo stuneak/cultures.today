@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Modal, Text, Skeleton, Group, Title, Divider } from "@mantine/core";
+import { Modal, Text, Skeleton, Group, Title, Divider, Card } from "@mantine/core";
 import { IconLanguage, IconPhoto } from "@tabler/icons-react";
 import { LanguagesSection } from "./sections/languages-section";
 import { ContentSection } from "./sections/content-section";
@@ -91,9 +91,12 @@ export function NationModal({ slug, onClose }: NationModalProps) {
         <div className="space-y-6">
           {/* Description */}
           {nation.description && (
-            <Text size="sm" c="dimmed">
-              {nation.description}
-            </Text>
+            <Card withBorder p="md" radius="md">
+              <Text size="sm" fw={500} mb="xs" c="dimmed">
+                About
+              </Text>
+              <Text size="sm">{nation.description}</Text>
+            </Card>
           )}
 
           {/* Languages Section */}
