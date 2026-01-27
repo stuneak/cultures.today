@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, Text, Modal, ActionIcon, CloseButton } from "@mantine/core";
+import { Text, Modal, ActionIcon, CloseButton } from "@mantine/core";
 import { Carousel } from "@mantine/carousel";
 import Image from "next/image";
 import { getMediaUrl } from "@/lib/media-url";
@@ -188,8 +188,8 @@ function ContentCard({
     isYouTube && item.contentUrl ? getYouTubeEmbedUrl(item.contentUrl) : null;
 
   return (
-    <Card withBorder p="xs" className="cursor-pointer" onClick={onClick}>
-      <div className="relative aspect-video bg-gray-100 rounded overflow-hidden">
+    <div className="cursor-pointer" onClick={onClick}>
+      <div className="relative aspect-video bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
         {isYouTube && youtubeEmbed && (
           <div className="absolute inset-0 flex items-center justify-center bg-black">
             <img
@@ -227,10 +227,10 @@ function ContentCard({
           />
         )}
       </div>
-      <Text size="sm" fw={500} mt="xs" lineClamp={1}>
+      <Text size="sm" fw={500} mt="xs" ta="center">
         {item.title}
       </Text>
-    </Card>
+    </div>
   );
 }
 
@@ -238,11 +238,7 @@ export function ContentSection({ contents }: ContentSectionProps) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   if (contents.length === 0) {
-    return (
-      <Card withBorder>
-        <Text c="dimmed">No content available.</Text>
-      </Card>
-    );
+    return <Text c="dimmed">No content available.</Text>;
   }
 
   return (

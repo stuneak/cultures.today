@@ -42,23 +42,46 @@ export function NationReviewModal({
   onReject,
 }: NationReviewModalProps) {
   const [nation, setNation] = useState<NationDetails | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [fetchedId, setFetchedId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const loading = nationId !== null && fetchedId !== nationId && !error;
 
   useEffect(() => {
     if (!nationId) return;
 
-    setLoading(true);
+    let cancelled = false;
+    const controller = new AbortController();
+
+    setFetchedId(null);
+    setNation(null);
     setError(null);
 
-    fetch(`/api/admin/nations/${nationId}`)
-      .then((res) => {
+    const fetchNation = async () => {
+      try {
+        const res = await fetch(`/api/admin/nations/${nationId}`, {
+          signal: controller.signal,
+        });
         if (!res.ok) throw new Error("Failed to fetch nation");
-        return res.json();
-      })
-      .then((data) => setNation(data))
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
+        const data = await res.json();
+        if (!cancelled) {
+          setNation(data);
+          setFetchedId(nationId);
+        }
+      } catch (err) {
+        if (!cancelled && err instanceof Error && err.name !== "AbortError") {
+          setError(err.message);
+          setFetchedId(nationId);
+        }
+      }
+    };
+
+    fetchNation();
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
   }, [nationId]);
 
   return (

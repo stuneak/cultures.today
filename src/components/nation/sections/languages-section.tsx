@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, Text, Group, Stack } from "@mantine/core";
+import { Text, Divider } from "@mantine/core";
 import { getMediaUrl } from "@/lib/media-url";
 
 interface Phrase {
@@ -22,48 +22,44 @@ interface LanguagesSectionProps {
 
 export function LanguagesSection({ languages }: LanguagesSectionProps) {
   if (languages.length === 0) {
-    return (
-      <Card withBorder>
-        <Text c="dimmed">No language information available.</Text>
-      </Card>
-    );
+    return <Text c="dimmed">No language information available.</Text>;
   }
 
   return (
-    <Stack gap="md">
-      {languages.map((language) => (
-        <Card key={language.id} withBorder p="md">
-          <Text fw={600} size="lg" mb="md">
+    <div className="space-y-4">
+      {languages.map((language, langIndex) => (
+        <div key={language.id}>
+          <Text size="xs" fw={600} c="dimmed" mb={4}>
             {language.name}
           </Text>
           {language.phrases.length > 0 && (
-            <div>
-              <Stack gap="sm">
-                {language.phrases.map((phrase) => (
-                  <Card key={phrase.id} withBorder p="sm">
-                    <Group justify="space-between" align="flex-start">
-                      <div>
-                        <Text fw={500} size="lg">
-                          {phrase.text}
-                        </Text>
-                        <Text size="xs" c="dimmed">
-                          Translation: {phrase.translation}
-                        </Text>
-                      </div>
-                      <audio controls className=" h-8">
-                        <source
-                          src={getMediaUrl(phrase.audioUrl)}
-                          type="audio/mpeg"
-                        />
-                      </audio>
-                    </Group>
-                  </Card>
-                ))}
-              </Stack>
+            <div className="space-y-2">
+              {language.phrases.map((phrase, phraseIndex) => (
+                <div key={phrase.id}>
+                  <div className="flex items-start justify-between gap-4 py-2">
+                    <div className="min-w-0 flex-1">
+                      <Text fw={500} size="md">
+                        {phrase.text}
+                      </Text>
+                      <Text size="sm" c="dimmed">
+                        {phrase.translation}
+                      </Text>
+                    </div>
+                    <audio controls className="h-8 shrink-0">
+                      <source
+                        src={getMediaUrl(phrase.audioUrl)}
+                        type="audio/mpeg"
+                      />
+                    </audio>
+                  </div>
+                  {phraseIndex < language.phrases.length - 1 && <Divider />}
+                </div>
+              ))}
             </div>
           )}
-        </Card>
+          {langIndex < languages.length - 1 && <Divider my="md" />}
+        </div>
       ))}
-    </Stack>
+    </div>
   );
 }

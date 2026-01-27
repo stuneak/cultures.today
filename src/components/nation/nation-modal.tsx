@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Modal, Text, Skeleton, Group, Title, Card } from "@mantine/core";
+import { Modal, Text, Skeleton, Group, Title, Divider } from "@mantine/core";
 import { LanguagesSection } from "./sections/languages-section";
 import { ContentSection } from "./sections/content-section";
 import { getMediaUrl } from "@/lib/media-url";
@@ -124,22 +124,35 @@ export function NationModal({ slug, onClose }: NationModalProps) {
       )}
 
       {nation && !loading && (
-        <div className="space-y-6">
+        <div className="space-y-4">
           {/* Description */}
           {nation.description && (
-            <Card withBorder p="md" radius="md">
-              <Text size="sm" fw={500} mb="xs" c="dimmed">
-                What makes this nation special:
+            <div>
+              <Text size="xs" fw={600} c="dimmed" mb={4}>
+                What makes this nation special?
               </Text>
-              <Text size="sm">{nation.description}</Text>
-            </Card>
+              <Text size="sm" lh={1.6}>
+                {nation.description}
+              </Text>
+            </div>
           )}
+
+          {/* Divider after description if languages or content exist */}
+          {nation.description &&
+            (nation.languages.length > 0 || nation.contents.length > 0) && (
+              <Divider />
+            )}
 
           {/* Languages Section */}
           {nation.languages.length > 0 && (
             <div>
               <LanguagesSection languages={nation.languages} />
             </div>
+          )}
+
+          {/* Divider after languages if content exists */}
+          {nation.languages.length > 0 && nation.contents.length > 0 && (
+            <Divider />
           )}
 
           {/* Content Section */}
@@ -150,11 +163,13 @@ export function NationModal({ slug, onClose }: NationModalProps) {
           )}
 
           {/* Empty state */}
-          {nation.languages.length === 0 && nation.contents.length === 0 && (
-            <Text c="dimmed" ta="center" py="md">
-              No additional information available for this nation yet.
-            </Text>
-          )}
+          {!nation.description &&
+            nation.languages.length === 0 &&
+            nation.contents.length === 0 && (
+              <Text c="dimmed" ta="center" py="md">
+                No additional information available for this nation yet.
+              </Text>
+            )}
         </div>
       )}
     </Modal>
