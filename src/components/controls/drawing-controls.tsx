@@ -116,24 +116,26 @@ export function DrawingControls({
           {/* Add/Erase Vertical Switch */}
           <div className="mode-switch-vertical">
             <Tooltip {...toolTipStyles} label="Draw mode (W)">
-              <button
+              <ActionIcon
+                {...actionIconStyles}
                 className={`mode-switch-option ${brushMode === "add" ? "active" : ""}`}
                 onClick={() => onBrushModeChange("add")}
                 aria-label="Switch to draw mode"
                 data-mode="add"
               >
                 <IconBrush {...iconStyles} />
-              </button>
+              </ActionIcon>
             </Tooltip>
             <Tooltip {...toolTipStyles} label="Erase mode (W)">
-              <button
+              <ActionIcon
+                {...actionIconStyles}
                 className={`mode-switch-option ${brushMode === "erase" ? "active" : ""}`}
                 onClick={() => onBrushModeChange("erase")}
                 aria-label="Switch to erase mode"
                 data-mode="erase"
               >
                 <IconEraser {...iconStyles} />
-              </button>
+              </ActionIcon>
             </Tooltip>
           </div>
 
