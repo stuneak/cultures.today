@@ -22,8 +22,8 @@ services:
     image: minio/minio:latest
     container_name: cultures_minio
     environment:
-      MINIO_ROOT_USER: cultures
-      MINIO_ROOT_PASSWORD: cultures_dev_password
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
     ports:
       - "9000:9000"
       - "9001:9001"
