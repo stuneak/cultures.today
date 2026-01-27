@@ -1,16 +1,14 @@
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/${GITHUB_REPOSITORY}:latest
     container_name: cultures_app
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       - NEXT_PUBLIC_MAP_STYLE=https://tiles.openfreemap.org/styles/liberty
-      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
       - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
       - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
-      - MINIO_BUCKET=cultures
+      - MINIO_BUCKET=${MINIO_BUCKET}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
@@ -28,7 +26,7 @@ services:
     image: ghcr.io/baosystems/postgis:17-3.5
     container_name: cultures_db_prod
     ports:                                                                      
-      - "127.0.0.1:5431:5432" 
+      - "127.0.0.1:5431:5431" 
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -51,8 +49,8 @@ services:
       MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
       MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
     expose:
-      - "9000"
-      - "9001"
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
     volumes:
       - /root/cultures-today/data/minio:/data
     networks:
@@ -71,9 +69,6 @@ services:
     container_name: cultures-ssl-init
     ports:
       - "80:80"
-    environment:
-      - SSL_DOMAIN=${SSL_DOMAIN}
-      - SSL_EMAIL=${SSL_EMAIL}
     volumes:
       - certbot_conf:/etc/letsencrypt
       - certbot_www:/var/www/certbot
