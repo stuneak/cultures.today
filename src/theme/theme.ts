@@ -14,6 +14,7 @@ import {
   Dialog,
   Indicator,
   Mark,
+  Modal,
   NavLink,
   Pagination,
   Paper,
@@ -716,6 +717,13 @@ export const shadcnTheme = createTheme({
       defaultProps: {
         withBorder: true,
       },
+    }),
+    Modal: Modal.extend({
+      styles: () => ({
+        content: {
+          borderRadius: "var(--mantine-radius-lg)",
+        },
+      }),
     }),
     Tooltip: Tooltip.extend({
       vars: () => ({
