@@ -16,7 +16,7 @@ export async function GET(
         },
         contents: true,
         submittedBy: {
-          select: { firstName: true, lastName: true },
+          select: { id: true, email: true },
         },
       },
     });

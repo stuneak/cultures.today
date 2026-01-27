@@ -7,15 +7,11 @@ declare module "next-auth" {
       email: string;
       name?: string;
       image?: string;
-      isAdmin: boolean;
     };
   }
 
   interface User {
     id: string;
     email: string;
-    firstName: string;
-    lastName: string;
-    isAdmin: boolean;
   }
 }

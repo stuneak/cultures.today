@@ -34,7 +34,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: cultures
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - /root/cultures-today/data/postgres:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U cultures -d cultures"]
       interval: 5s
@@ -52,7 +52,7 @@ services:
       - "9000:9000"
       - "9001:9001"
     volumes:
-      - minio_data:/data
+      - /root/cultures-today/data/minio:/data
     command: server /data --console-address ":9001"
     healthcheck:
       test: ["CMD", "mc", "ready", "local"]
