@@ -11,15 +11,28 @@ datasource db {
 
 model User {
   id        String   @id @default(cuid())
+  googleId  String   @unique @map("google_id")
   email     String   @unique
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
+  sessions         Session[]
   submittedNations Nation[]
 
   @@map("users")
   @@index([email])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
 }
 
 enum NationState {

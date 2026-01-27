@@ -10,14 +10,22 @@ CREATE TYPE "ContentType" AS ENUM ('UPLOAD', 'VIDEO_YOUTUBE');
 -- CreateTable
 CREATE TABLE users (
     id TEXT NOT NULL,
+    google_id TEXT NOT NULL,
     email TEXT NOT NULL,
-    first_name TEXT NOT NULL,
-    last_name TEXT NOT NULL,
-    is_admin BOOLEAN NOT NULL DEFAULT false,
     created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT users_pkey PRIMARY KEY (id)
+);
+
+-- CreateTable
+CREATE TABLE sessions (
+    id TEXT NOT NULL,
+    session_token TEXT NOT NULL,
+    user_id TEXT NOT NULL,
+    expires TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT sessions_pkey PRIMARY KEY (id)
 );
 
 -- CreateTable
@@ -70,10 +78,16 @@ CREATE TABLE contents (
 );
 
 -- CreateIndex
+CREATE UNIQUE INDEX users_google_id_key ON users(google_id);
+
+-- CreateIndex
 CREATE UNIQUE INDEX users_email_key ON users(email);
 
 -- CreateIndex
 CREATE INDEX users_email_idx ON users(email);
+
+-- CreateIndex
+CREATE UNIQUE INDEX sessions_session_token_key ON sessions(session_token);
 
 -- CreateIndex
 CREATE UNIQUE INDEX nations_name_key ON nations(name);
@@ -86,6 +100,9 @@ CREATE INDEX nations_slug_idx ON nations(slug);
 
 -- CreateIndex
 CREATE INDEX nations_state_idx ON nations(state);
+
+-- AddForeignKey
+ALTER TABLE sessions ADD CONSTRAINT sessions_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE nations ADD CONSTRAINT nations_submitted_by_id_fkey FOREIGN KEY (submitted_by_id) REFERENCES users(id) ON DELETE SET NULL ON UPDATE CASCADE;
