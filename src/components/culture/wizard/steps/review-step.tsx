@@ -137,14 +137,14 @@ export function ReviewStep({ data }: ReviewStepProps) {
         <Stack gap="xs">
           <div>
             <Text size="xs" c="dimmed">
-              What’s your nation called?
+              What's your culture called?
             </Text>
             <Text>{data.name}</Text>
           </div>
           {data.description && (
             <div>
               <Text size="xs" c="dimmed">
-                What makes your nation special?
+                What makes your culture special?
               </Text>
               <Text size="sm">{data.description}</Text>
             </div>

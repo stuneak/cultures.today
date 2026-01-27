@@ -8,7 +8,7 @@ export async function GET(
   try {
     const { slug } = await params;
 
-    const nation = await db.nation.findUnique({
+    const culture = await db.culture.findUnique({
       where: { slug },
       include: {
         languages: {
@@ -21,21 +21,21 @@ export async function GET(
       },
     });
 
-    if (!nation) {
-      return NextResponse.json({ error: "Nation not found" }, { status: 404 });
+    if (!culture) {
+      return NextResponse.json({ error: "Culture not found" }, { status: 404 });
     }
 
     // Only return if approved (public access)
     // Admin routes will have separate access
-    if (nation.state !== "approved") {
-      return NextResponse.json({ error: "Nation not found" }, { status: 404 });
+    if (culture.state !== "approved") {
+      return NextResponse.json({ error: "Culture not found" }, { status: 404 });
     }
 
-    return NextResponse.json(nation);
+    return NextResponse.json(culture);
   } catch (error) {
-    console.error("GET /api/nations/[slug] error:", error);
+    console.error("GET /api/cultures/[slug] error:", error);
     return NextResponse.json(
-      { error: "Failed to fetch nation" },
+      { error: "Failed to fetch culture" },
       { status: 500 },
     );
   }

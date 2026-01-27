@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
-// GET: Find all approved nations at a given point (for overlapping regions)
+// GET: Find all approved cultures at a given point (for overlapping regions)
 export async function GET(request: NextRequest) {
   try {
     const lng = request.nextUrl.searchParams.get("lng");
@@ -25,22 +25,22 @@ export async function GET(request: NextRequest) {
     }
 
     // Use raw SQL for PostGIS spatial query
-    const nations = await db.$queryRaw<
+    const cultures = await db.$queryRaw<
       Array<{ id: string; name: string; slug: string; flagUrl: string | null }>
     >`
       SELECT id, name, slug, flag_url as "flagUrl"
-      FROM nations
+      FROM cultures
       WHERE state = 'approved'
         AND boundary IS NOT NULL
         AND ST_Contains(boundary, ST_SetSRID(ST_Point(${longitude}, ${latitude}), 4326))
       ORDER BY name ASC
     `;
 
-    return NextResponse.json({ nations });
+    return NextResponse.json({ cultures });
   } catch (error) {
-    console.error("GET /api/nations/at-point error:", error);
+    console.error("GET /api/cultures/at-point error:", error);
     return NextResponse.json(
-      { error: "Failed to query nations at point" },
+      { error: "Failed to query cultures at point" },
       { status: 500 },
     );
   }

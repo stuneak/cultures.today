@@ -1,23 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import {
-  nationQuerySchema,
-  nationSubmitSchema,
-} from "@/lib/validations/nation";
+  cultureQuerySchema,
+  cultureSubmitSchema,
+} from "@/lib/validations/culture";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-// GET: Public - returns only approved nations (for map display)
+// GET: Public - returns only approved cultures (for map display)
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    const query = nationQuerySchema.parse({
+    const query = cultureQuerySchema.parse({
       search: searchParams.get("search") ?? undefined,
       limit: searchParams.get("limit") ?? undefined,
       offset: searchParams.get("offset") ?? undefined,
     });
 
-    // Public API only returns approved nations
+    // Public API only returns approved cultures
     const where = {
       state: "approved" as const,
       ...(query.search && {
@@ -34,41 +34,41 @@ export async function GET(request: NextRequest) {
       }),
     };
 
-    const [nations, total] = await Promise.all([
-      db.nation.findMany({
+    const [cultures, total] = await Promise.all([
+      db.culture.findMany({
         where,
         select: {
           id: true,
           name: true,
           slug: true,
           flagUrl: true,
-          // boundaryGeoJson removed - use /api/nations/geojson for boundaries
+          // boundaryGeoJson removed - use /api/cultures/geojson for boundaries
         },
         orderBy: { name: "asc" },
         take: query.limit,
         skip: query.offset,
       }),
-      db.nation.count({ where }),
+      db.culture.count({ where }),
     ]);
 
     return NextResponse.json({
-      nations,
+      cultures,
       pagination: { total, limit: query.limit, offset: query.offset },
     });
   } catch (error) {
-    console.error("GET /api/nations error:", error);
+    console.error("GET /api/cultures error:", error);
     return NextResponse.json(
-      { error: "Failed to fetch nations" },
+      { error: "Failed to fetch cultures" },
       { status: 500 },
     );
   }
 }
 
-// POST: Anyone can submit a new nation (created as pending)
+// POST: Anyone can submit a new culture (created as pending)
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const data = nationSubmitSchema.parse(body);
+    const data = cultureSubmitSchema.parse(body);
 
     // Generate slug from name
     const slug = data.name
@@ -77,10 +77,10 @@ export async function POST(request: NextRequest) {
       .replace(/^-|-$/g, "");
 
     // Check if slug already exists
-    const existing = await db.nation.findUnique({ where: { slug } });
+    const existing = await db.culture.findUnique({ where: { slug } });
     if (existing) {
       return NextResponse.json(
-        { error: "A nation with this name already exists" },
+        { error: "A culture with this name already exists" },
         { status: 409 },
       );
     }
@@ -88,10 +88,10 @@ export async function POST(request: NextRequest) {
     // Get current user if authenticated (optional)
     const session = await getServerSession(authOptions);
 
-    // Create nation with nested languages and contents in a transaction
-    const nation = await db.$transaction(async (tx) => {
-      // Create the nation
-      const newNation = await tx.nation.create({
+    // Create culture with nested languages and contents in a transaction
+    const culture = await db.$transaction(async (tx) => {
+      // Create the culture
+      const newCulture = await tx.culture.create({
         data: {
           name: data.name,
           description: data.description,
@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
         await tx.language.create({
           data: {
             name: lang.name,
-            nationId: newNation.id,
+            cultureId: newCulture.id,
             phrases: {
               create: lang.phrases.map((phrase) => ({
                 text: phrase.text,
@@ -126,11 +126,11 @@ export async function POST(request: NextRequest) {
           title: content.title,
           contentType: content.contentType,
           contentUrl: content.contentUrl,
-          nationId: newNation.id,
+          cultureId: newCulture.id,
         })),
       });
 
-      return newNation;
+      return newCulture;
     });
 
     // If boundary GeoJSON was provided, set the PostGIS geometry column
@@ -140,23 +140,23 @@ export async function POST(request: NextRequest) {
       const geometryJson = JSON.stringify(feature.geometry);
 
       await db.$executeRaw`
-        UPDATE nations
+        UPDATE cultures
         SET boundary = ST_SetSRID(ST_GeomFromGeoJSON(${geometryJson}), 4326)
-        WHERE id = ${nation.id}
+        WHERE id = ${culture.id}
       `;
     }
 
-    return NextResponse.json(nation, { status: 201 });
+    return NextResponse.json(culture, { status: 201 });
   } catch (error) {
-    console.error("POST /api/nations error:", error);
+    console.error("POST /api/cultures error:", error);
     if (error instanceof Error && error.message.includes("Unique constraint")) {
       return NextResponse.json(
-        { error: "Nation with this name already exists" },
+        { error: "Culture with this name already exists" },
         { status: 409 },
       );
     }
     return NextResponse.json(
-      { error: "Failed to submit nation" },
+      { error: "Failed to submit culture" },
       { status: 500 },
     );
   }

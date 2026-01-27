@@ -40,7 +40,7 @@ export function LanguagesStep({
   return (
     <Stack gap="md">
       <Alert variant="light" color="blue">
-        Which languages does your nation speak? Add one with a few example
+        Which languages does your culture speak? Add one with a few example
         phrases 👀
       </Alert>
 

@@ -2,16 +2,16 @@
 
 import { useState, useCallback } from "react";
 import { WorldMap } from "@/components/map/world-map";
-import { NationModal } from "@/components/nation/nation-modal";
-import { NationSelectionPopup } from "@/components/map/nation-selection-popup";
-import { NationSubmitWizard } from "@/components/nation/wizard";
+import { CultureModal } from "@/components/culture/culture-modal";
+import { CultureSelectionPopup } from "@/components/map/culture-selection-popup";
+import { CultureSubmitWizard } from "@/components/culture/wizard";
 import { MainPageControls } from "@/components/controls/main-page-controls";
-import { AddNationButton } from "@/components/controls/add-nation-button";
+import { AddCultureButton } from "@/components/controls/add-culture-button";
 import { BrushDraw } from "@/components/map/brush-draw";
 import { useMapStore } from "@/stores/map-store";
 import type { LngLat } from "maplibre-gl";
 
-interface NationAtPoint {
+interface CultureAtPoint {
   id: string;
   name: string;
   slug: string;
@@ -19,12 +19,12 @@ interface NationAtPoint {
 }
 
 export default function HomePage() {
-  const [selectedNationSlug, setSelectedNationSlug] = useState<string | null>(
+  const [selectedCultureSlug, setSelectedCultureSlug] = useState<string | null>(
     null
   );
   const [submitFormOpen, setSubmitFormOpen] = useState(false);
-  const [overlappingNations, setOverlappingNations] = useState<
-    NationAtPoint[] | null
+  const [overlappingCultures, setOverlappingCultures] = useState<
+    CultureAtPoint[] | null
   >(null);
   const [popupPosition, setPopupPosition] = useState<{
     x: number;
@@ -35,15 +35,15 @@ export default function HomePage() {
 
   const { setIsDrawingMode, isDrawingMode, clearDrawing } = useMapStore();
 
-  const handleNationClick = useCallback((slug: string) => {
-    setSelectedNationSlug(slug);
-    setOverlappingNations(null);
+  const handleCultureClick = useCallback((slug: string) => {
+    setSelectedCultureSlug(slug);
+    setOverlappingCultures(null);
     setPopupPosition(null);
   }, []);
 
-  const handleMultipleNations = useCallback(
-    (nations: NationAtPoint[], _lngLat: LngLat) => {
-      setOverlappingNations(nations);
+  const handleMultipleCultures = useCallback(
+    (cultures: CultureAtPoint[], _lngLat: LngLat) => {
+      setOverlappingCultures(cultures);
       setPopupPosition({
         x: window.innerWidth / 2,
         y: window.innerHeight / 2,
@@ -53,7 +53,7 @@ export default function HomePage() {
   );
 
   const handleClosePopup = useCallback(() => {
-    setOverlappingNations(null);
+    setOverlappingCultures(null);
     setPopupPosition(null);
   }, []);
 
@@ -84,16 +84,16 @@ export default function HomePage() {
     <div className="h-screen w-screen overflow-hidden relative">
       {/* Full-screen globe map */}
       <WorldMap
-        onNationClick={handleNationClick}
-        onMultipleNationsAtPoint={handleMultipleNations}
+        onCultureClick={handleCultureClick}
+        onMultipleCulturesAtPoint={handleMultipleCultures}
       />
 
       {/* Right-side controls */}
       <MainPageControls />
 
-      {/* Bottom center "+" button to add nation */}
+      {/* Bottom center "+" button to add culture */}
       {!isDrawingMode && (
-        <AddNationButton onStartDrawing={handleStartDrawing} />
+        <AddCultureButton onStartDrawing={handleStartDrawing} />
       )}
 
       {/* Brush drawing mode UI */}
@@ -102,24 +102,24 @@ export default function HomePage() {
         onCancel={handlePolygonCancel}
       />
 
-      {/* Overlapping nations selection popup */}
-      {overlappingNations && popupPosition && (
-        <NationSelectionPopup
-          nations={overlappingNations}
+      {/* Overlapping cultures selection popup */}
+      {overlappingCultures && popupPosition && (
+        <CultureSelectionPopup
+          cultures={overlappingCultures}
           position={popupPosition}
-          onSelect={handleNationClick}
+          onSelect={handleCultureClick}
           onClose={handleClosePopup}
         />
       )}
 
-      {/* Nation details modal */}
-      <NationModal
-        slug={selectedNationSlug}
-        onClose={() => setSelectedNationSlug(null)}
+      {/* Culture details modal */}
+      <CultureModal
+        slug={selectedCultureSlug}
+        onClose={() => setSelectedCultureSlug(null)}
       />
 
-      {/* Nation submission wizard with pre-filled boundary */}
-      <NationSubmitWizard
+      {/* Culture submission wizard with pre-filled boundary */}
+      <CultureSubmitWizard
         opened={submitFormOpen}
         onClose={handleSubmitFormClose}
         initialBoundary={drawnBoundary}

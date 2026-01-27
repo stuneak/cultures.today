@@ -40,9 +40,9 @@ export function ContentsStep({
   return (
     <Stack gap="md">
       <Alert variant="light" color="blue">
-        We’d love to see and celebrate your nation’s culture! Share its food,
-        music, dances, videos, traditions, or anything else that tells its
-        unique story 🌏
+        We'd love to see and celebrate your culture! Share its food, music,
+        dances, videos, traditions, or anything else that tells its unique
+        story 🌏
       </Alert>
 
       <Stack gap="sm">

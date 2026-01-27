@@ -6,7 +6,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import "./map-styles.css";
 import { useMapStore } from "@/stores/map-store";
 
-interface NationAtPoint {
+interface CultureAtPoint {
   id: string;
   name: string;
   slug: string;
@@ -14,13 +14,13 @@ interface NationAtPoint {
 }
 
 interface WorldMapProps {
-  onNationClick: (slug: string) => void;
-  onMultipleNationsAtPoint: (nations: NationAtPoint[], lngLat: LngLat) => void;
+  onCultureClick: (slug: string) => void;
+  onMultipleCulturesAtPoint: (cultures: CultureAtPoint[], lngLat: LngLat) => void;
 }
 
 export function WorldMap({
-  onNationClick,
-  onMultipleNationsAtPoint,
+  onCultureClick,
+  onMultipleCulturesAtPoint,
 }: WorldMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<Map | null>(null);
@@ -28,13 +28,13 @@ export function WorldMap({
   const { setMapInstance, setIsMapReady } = useMapStore();
 
   // Store callbacks in refs to avoid re-running useEffect
-  const onNationClickRef = useRef(onNationClick);
-  const onMultipleNationsRef = useRef(onMultipleNationsAtPoint);
+  const onCultureClickRef = useRef(onCultureClick);
+  const onMultipleCulturesRef = useRef(onMultipleCulturesAtPoint);
 
   useEffect(() => {
-    onNationClickRef.current = onNationClick;
-    onMultipleNationsRef.current = onMultipleNationsAtPoint;
-  }, [onNationClick, onMultipleNationsAtPoint]);
+    onCultureClickRef.current = onCultureClick;
+    onMultipleCulturesRef.current = onMultipleCulturesAtPoint;
+  }, [onCultureClick, onMultipleCulturesAtPoint]);
 
   // Initialize map only once
   useEffect(() => {
@@ -60,21 +60,21 @@ export function WorldMap({
 
     mapInstance.on("load", async () => {
       try {
-        const response = await fetch("/api/nations/geojson");
+        const response = await fetch("/api/cultures/geojson");
         const geojson = await response.json();
 
         mapInstance.setProjection({ type: "globe" });
 
-        mapInstance.addSource("nations", {
+        mapInstance.addSource("cultures", {
           type: "geojson",
           data: geojson,
         });
 
-        // Add fill layer for nation boundaries
+        // Add fill layer for culture boundaries
         mapInstance.addLayer({
-          id: "nations-fill",
+          id: "cultures-fill",
           type: "fill",
-          source: "nations",
+          source: "cultures",
           paint: {
             "fill-color": "#3b82f6",
             "fill-opacity": 0.2,
@@ -83,9 +83,9 @@ export function WorldMap({
 
         // Add outline layer
         mapInstance.addLayer({
-          id: "nations-outline",
+          id: "cultures-outline",
           type: "line",
-          source: "nations",
+          source: "cultures",
           paint: {
             "line-color": "#3b82f6",
             "line-width": 2,
@@ -93,12 +93,12 @@ export function WorldMap({
         });
 
         // Hover effects - skip in drawing mode
-        mapInstance.on("mouseenter", "nations-fill", () => {
+        mapInstance.on("mouseenter", "cultures-fill", () => {
           if (useMapStore.getState().isDrawingMode) return;
           mapInstance.getCanvas().style.cursor = "pointer";
         });
 
-        mapInstance.on("mouseleave", "nations-fill", () => {
+        mapInstance.on("mouseleave", "cultures-fill", () => {
           if (useMapStore.getState().isDrawingMode) return;
           mapInstance.getCanvas().style.cursor = "";
         });
@@ -106,7 +106,7 @@ export function WorldMap({
         setIsLoading(false);
         setIsMapReady(true);
       } catch (error) {
-        console.error("Failed to load nations GeoJSON:", error);
+        console.error("Failed to load cultures GeoJSON:", error);
         setIsLoading(false);
         setIsMapReady(true);
       }
@@ -136,19 +136,19 @@ export function WorldMap({
 
       try {
         const response = await fetch(
-          `/api/nations/at-point?lng=${lng}&lat=${lat}`,
+          `/api/cultures/at-point?lng=${lng}&lat=${lat}`,
         );
         const data = await response.json();
 
-        if (data.nations && data.nations.length > 0) {
-          if (data.nations.length === 1) {
-            onNationClickRef.current(data.nations[0].slug);
+        if (data.cultures && data.cultures.length > 0) {
+          if (data.cultures.length === 1) {
+            onCultureClickRef.current(data.cultures[0].slug);
           } else {
-            onMultipleNationsRef.current(data.nations, e.lngLat);
+            onMultipleCulturesRef.current(data.cultures, e.lngLat);
           }
         }
       } catch (error) {
-        console.error("Failed to query nations at point:", error);
+        console.error("Failed to query cultures at point:", error);
       }
     };
 

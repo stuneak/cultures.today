@@ -47,7 +47,7 @@ export async function ensureBucket(): Promise<void> {
 export async function uploadFile(
   file: File,
   category: string,
-  nationSlug: string,
+  cultureSlug: string,
 ): Promise<{ key: string; url: string }> {
   const buffer = Buffer.from(await file.arrayBuffer());
 
@@ -69,7 +69,7 @@ export async function uploadFile(
 
   const ext = file.name.split(".").pop() || "bin";
   const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-  const key = `${category}/${nationSlug}/${filename}`;
+  const key = `${category}/${cultureSlug}/${filename}`;
 
   await minioClient.putObject(BUCKET, key, buffer, buffer.length, {
     "Content-Type": file.type,

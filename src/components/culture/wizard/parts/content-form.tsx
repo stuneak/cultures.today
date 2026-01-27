@@ -66,7 +66,7 @@ export function ContentForm({
     error: uploadError,
   } = useFileUpload({
     category: "content",
-    nationSlug: tempSlug,
+    cultureSlug: tempSlug,
     onSuccess: (result) => {
       onChange({ ...content, contentUrl: result.url });
       setPreview(getMediaUrl(result.url));

@@ -45,7 +45,7 @@ const shortcuts: { keys: string[]; action: string; separator?: string }[] = [
   { keys: ["A"], action: "Decrease brush size" },
   { keys: ["D"], action: "Increase brush size" },
   { keys: ["Ctrl", "Z"], action: "Undo", separator: "+" },
-  { keys: ["Enter"], action: "Create nation" },
+  { keys: ["Enter"], action: "Create culture" },
   { keys: ["Esc"], action: "Cancel drawing" },
 ];
 
@@ -136,10 +136,9 @@ function InfoModal({
               </Text>
             </Group>
             <Text size="sm" className="info-modal-text" lh={1.6}>
-              An interactive atlas exploring the world&apos;s diverse nations,
-              cultures, traditions, and heritage. Discover landmarks, learn
-              about local customs, and traverse the rich tapestry of human
-              civilization.
+              An interactive atlas exploring the world&apos;s diverse cultures,
+              traditions, and heritage. Discover landmarks, learn about local
+              customs, and traverse the rich tapestry of human civilization.
             </Text>
           </Box>
 

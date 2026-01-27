@@ -71,12 +71,12 @@
   overflow: hidden;
 }
 
-.nation-popup {
+.culture-popup {
   padding: 12px;
   min-width: 150px;
 }
 
-.nation-popup h3 {
+.culture-popup h3 {
   margin: 0 0 4px 0;
   font-size: 14px;
   font-weight: 600;

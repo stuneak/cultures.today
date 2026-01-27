@@ -48,7 +48,7 @@ export function BasicInfoStep({
     error: uploadError,
   } = useFileUpload({
     category: "flags",
-    nationSlug: tempSlug,
+    cultureSlug: tempSlug,
     onSuccess: (result) => {
       onChange({ flagUrl: result.url });
       setFlagPreview(getMediaUrl(result.url));
@@ -73,8 +73,8 @@ export function BasicInfoStep({
   return (
     <Stack gap="md">
       <TextInput
-        label="What’s your nation called?"
-        placeholder="Enter the name of your nation"
+        label="What's your culture called?"
+        placeholder="Enter the name of your culture"
         required
         value={data.name}
         onChange={(e) => onChange({ name: e.target.value })}
@@ -82,8 +82,8 @@ export function BasicInfoStep({
       />
 
       <Textarea
-        label="What makes your nation special?"
-        placeholder="Welcome! Tell us all about your nation, its people, culture, traditions, food, festivals, and anything that makes it special. Share your nation’s story so others can discover it!"
+        label="What makes your culture special?"
+        placeholder="Welcome! Tell us all about your culture, its people, traditions, food, festivals, and anything that makes it special. Share your culture's story so others can discover it!"
         rows={6}
         required
         value={data.description}

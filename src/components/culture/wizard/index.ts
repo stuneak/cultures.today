@@ -1,4 +1,4 @@
-export { NationSubmitWizard } from "./nation-submit-wizard";
+export { CultureSubmitWizard } from "./culture-submit-wizard";
 export type {
   WizardFormData,
   LanguageFormData,

@@ -9,7 +9,7 @@ const geist = Geist({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Cultures.com - Explore World Cultures",
-  description: "Interactive map exploring nations and their cultures",
+  description: "Interactive map exploring cultures around the world",
 };
 
 export default function RootLayout({

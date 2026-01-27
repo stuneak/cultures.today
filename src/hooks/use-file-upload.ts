@@ -14,14 +14,14 @@ interface UploadResult {
 
 interface UseFileUploadOptions {
   category: "flags" | "audio" | "content";
-  nationSlug: string;
+  cultureSlug: string;
   onSuccess?: (result: UploadResult) => void;
   onError?: (error: string) => void;
 }
 
 export function useFileUpload({
   category,
-  nationSlug,
+  cultureSlug,
   onSuccess,
   onError,
 }: UseFileUploadOptions) {
@@ -45,7 +45,7 @@ export function useFileUpload({
         const formData = new FormData();
         formData.append("file", file);
         formData.append("category", category);
-        formData.append("nationSlug", nationSlug);
+        formData.append("cultureSlug", cultureSlug);
 
         const response = await fetch("/api/upload", {
           method: "POST",
@@ -70,7 +70,7 @@ export function useFileUpload({
         setUploading(false);
       }
     },
-    [category, nationSlug, onSuccess, onError]
+    [category, cultureSlug, onSuccess, onError]
   );
 
   const reset = useCallback(() => {

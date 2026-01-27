@@ -7,7 +7,7 @@ import { ContentSection } from "./sections/content-section";
 import { getMediaUrl } from "@/lib/media-url";
 import Image from "next/image";
 
-interface NationModalProps {
+interface CultureModalProps {
   slug: string | null;
   onClose: () => void;
 }
@@ -32,7 +32,7 @@ interface Content {
   contentUrl: string | null;
 }
 
-interface NationDetails {
+interface CultureDetails {
   id: string;
   name: string;
   slug: string;
@@ -42,8 +42,8 @@ interface NationDetails {
   contents: Content[];
 }
 
-export function NationModal({ slug, onClose }: NationModalProps) {
-  const [nation, setNation] = useState<NationDetails | null>(null);
+export function CultureModal({ slug, onClose }: CultureModalProps) {
+  const [culture, setCulture] = useState<CultureDetails | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -52,13 +52,13 @@ export function NationModal({ slug, onClose }: NationModalProps) {
 
     let ignore = false;
 
-    async function fetchNation() {
+    async function fetchCulture() {
       try {
-        const res = await fetch(`/api/nations/${slug}`);
-        if (!res.ok) throw new Error("Nation not found");
+        const res = await fetch(`/api/cultures/${slug}`);
+        if (!res.ok) throw new Error("Culture not found");
         const data = await res.json();
         if (!ignore) {
-          setNation(data);
+          setCulture(data);
         }
       } catch (err) {
         if (!ignore) {
@@ -71,10 +71,10 @@ export function NationModal({ slug, onClose }: NationModalProps) {
       }
     }
 
-    setNation(null);
+    setCulture(null);
     setError(null);
     setLoading(true);
-    fetchNation();
+    fetchCulture();
 
     return () => {
       ignore = true;
@@ -89,22 +89,22 @@ export function NationModal({ slug, onClose }: NationModalProps) {
       title={
         loading ? (
           <Skeleton height={24} width={200} />
-        ) : nation ? (
+        ) : culture ? (
           <Group gap="sm">
-            {nation.flagUrl && (
+            {culture.flagUrl && (
               <div className="relative w-8 h-6">
                 <Image
-                  src={getMediaUrl(nation.flagUrl)}
-                  alt={`${nation.name} flag`}
+                  src={getMediaUrl(culture.flagUrl)}
+                  alt={`${culture.name} flag`}
                   fill
                   className="object-contain rounded"
-                  unoptimized={getMediaUrl(nation.flagUrl).includes(
+                  unoptimized={getMediaUrl(culture.flagUrl).includes(
                     "localhost",
                   )}
                 />
               </div>
             )}
-            <Title order={3}>{nation.name}</Title>
+            <Title order={3}>{culture.name}</Title>
           </Group>
         ) : null
       }
@@ -123,10 +123,10 @@ export function NationModal({ slug, onClose }: NationModalProps) {
         </Text>
       )}
 
-      {nation && !loading && (
+      {culture && !loading && (
         <div className="space-y-4">
           {/* Description */}
-          {nation.description && (
+          {culture.description && (
             <div className="break-words">
               <Text
                 size="xs"
@@ -135,45 +135,45 @@ export function NationModal({ slug, onClose }: NationModalProps) {
                 mb={4}
                 style={{ wordBreak: "break-word" }}
               >
-                What makes this nation special?
+                What makes this culture special?
               </Text>
               <Text size="sm" lh={1.6}>
-                {nation.description}
+                {culture.description}
               </Text>
             </div>
           )}
 
           {/* Divider after description if languages or content exist */}
-          {nation.description &&
-            (nation.languages.length > 0 || nation.contents.length > 0) && (
+          {culture.description &&
+            (culture.languages.length > 0 || culture.contents.length > 0) && (
               <Divider />
             )}
 
           {/* Languages Section */}
-          {nation.languages.length > 0 && (
+          {culture.languages.length > 0 && (
             <div>
-              <LanguagesSection languages={nation.languages} />
+              <LanguagesSection languages={culture.languages} />
             </div>
           )}
 
           {/* Divider after languages if content exists */}
-          {nation.languages.length > 0 && nation.contents.length > 0 && (
+          {culture.languages.length > 0 && culture.contents.length > 0 && (
             <Divider />
           )}
 
           {/* Content Section */}
-          {nation.contents.length > 0 && (
+          {culture.contents.length > 0 && (
             <div>
-              <ContentSection contents={nation.contents} />
+              <ContentSection contents={culture.contents} />
             </div>
           )}
 
           {/* Empty state */}
-          {!nation.description &&
-            nation.languages.length === 0 &&
-            nation.contents.length === 0 && (
+          {!culture.description &&
+            culture.languages.length === 0 &&
+            culture.contents.length === 0 && (
               <Text c="dimmed" ta="center" py="md">
-                No additional information available for this nation yet.
+                No additional information available for this culture yet.
               </Text>
             )}
         </div>

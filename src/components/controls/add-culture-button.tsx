@@ -5,7 +5,7 @@ import { IconCheck, IconX, IconBrush } from "@tabler/icons-react";
 import { useIconStyles } from "./use-icon-styles";
 import { useMapStore } from "@/stores/map-store";
 
-interface AddNationButtonProps {
+interface AddCultureButtonProps {
   onStartDrawing: () => void;
 }
 
@@ -51,13 +51,13 @@ export function DrawingBottomBar({
   );
 }
 
-export function AddNationButton({ onStartDrawing }: AddNationButtonProps) {
+export function AddCultureButton({ onStartDrawing }: AddCultureButtonProps) {
   const isMapReady = useMapStore((state) => state.isMapReady);
 
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-1">
       <Tooltip
-        label={isMapReady ? "Add nation" : "Map is loading..."}
+        label={isMapReady ? "Add culture" : "Map is loading..."}
         position="top"
       >
         <Button

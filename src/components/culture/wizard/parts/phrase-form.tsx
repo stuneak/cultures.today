@@ -77,7 +77,7 @@ export function PhraseForm({
     error: uploadError,
   } = useFileUpload({
     category: "audio",
-    nationSlug: tempSlug,
+    cultureSlug: tempSlug,
     onSuccess: (result) => {
       onChange({ ...phrase, audioUrl: result.url });
     },

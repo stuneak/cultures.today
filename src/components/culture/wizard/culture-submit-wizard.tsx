@@ -13,7 +13,7 @@ import {
   type WizardFormData,
 } from "./types";
 
-interface NationSubmitWizardProps {
+interface CultureSubmitWizardProps {
   opened: boolean;
   onClose: () => void;
   initialBoundary?: GeoJSON.Feature<GeoJSON.MultiPolygon> | null;
@@ -21,11 +21,11 @@ interface NationSubmitWizardProps {
 
 const STEP_LABELS = ["Basic Info", "Languages", "Contents", "Review"];
 
-export function NationSubmitWizard({
+export function CultureSubmitWizard({
   opened,
   onClose,
   initialBoundary,
-}: NationSubmitWizardProps) {
+}: CultureSubmitWizardProps) {
   const [activeStep, setActiveStep] = useState(0);
   const [formData, setFormData] = useState<WizardFormData>(() =>
     INITIAL_FORM_DATA(""),
@@ -210,7 +210,7 @@ export function NationSubmitWizard({
         })),
       };
 
-      const response = await fetch("/api/nations", {
+      const response = await fetch("/api/cultures", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(submitData),
@@ -218,7 +218,7 @@ export function NationSubmitWizard({
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || "Failed to submit nation");
+        throw new Error(data.error || "Failed to submit culture");
       }
 
       setSuccess(true);
@@ -236,13 +236,13 @@ export function NationSubmitWizard({
     <Modal
       opened={opened}
       onClose={onClose}
-      title="Share your nation with us"
+      title="Share your culture with us"
       size="lg"
       closeOnClickOutside={false}
     >
       {success ? (
         <Alert color="blue" variant="light">
-          Thanks for your submission! Your nation is now pending review by our
+          Thanks for your submission! Your culture is now pending review by our
           moderators 🎉
         </Alert>
       ) : (
@@ -385,7 +385,7 @@ export function NationSubmitWizard({
               <Button onClick={handleNext}>Next</Button>
             ) : (
               <Button onClick={handleSubmit} loading={submitting}>
-                Submit Nation
+                Submit Culture
               </Button>
             )}
           </Group>

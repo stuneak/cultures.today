@@ -3,26 +3,26 @@
 import { Paper, Text, UnstyledButton, Group, Stack } from "@mantine/core";
 import { IconChevronRight } from "@tabler/icons-react";
 
-interface Nation {
+interface Culture {
   id: string;
   name: string;
   slug: string;
   flagUrl: string | null;
 }
 
-interface NationSelectionPopupProps {
-  nations: Nation[];
+interface CultureSelectionPopupProps {
+  cultures: Culture[];
   position: { x: number; y: number };
   onSelect: (slug: string) => void;
   onClose: () => void;
 }
 
-export function NationSelectionPopup({
-  nations,
+export function CultureSelectionPopup({
+  cultures,
   position,
   onSelect,
   onClose,
-}: NationSelectionPopupProps) {
+}: CultureSelectionPopupProps) {
   return (
     <>
       {/* Backdrop */}
@@ -45,21 +45,21 @@ export function NationSelectionPopup({
       >
         <div className="p-2">
           <Text size="xs" c="dimmed" className="px-2 py-1">
-            Multiple nations at this location
+            Multiple cultures at this location
           </Text>
           <Stack gap={0}>
-            {nations.map((nation) => (
+            {cultures.map((culture) => (
               <UnstyledButton
-                key={nation.id}
+                key={culture.id}
                 onClick={() => {
-                  onSelect(nation.slug);
+                  onSelect(culture.slug);
                   onClose();
                 }}
                 className="w-full px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               >
                 <Group justify="space-between">
                   <Text size="sm" fw={500}>
-                    {nation.name}
+                    {culture.name}
                   </Text>
                   <IconChevronRight size={16} className="text-gray-400" />
                 </Group>

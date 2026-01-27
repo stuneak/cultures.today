@@ -4,7 +4,7 @@ import { useEffect, useRef, useCallback, useMemo } from "react";
 import { useMapStore } from "@/stores/map-store";
 import { DrawingControls } from "@/components/controls/drawing-controls";
 import { DrawingHints } from "@/components/controls/drawing-hints";
-import { DrawingBottomBar } from "@/components/controls/add-nation-button";
+import { DrawingBottomBar } from "@/components/controls/add-culture-button";
 import type { MapMouseEvent, GeoJSONSource } from "maplibre-gl";
 import circle from "@turf/circle";
 import union from "@turf/union";

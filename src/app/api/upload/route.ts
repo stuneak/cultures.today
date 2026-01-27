@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
     const category = formData.get("category") as string | null;
-    const nationSlug = formData.get("nationSlug") as string | null;
+    const cultureSlug = formData.get("cultureSlug") as string | null;
 
     if (!file) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
@@ -24,9 +24,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!category || !nationSlug) {
+    if (!category || !cultureSlug) {
       return NextResponse.json(
-        { error: "Category and nationSlug are required" },
+        { error: "Category and cultureSlug are required" },
         { status: 400 },
       );
     }
@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const result = await uploadFile(fileToUpload, category, nationSlug);
+    const result = await uploadFile(fileToUpload, category, cultureSlug);
 
     return NextResponse.json(
       {

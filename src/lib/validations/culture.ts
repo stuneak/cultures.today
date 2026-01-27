@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const nationQuerySchema = z.object({
+export const cultureQuerySchema = z.object({
   search: z.string().optional(),
   state: z.enum(["approved", "pending"]).optional(),
   limit: z.coerce.number().min(1).max(100).default(50),
@@ -30,14 +30,14 @@ export const languageSchema = z.object({
   phrases: z.array(phraseSchema).min(1, "At least one phrase is required"),
 });
 
-// Content schema for nation content items
+// Content schema for culture content items
 export const contentSchema = z.object({
   title: z.string().min(1, "Content title is required"),
   contentType: z.enum(["UPLOAD", "VIDEO_YOUTUBE"]),
   contentUrl: z.string().min(1, "Content URL is required"),
 });
 
-export const nationSubmitSchema = z.object({
+export const cultureSubmitSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(100),
   description: z.string().optional(),
   flagUrl: z.string().optional(),
@@ -46,7 +46,7 @@ export const nationSubmitSchema = z.object({
   contents: z.array(contentSchema).min(1, "At least one content item is required"),
 });
 
-export const nationUpdateSchema = z.object({
+export const cultureUpdateSchema = z.object({
   name: z.string().min(1).max(100).optional(),
   description: z.string().optional(),
   flagUrl: z.string().optional(),
@@ -54,9 +54,9 @@ export const nationUpdateSchema = z.object({
   state: z.enum(["approved", "pending"]).optional(),
 });
 
-export type NationQuery = z.infer<typeof nationQuerySchema>;
-export type NationSubmit = z.infer<typeof nationSubmitSchema>;
-export type NationUpdate = z.infer<typeof nationUpdateSchema>;
+export type CultureQuery = z.infer<typeof cultureQuerySchema>;
+export type CultureSubmit = z.infer<typeof cultureSubmitSchema>;
+export type CultureUpdate = z.infer<typeof cultureUpdateSchema>;
 export type LanguageInput = z.infer<typeof languageSchema>;
 export type PhraseInput = z.infer<typeof phraseSchema>;
 export type ContentInput = z.infer<typeof contentSchema>;

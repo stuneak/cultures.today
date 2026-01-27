@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 export async function GET() {
   try {
     // Use raw SQL to get boundary as GeoJSON directly from PostGIS
-    const nations = await db.$queryRaw<
+    const cultures = await db.$queryRaw<
       Array<{
         id: string;
         name: string;
@@ -19,26 +19,26 @@ export async function GET() {
         slug,
         flag_url as "flagUrl",
         ST_AsGeoJSON(boundary) as "boundaryGeojson"
-      FROM nations
+      FROM cultures
       WHERE state = 'approved'
         AND boundary IS NOT NULL
     `;
 
-    const features = nations
-      .map((nation) => {
+    const features = cultures
+      .map((culture) => {
         try {
-          const geometry = nation.boundaryGeojson
-            ? JSON.parse(nation.boundaryGeojson)
+          const geometry = culture.boundaryGeojson
+            ? JSON.parse(culture.boundaryGeojson)
             : null;
 
           return {
             type: "Feature",
-            id: nation.id,
+            id: culture.id,
             properties: {
-              id: nation.id,
-              name: nation.name,
-              slug: nation.slug,
-              flagUrl: nation.flagUrl,
+              id: culture.id,
+              name: culture.name,
+              slug: culture.slug,
+              flagUrl: culture.flagUrl,
             },
             geometry,
           };
@@ -53,7 +53,7 @@ export async function GET() {
       features,
     });
   } catch (error) {
-    console.error("GET /api/nations/geojson error:", error);
+    console.error("GET /api/cultures/geojson error:", error);
     return NextResponse.json(
       { error: "Failed to fetch GeoJSON" },
       { status: 500 },

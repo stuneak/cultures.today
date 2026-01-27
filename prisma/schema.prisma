@@ -17,8 +17,8 @@ model User {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  sessions         Session[]
-  submittedNations Nation[]
+  sessions           Session[]
+  submittedCultures  Culture[]
 
   @@map("users")
   @@index([email])
@@ -35,18 +35,18 @@ model Session {
   @@map("sessions")
 }
 
-enum NationState {
+enum CultureState {
   approved
   pending
 }
 
-model Nation {
-  id          String      @id @default(cuid())
-  name        String      @unique
-  slug        String      @unique
-  state       NationState @default(pending)
+model Culture {
+  id          String       @id @default(cuid())
+  name        String       @unique
+  slug        String       @unique
+  state       CultureState @default(pending)
   description String?
-  flagUrl     String?     @map("flag_url")
+  flagUrl     String?      @map("flag_url")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -58,7 +58,7 @@ model Nation {
   languages Language[]
   contents  Content[]
 
-  @@map("nations")
+  @@map("cultures")
   @@index([slug])
   @@index([state])
 }
@@ -67,8 +67,8 @@ model Language {
   id   String @id @default(cuid())
   name String
 
-  nationId String @map("nation_id")
-  nation   Nation @relation(fields: [nationId], references: [id], onDelete: Cascade)
+  cultureId String  @map("culture_id")
+  culture   Culture @relation(fields: [cultureId], references: [id], onDelete: Cascade)
 
   phrases Phrase[]
 
@@ -99,8 +99,8 @@ model Content {
   contentType ContentType @map("content_type")
   contentUrl  String?     @map("content_url")
 
-  nationId String @map("nation_id")
-  nation   Nation @relation(fields: [nationId], references: [id], onDelete: Cascade)
+  cultureId String  @map("culture_id")
+  culture   Culture @relation(fields: [cultureId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now()) @map("created_at")
 
