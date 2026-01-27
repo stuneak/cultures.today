@@ -20,7 +20,7 @@ interface ContentSectionProps {
 
 function getYouTubeEmbedUrl(url: string): string | null {
   const videoId = url.match(
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\s]+)/
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\s]+)/,
   )?.[1];
   return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
 }
@@ -86,7 +86,8 @@ function ContentLightbox({
   if (!item || !item.contentUrl) return null;
 
   const isYouTube = item.contentType === "VIDEO_YOUTUBE";
-  const isVideo = item.contentType === "UPLOAD" && item.contentUrl.match(/\.(mp4|webm)$/i);
+  const isVideo =
+    item.contentType === "UPLOAD" && item.contentUrl.match(/\.(mp4|webm)$/i);
   const isImage = item.contentType === "UPLOAD" && !isVideo;
   const youtubeEmbed = isYouTube ? getYouTubeEmbedUrl(item.contentUrl) : null;
 
@@ -98,15 +99,21 @@ function ContentLightbox({
       fullScreen
       withCloseButton={false}
       styles={{
-        body: { padding: 0, height: "100%", display: "flex", alignItems: "center", justifyContent: "center" },
+        body: {
+          padding: 0,
+          height: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        },
         content: { background: "rgba(0, 0, 0, 0.95)" },
       }}
     >
       <CloseButton
+        variant="subtle"
         onClick={onClose}
         size="xl"
         className="absolute top-4 right-4 z-10 text-white hover:bg-white/20"
-        style={{ color: "white" }}
       />
 
       {contents.length > 1 && selectedIndex !== null && selectedIndex > 0 && (
@@ -121,17 +128,19 @@ function ContentLightbox({
         </ActionIcon>
       )}
 
-      {contents.length > 1 && selectedIndex !== null && selectedIndex < contents.length - 1 && (
-        <ActionIcon
-          variant="subtle"
-          size="xl"
-          className="absolute right-4 top-1/2 -translate-y-1/2 z-10 text-white hover:bg-white/20"
-          onClick={handleNext}
-          style={{ color: "white" }}
-        >
-          <IconChevronRight size={32} />
-        </ActionIcon>
-      )}
+      {contents.length > 1 &&
+        selectedIndex !== null &&
+        selectedIndex < contents.length - 1 && (
+          <ActionIcon
+            variant="subtle"
+            size="xl"
+            className="absolute right-4 top-1/2 -translate-y-1/2 z-10 text-white hover:bg-white/20"
+            onClick={handleNext}
+            style={{ color: "white" }}
+          >
+            <IconChevronRight size={32} />
+          </ActionIcon>
+        )}
 
       <div className="flex items-center justify-center w-full h-full p-8">
         {isImage && (
@@ -139,11 +148,7 @@ function ContentLightbox({
         )}
 
         {isVideo && (
-          <video
-            controls
-            className="max-w-[90vw] max-h-[90vh]"
-            key={item.id}
-          >
+          <video controls className="max-w-[90vw] max-h-[90vh]" key={item.id}>
             <source src={getMediaUrl(item.contentUrl)} type="video/mp4" />
           </video>
         )}
@@ -168,11 +173,19 @@ function ContentLightbox({
   );
 }
 
-function ContentCard({ item, onClick }: { item: Content; onClick: () => void }) {
+function ContentCard({
+  item,
+  onClick,
+}: {
+  item: Content;
+  onClick: () => void;
+}) {
   const isYouTube = item.contentType === "VIDEO_YOUTUBE";
-  const isVideo = item.contentType === "UPLOAD" && item.contentUrl?.match(/\.(mp4|webm)$/i);
+  const isVideo =
+    item.contentType === "UPLOAD" && item.contentUrl?.match(/\.(mp4|webm)$/i);
   const isImage = item.contentType === "UPLOAD" && !isVideo;
-  const youtubeEmbed = isYouTube && item.contentUrl ? getYouTubeEmbedUrl(item.contentUrl) : null;
+  const youtubeEmbed =
+    isYouTube && item.contentUrl ? getYouTubeEmbedUrl(item.contentUrl) : null;
 
   return (
     <Card withBorder p="xs" className="cursor-pointer" onClick={onClick}>

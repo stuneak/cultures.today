@@ -129,7 +129,7 @@ export function NationModal({ slug, onClose }: NationModalProps) {
           {nation.description && (
             <Card withBorder p="md" radius="md">
               <Text size="sm" fw={500} mb="xs" c="dimmed">
-                About
+                What makes this nation special:
               </Text>
               <Text size="sm">{nation.description}</Text>
             </Card>
