@@ -94,7 +94,6 @@ function InfoModal({
           {/* Header */}
           <Box className="info-modal-header">
             <Group gap="sm" align="center">
-              <IconCompass size={28} strokeWidth={1.5} />
               <Text
                 component="h2"
                 style={{
@@ -104,7 +103,7 @@ function InfoModal({
                   margin: 0,
                 }}
               >
-                Cultures
+                Cultures.today
               </Text>
             </Group>
             <ActionIcon
@@ -112,12 +111,13 @@ function InfoModal({
               color="gray"
               onClick={onClose}
               radius="xl"
-              size="md"
+              size="lg"
             >
               <IconX size={18} />
             </ActionIcon>
           </Box>
 
+          <Divider className="info-modal-divider" />
           {/* About Section */}
           <Box className="info-modal-section">
             <Group gap="xs" mb="sm">
@@ -136,9 +136,9 @@ function InfoModal({
               </Text>
             </Group>
             <Text size="sm" className="info-modal-text" lh={1.6}>
-              An interactive atlas exploring the world&apos;s diverse cultures,
-              traditions, and heritage. Discover landmarks, learn about local
-              customs, and traverse the rich tapestry of human civilization.
+              {`This interactive map lets you explore all kinds of cultures, local
+              customs, and dive into some seriously cool stories. Its like
+              traveling the world without ever leaving your couch! ✈️`}
             </Text>
           </Box>
 
@@ -193,10 +193,14 @@ function InfoModal({
             </Box>
           </Box>
 
+          <Divider className="info-modal-divider" />
           {/* Footer */}
           <Box className="info-modal-footer">
             <Text size="xs" c="dimmed" ta="center">
-              Made with curiosity · Explore freely
+              Made with love 🫶 Explore freely
+            </Text>
+            <Text size="xs" c="dimmed" ta="center" mt={4}>
+              Contact: stuneak@gmail.com
             </Text>
           </Box>
         </Box>

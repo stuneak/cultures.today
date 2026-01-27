@@ -8,7 +8,7 @@ import { ColorSchemeScript } from "@mantine/core";
 const geist = Geist({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Cultures.com - Explore World Cultures",
+  title: "Cultures.today - Explore World Cultures",
   description: "Interactive map exploring cultures around the world",
 };
 

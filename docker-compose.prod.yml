@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   app:
     build:
@@ -17,8 +15,8 @@ services:
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
       - NEXTAUTH_URL=${NEXTAUTH_URL}
-    ports:
-      - "3000:3000"
+    networks:
+      - cultures-network
     depends_on:
       db:
         condition: service_healthy
@@ -35,6 +33,8 @@ services:
       POSTGRES_DB: cultures
     volumes:
       - /root/cultures-today/data/postgres:/var/lib/postgresql/data
+    networks:
+      - cultures-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U cultures -d cultures"]
       interval: 5s
@@ -49,10 +49,12 @@ services:
       MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
       MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
     volumes:
       - /root/cultures-today/data/minio:/data
+    networks:
+      - cultures-network
     command: server /data --console-address ":9001"
     healthcheck:
       test: ["CMD", "mc", "ready", "local"]
@@ -61,6 +63,63 @@ services:
       retries: 5
     restart: unless-stopped
 
+  # SSL certificate initialization - runs once on first deploy
+  ssl-init:
+    image: certbot/certbot:latest
+    container_name: cultures-ssl-init
+    ports:
+      - "80:80"
+    environment:
+      - SSL_DOMAIN=${SSL_DOMAIN}
+      - SSL_EMAIL=${SSL_EMAIL}
+    volumes:
+      - certbot_conf:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+      - ./scripts/ssl-init.sh:/ssl-init.sh:ro
+    entrypoint: /bin/sh
+    command: /ssl-init.sh
+    networks:
+      - cultures-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: cultures-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - certbot_conf:/etc/letsencrypt:ro
+      - certbot_www:/var/www/certbot:ro
+    networks:
+      - cultures-network
+    depends_on:
+      ssl-init:
+        condition: service_completed_successfully
+      app:
+        condition: service_started
+    restart: unless-stopped
+
+  # Certbot renewal service - checks for renewal every 12 hours
+  certbot:
+    image: certbot/certbot:latest
+    container_name: cultures-certbot
+    volumes:
+      - certbot_conf:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+      - /var/run/docker.sock:/var/run/docker.sock
+    entrypoint: /bin/sh -c "apk add --no-cache curl > /dev/null 2>&1; trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --quiet --deploy-hook 'curl -s --unix-socket /var/run/docker.sock -X POST http://localhost/containers/cultures-nginx/kill?signal=HUP'; sleep 12h & wait $${!}; done"
+    networks:
+      - cultures-network
+    depends_on:
+      nginx:
+        condition: service_started
+    restart: unless-stopped
+
+networks:
+  cultures-network:
+    driver: bridge
+
 volumes:
-  postgres_data:
-  minio_data:
+  certbot_conf:
+  certbot_www:

@@ -2,7 +2,7 @@
 CREATE EXTENSION IF NOT EXISTS "postgis";
 
 -- CreateEnum
-CREATE TYPE "NationState" AS ENUM ('approved', 'pending');
+CREATE TYPE "CultureState" AS ENUM ('approved', 'pending');
 
 -- CreateEnum
 CREATE TYPE "ContentType" AS ENUM ('UPLOAD', 'VIDEO_YOUTUBE');
@@ -29,11 +29,11 @@ CREATE TABLE sessions (
 );
 
 -- CreateTable
-CREATE TABLE nations (
+CREATE TABLE cultures (
     id TEXT NOT NULL,
     name TEXT NOT NULL,
     slug TEXT NOT NULL,
-    state "NationState" NOT NULL DEFAULT 'pending',
+    state "CultureState" NOT NULL DEFAULT 'pending',
     description TEXT,
     flag_url TEXT,
     created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -41,14 +41,15 @@ CREATE TABLE nations (
     submitted_by_id TEXT,
     boundary geometry(MultiPolygon, 4326),
 
-    CONSTRAINT nations_pkey PRIMARY KEY (id)
+
+    CONSTRAINT cultures_pkey PRIMARY KEY (id)
 );
 
 -- CreateTable
 CREATE TABLE languages (
     id TEXT NOT NULL,
     name TEXT NOT NULL,
-    nation_id TEXT NOT NULL,
+    culture_id TEXT NOT NULL,
 
     CONSTRAINT languages_pkey PRIMARY KEY (id)
 );
@@ -71,7 +72,7 @@ CREATE TABLE contents (
     title TEXT NOT NULL,
     content_type "ContentType" NOT NULL,
     content_url TEXT,
-    nation_id TEXT NOT NULL,
+    culture_id TEXT NOT NULL,
     created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT contents_pkey PRIMARY KEY (id)
@@ -90,30 +91,28 @@ CREATE INDEX users_email_idx ON users(email);
 CREATE UNIQUE INDEX sessions_session_token_key ON sessions(session_token);
 
 -- CreateIndex
-CREATE UNIQUE INDEX nations_name_key ON nations(name);
+CREATE UNIQUE INDEX cultures_name_key ON cultures(name);
 
 -- CreateIndex
-CREATE UNIQUE INDEX nations_slug_key ON nations(slug);
+CREATE UNIQUE INDEX cultures_slug_key ON cultures(slug);
 
 -- CreateIndex
-CREATE INDEX nations_slug_idx ON nations(slug);
+CREATE INDEX cultures_slug_idx ON cultures(slug);
 
 -- CreateIndex
-CREATE INDEX nations_state_idx ON nations(state);
+CREATE INDEX cultures_state_idx ON cultures(state);
 
 -- AddForeignKey
 ALTER TABLE sessions ADD CONSTRAINT sessions_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE nations ADD CONSTRAINT nations_submitted_by_id_fkey FOREIGN KEY (submitted_by_id) REFERENCES users(id) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE cultures ADD CONSTRAINT cultures_submitted_by_id_fkey FOREIGN KEY (submitted_by_id) REFERENCES users(id) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE languages ADD CONSTRAINT languages_nation_id_fkey FOREIGN KEY (nation_id) REFERENCES nations(id) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE languages ADD CONSTRAINT languages_culture_id_fkey FOREIGN KEY (culture_id) REFERENCES cultures(id) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE phrases ADD CONSTRAINT phrases_language_id_fkey FOREIGN KEY (language_id) REFERENCES languages(id) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE contents ADD CONSTRAINT contents_nation_id_fkey FOREIGN KEY (nation_id) REFERENCES nations(id) ON DELETE CASCADE ON UPDATE CASCADE;
-
-CREATE INDEX IF NOT EXISTS nations_boundary_idx ON nations USING GIST (boundary);
+ALTER TABLE contents ADD CONSTRAINT contents_culture_id_fkey FOREIGN KEY (culture_id) REFERENCES cultures(id) ON DELETE CASCADE ON UPDATE CASCADE;
