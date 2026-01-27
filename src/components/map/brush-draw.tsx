@@ -326,8 +326,6 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
           },
         });
       }
-
-      mapInstance.getCanvas().style.cursor = showMode ? "grab" : "crosshair";
     };
 
     if (mapInstance.isStyleLoaded()) {
@@ -335,10 +333,20 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
     } else {
       mapInstance.once("style.load", setupLayers);
     }
+  }, [mapInstance, isDrawingMode]);
+
+  // Separate effect for cursor - runs whenever showMode changes
+  useEffect(() => {
+    if (!mapInstance || !isDrawingMode) return;
+
+    const canvas = mapInstance.getCanvas();
+    if (canvas) {
+      canvas.style.cursor = showMode ? "grab" : "crosshair";
+    }
 
     return () => {
-      if (mapInstance.getCanvas()) {
-        mapInstance.getCanvas().style.cursor = "";
+      if (canvas) {
+        canvas.style.cursor = "";
       }
     };
   }, [mapInstance, isDrawingMode, showMode]);

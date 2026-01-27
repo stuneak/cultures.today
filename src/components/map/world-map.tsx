@@ -92,12 +92,14 @@ export function WorldMap({
           },
         });
 
-        // Hover effects
+        // Hover effects - skip in drawing mode
         mapInstance.on("mouseenter", "nations-fill", () => {
+          if (useMapStore.getState().isDrawingMode) return;
           mapInstance.getCanvas().style.cursor = "pointer";
         });
 
         mapInstance.on("mouseleave", "nations-fill", () => {
+          if (useMapStore.getState().isDrawingMode) return;
           mapInstance.getCanvas().style.cursor = "";
         });
 
