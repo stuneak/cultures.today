@@ -1,11 +1,11 @@
 "use client";
 
-import { Text, Modal, ActionIcon, CloseButton } from "@mantine/core";
+import { Text, Modal, ActionIcon } from "@mantine/core";
 import { Carousel } from "@mantine/carousel";
 import Image from "next/image";
 import { getMediaUrl } from "@/lib/media-url";
 import { useState, useEffect, useCallback } from "react";
-import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
+import { IconChevronLeft, IconChevronRight, IconX } from "@tabler/icons-react";
 
 interface Content {
   id: string;
@@ -106,21 +106,28 @@ function ContentLightbox({
           alignItems: "center",
           justifyContent: "center",
         },
-        content: { background: "rgba(0, 0, 0, 0.95)" },
+        content: {
+          background: "rgba(0, 0, 0, 0.95)",
+          border: "none",
+          boxShadow: "none",
+        },
       }}
+      data-mantine-color-scheme="dark"
     >
-      <CloseButton
+      <ActionIcon
         variant="subtle"
         onClick={onClose}
         size="xl"
-        className="absolute top-4 right-4 z-10 text-white hover:bg-white/20"
-      />
+        className="absolute top-4 right-4 z-10"
+      >
+        <IconX size={24} />
+      </ActionIcon>
 
       {contents.length > 1 && selectedIndex !== null && selectedIndex > 0 && (
         <ActionIcon
           variant="subtle"
           size="xl"
-          className="absolute left-4 top-1/2 -translate-y-1/2 z-10 text-white hover:bg-white/20"
+          className="absolute left-4 top-1/2 -translate-y-1/2 z-10"
           onClick={handlePrev}
           style={{ color: "white" }}
         >
@@ -134,7 +141,7 @@ function ContentLightbox({
           <ActionIcon
             variant="subtle"
             size="xl"
-            className="absolute right-4 top-1/2 -translate-y-1/2 z-10 text-white hover:bg-white/20"
+            className="absolute right-4 top-1/2 -translate-y-1/2 z-10"
             onClick={handleNext}
             style={{ color: "white" }}
           >
@@ -165,10 +172,6 @@ function ContentLightbox({
           </div>
         )}
       </div>
-
-      <Text className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white text-center">
-        {item.title}
-      </Text>
     </Modal>
   );
 }
@@ -227,15 +230,13 @@ function ContentCard({
           />
         )}
       </div>
-      <Text size="sm" fw={500} mt="xs" ta="center">
-        {item.title}
-      </Text>
     </div>
   );
 }
 
 export function ContentSection({ contents }: ContentSectionProps) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [currentSlide, setCurrentSlide] = useState(0);
 
   if (contents.length === 0) {
     return <Text c="dimmed">No content available.</Text>;
@@ -243,12 +244,22 @@ export function ContentSection({ contents }: ContentSectionProps) {
 
   return (
     <>
+      <Text
+        size="sm"
+        fw={500}
+        mb="xs"
+        ta="center"
+        style={{ wordBreak: "break-word" }}
+      >
+        {contents[currentSlide]?.title}
+      </Text>
       <Carousel
         slideSize="100%"
         slideGap="md"
         emblaOptions={{ loop: contents.length > 1 }}
         withIndicators
         withControls={contents.length > 1}
+        onSlideChange={setCurrentSlide}
       >
         {contents.map((item, index) => (
           <Carousel.Slide key={item.id}>

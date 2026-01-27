@@ -29,7 +29,7 @@ export function LanguagesSection({ languages }: LanguagesSectionProps) {
     <div className="space-y-4">
       {languages.map((language, langIndex) => (
         <div key={language.id}>
-          <Text size="xs" fw={600} c="dimmed" mb={4}>
+          <Text size="sm" fw={600} c="dimmed" mb={4}>
             {language.name}
           </Text>
           {language.phrases.length > 0 && (

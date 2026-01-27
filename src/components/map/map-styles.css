@@ -6,6 +6,15 @@
   position: relative;
 }
 
+/* Disable focus outline on map canvas */
+.maplibregl-canvas:focus {
+  outline: none;
+}
+
+.maplibregl-map:focus {
+  outline: none;
+}
+
 /* Starfield layers */
 .maplibregl-map::before,
 .maplibregl-map::after {
