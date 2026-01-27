@@ -29,6 +29,7 @@
     "@turf/difference": "^7.3.2",
     "@turf/helpers": "^7.3.2",
     "@turf/union": "^7.3.2",
+    "create-color": "^2.0.6",
     "embla-carousel-react": "^8.6.0",
     "lucide-react": "^0.563.0",
     "maplibre-gl": "^5.16.0",

@@ -16,7 +16,6 @@ import {
   Tooltip,
   useMantineColorScheme,
   useComputedColorScheme,
-  Avatar,
   Button,
   Menu,
 } from "@mantine/core";
@@ -58,23 +57,24 @@ function TopControls() {
                   label="My Profile"
                   disabled={profileMenuOpen}
                 >
-                  <Avatar
-                    src={session.user.image}
-                    radius="xl"
+                  <ActionIcon
+                    variant="main-page-control"
                     size={iconStyles.size + 20}
-                    alt="User profile"
-                    style={{ cursor: "pointer" }}
-                    name={session.user.email || ""}
-                  />
+                    radius="xl"
+                    aria-label="User profile"
+                  >
+                    <IconUser {...iconStyles} />
+                  </ActionIcon>
                 </Tooltip>
               </Menu.Target>
 
               <Menu.Dropdown>
-                <Menu.Item leftSection={<IconUser size={14} />}>
+                {/* <Menu.Item leftSection={<IconUser size={14} />}>
                   My Profile
-                </Menu.Item>
-                <Menu.Divider />
+                </Menu.Item> */}
+                {/* <Menu.Divider /> */}
                 <Menu.Item
+                  className="menu-item-color-dark-red"
                   color="red"
                   onClick={handleLogout}
                   leftSection={<IconLogout size={14} />}

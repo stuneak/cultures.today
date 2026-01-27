@@ -64,7 +64,7 @@
   left: 0;
   right: 0;
   background: var(--mantine-primary-color-filled);
-  /* border-radius: 3px; */
+  border-radius: 3px;
   pointer-events: none;
   transition: background 0.15s ease;
 }
