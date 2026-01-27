@@ -493,13 +493,14 @@
 
 /* Menu Dropdown */
 .mantine-Menu-dropdown {
+	z-index: 1000000;
 	background-color: var(--mantine-color-body);
 	border-color: var(--mantine-color-default-border);
 
 	.mantine-Menu-item {
 		background-color: transparent;
 
-		&:where([data-hovered]) {
+		&:where(:hover) {
 			background-color: var(
 				--menu-item-hover,
 				var(--mantine-color-default-hover)

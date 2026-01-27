@@ -86,12 +86,22 @@
 	color: var(--mi-default-color);
 
 	@mixin dark {
-		&[data-hovered='true'] {
-			background-color: color-mix(
+    &:where(:hover) {
+      	background-color: color-mix(
 				in srgb,
 				var(--mi-default-color) 20%,
 				transparent
 			);
-		}
+    }
+	}
+
+	@mixin light {
+    &:where(:hover) {
+      	background-color: color-mix(
+				in srgb,
+				var(--mi-default-color) 20%,
+				transparent
+			);
+    }
 	}
 }

@@ -61,10 +61,11 @@ export function AddNationButton({ onStartDrawing }: AddNationButtonProps) {
         position="top"
       >
         <Button
-          variant="main-page-control"
+          variant="filled"
           size="lg"
           onClick={onStartDrawing}
           radius="xl"
+          color="blue"
           leftSection={<IconBrush size={20} />}
           disabled={!isMapReady}
         >

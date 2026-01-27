@@ -75,7 +75,7 @@ function TopControls() {
                 {/* <Menu.Divider /> */}
                 <Menu.Item
                   className="menu-item-color-dark-red"
-                  color="red"
+                  // color="red"
                   onClick={handleLogout}
                   leftSection={<IconLogout size={14} />}
                 >
