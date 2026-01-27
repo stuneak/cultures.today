@@ -8,7 +8,6 @@
   justify-content: center;
   align-items: flex-start;
   pointer-events: none;
-  z-index: 20;
 
   & nav {
     pointer-events: auto;

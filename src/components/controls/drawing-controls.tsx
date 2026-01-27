@@ -110,7 +110,7 @@ export function DrawingControls({
   }
 
   return (
-    <div className="drawing-controls-container ml-2">
+    <div className="drawing-controls-container ml-2 z-1">
       <nav>
         <ActionIcon.Group orientation="vertical">
           {/* Add/Erase Vertical Switch */}

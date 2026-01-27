@@ -10,6 +10,10 @@ import {
   IconCurrentLocation,
   IconUser,
   IconLogout,
+  IconX,
+  IconKeyboard,
+  IconMap,
+  IconCompass,
 } from "@tabler/icons-react";
 import {
   ActionIcon,
@@ -18,7 +22,13 @@ import {
   useComputedColorScheme,
   Button,
   Menu,
+  Box,
+  Text,
+  Group,
+  Kbd,
+  Divider,
 } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useMapStore } from "@/stores/map-store";
 import { useIconStyles } from "./use-icon-styles";
@@ -28,6 +38,173 @@ const toolTipStyles = {
   position: "left" as const,
   openDelay: 500,
 };
+
+const shortcuts: { keys: string[]; action: string; separator?: string }[] = [
+  { keys: ["S"], action: "Toggle pan / draw mode" },
+  { keys: ["W"], action: "Toggle draw / erase" },
+  { keys: ["A"], action: "Decrease brush size" },
+  { keys: ["D"], action: "Increase brush size" },
+  { keys: ["Ctrl", "Z"], action: "Undo", separator: "+" },
+  { keys: ["Enter"], action: "Create nation" },
+  { keys: ["Esc"], action: "Cancel drawing" },
+];
+
+function InfoModal({
+  opened,
+  onClose,
+}: {
+  opened: boolean;
+  onClose: () => void;
+}) {
+  return (
+    <>
+      {/* Backdrop */}
+      <Box
+        onClick={onClose}
+        style={{
+          position: "fixed",
+          inset: 0,
+          backgroundColor: "rgba(0, 0, 0, 0.6)",
+          backdropFilter: "blur(4px)",
+          zIndex: 99999998,
+          opacity: opened ? 1 : 0,
+          pointerEvents: opened ? "auto" : "none",
+          transition: "opacity 0.3s ease",
+        }}
+      />
+
+      {/* Modal */}
+      <Box
+        className="info-modal"
+        style={{
+          position: "fixed",
+          top: "50%",
+          left: "50%",
+          transform: opened
+            ? "translate(-50%, -50%) scale(1)"
+            : "translate(-50%, -50%) scale(0.95)",
+          zIndex: 99999999,
+          width: "min(420px, 90vw)",
+          opacity: opened ? 1 : 0,
+          pointerEvents: opened ? "auto" : "none",
+          transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+        }}
+      >
+        <Box className="info-modal-inner">
+          {/* Header */}
+          <Box className="info-modal-header">
+            <Group gap="sm" align="center">
+              <IconCompass size={28} strokeWidth={1.5} />
+              <Text
+                component="h2"
+                style={{
+                  fontSize: "1.5rem",
+                  fontWeight: 600,
+                  letterSpacing: "-0.02em",
+                  margin: 0,
+                }}
+              >
+                Cultures
+              </Text>
+            </Group>
+            <ActionIcon
+              variant="subtle"
+              color="gray"
+              onClick={onClose}
+              radius="xl"
+              size="md"
+            >
+              <IconX size={18} />
+            </ActionIcon>
+          </Box>
+
+          {/* About Section */}
+          <Box className="info-modal-section">
+            <Group gap="xs" mb="sm">
+              <IconMap
+                size={18}
+                strokeWidth={1.5}
+                className="info-modal-icon"
+              />
+              <Text
+                size="xs"
+                fw={600}
+                tt="uppercase"
+                className="info-modal-label"
+              >
+                About
+              </Text>
+            </Group>
+            <Text size="sm" className="info-modal-text" lh={1.6}>
+              An interactive atlas exploring the world&apos;s diverse nations,
+              cultures, traditions, and heritage. Discover landmarks, learn
+              about local customs, and traverse the rich tapestry of human
+              civilization.
+            </Text>
+          </Box>
+
+          <Divider className="info-modal-divider" />
+
+          {/* Shortcuts Section */}
+          <Box className="info-modal-section">
+            <Group gap="xs" mb="md">
+              <IconKeyboard
+                size={18}
+                strokeWidth={1.5}
+                className="info-modal-icon"
+              />
+              <Text
+                size="xs"
+                fw={600}
+                tt="uppercase"
+                className="info-modal-label"
+              >
+                Keyboard Shortcuts
+              </Text>
+            </Group>
+            <Box className="shortcuts-grid">
+              {shortcuts.map((shortcut, index) => (
+                <Group
+                  key={index}
+                  justify="space-between"
+                  className="shortcut-row"
+                >
+                  <Text size="sm" className="info-modal-text">
+                    {shortcut.action}
+                  </Text>
+                  <Group gap={4}>
+                    {shortcut.keys.map((key, keyIndex) => (
+                      <span
+                        key={keyIndex}
+                        style={{ display: "inline-flex", alignItems: "center" }}
+                      >
+                        <Kbd size="sm" className="shortcut-kbd">
+                          {key}
+                        </Kbd>
+                        {keyIndex < shortcut.keys.length - 1 && (
+                          <Text span size="xs" c="dimmed" mx={4}>
+                            {shortcut.separator || "/"}
+                          </Text>
+                        )}
+                      </span>
+                    ))}
+                  </Group>
+                </Group>
+              ))}
+            </Box>
+          </Box>
+
+          {/* Footer */}
+          <Box className="info-modal-footer">
+            <Text size="xs" c="dimmed" ta="center">
+              Made with curiosity · Explore freely
+            </Text>
+          </Box>
+        </Box>
+      </Box>
+    </>
+  );
+}
 
 function TopControls() {
   const { data: session, status } = useSession();
@@ -108,12 +285,19 @@ function MiddleControls() {
   const computedColorScheme = useComputedColorScheme("light", {
     getInitialValueInEffect: true,
   });
+  const [infoOpened, { open: openInfo, close: closeInfo }] =
+    useDisclosure(false);
 
   return (
     <nav>
+      <InfoModal opened={infoOpened} onClose={closeInfo} />
       <ActionIcon.Group orientation="vertical">
-        <Tooltip {...toolTipStyles} label="About the project">
-          <ActionIcon {...actionIconStyles} aria-label="Info">
+        <Tooltip {...toolTipStyles} label="About">
+          <ActionIcon
+            {...actionIconStyles}
+            aria-label="Info"
+            onClick={openInfo}
+          >
             <IconInfoCircle {...iconStyles} />
           </ActionIcon>
         </Tooltip>

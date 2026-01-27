@@ -15,7 +15,7 @@ export function DrawingHints({
   brushMode,
 }: DrawingHintsProps) {
   return (
-    <div className="fixed top-4 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2">
+    <div className="fixed top-4 left-1/2 -translate-x-1/2 z-1 flex flex-col items-center gap-2">
       {/* Mode Toggle Button */}
       <Tooltip
         label={showMode ? "Switch to Draw (S)" : "Switch to Pan (S)"}

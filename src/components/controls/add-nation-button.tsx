@@ -23,7 +23,7 @@ export function DrawingBottomBar({
   const { actionIconStyles, iconStyles } = useIconStyles();
 
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-10">
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-1">
       <Group gap="xs">
         <Tooltip label="Finish drawing (Enter)" position="top">
           <ActionIcon
@@ -55,9 +55,9 @@ export function AddNationButton({ onStartDrawing }: AddNationButtonProps) {
   const isMapReady = useMapStore((state) => state.isMapReady);
 
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-10">
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-1">
       <Tooltip
-        label={isMapReady ? "Add a new nation" : "Map is loading..."}
+        label={isMapReady ? "Add nation" : "Map is loading..."}
         position="top"
       >
         <Button

@@ -115,7 +115,7 @@ function ContentLightbox({
       data-mantine-color-scheme="dark"
     >
       <ActionIcon
-        variant="subtle"
+        variant="lightbox-control"
         onClick={onClose}
         size="xl"
         className="absolute top-4 right-4 z-10"
@@ -125,11 +125,10 @@ function ContentLightbox({
 
       {contents.length > 1 && selectedIndex !== null && selectedIndex > 0 && (
         <ActionIcon
-          variant="subtle"
+          variant="lightbox-control"
           size="xl"
           className="absolute left-4 top-1/2 -translate-y-1/2 z-10"
           onClick={handlePrev}
-          style={{ color: "white" }}
         >
           <IconChevronLeft size={32} />
         </ActionIcon>
@@ -139,11 +138,10 @@ function ContentLightbox({
         selectedIndex !== null &&
         selectedIndex < contents.length - 1 && (
           <ActionIcon
-            variant="subtle"
+            variant="lightbox-control"
             size="xl"
             className="absolute right-4 top-1/2 -translate-y-1/2 z-10"
             onClick={handleNext}
-            style={{ color: "white" }}
           >
             <IconChevronRight size={32} />
           </ActionIcon>
