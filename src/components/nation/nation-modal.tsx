@@ -127,8 +127,14 @@ export function NationModal({ slug, onClose }: NationModalProps) {
         <div className="space-y-4">
           {/* Description */}
           {nation.description && (
-            <div>
-              <Text size="xs" fw={600} c="dimmed" mb={4}>
+            <div className="break-words">
+              <Text
+                size="xs"
+                fw={600}
+                c="dimmed"
+                mb={4}
+                style={{ wordBreak: "break-word" }}
+              >
                 What makes this nation special?
               </Text>
               <Text size="sm" lh={1.6}>
