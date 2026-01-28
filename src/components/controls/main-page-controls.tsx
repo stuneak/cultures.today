@@ -85,6 +85,8 @@ function InfoModal({
             : "translate(-50%, -50%) scale(0.95)",
           zIndex: 99999999,
           width: "min(420px, 90vw)",
+          maxHeight: "90vh",
+          overflowY: "auto",
           opacity: opened ? 1 : 0,
           pointerEvents: opened ? "auto" : "none",
           transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
