@@ -54,9 +54,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            NEXT_PUBLIC_MINIO_ENDPOINT=${{ secrets.NEXT_PUBLIC_MINIO_ENDPOINT }}
             NEXT_PUBLIC_MINIO_BUCKET=${{ secrets.NEXT_PUBLIC_MINIO_BUCKET }}
-            NEXT_PUBLIC_MINIO_USE_SSL=${{ secrets.NEXT_PUBLIC_MINIO_USE_SSL }}
             NEXT_PUBLIC_MAP_STYLE=${{ secrets.NEXT_PUBLIC_MAP_STYLE }}
 
       - name: Output image info
