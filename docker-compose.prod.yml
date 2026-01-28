@@ -29,7 +29,7 @@ services:
     image: ghcr.io/baosystems/postgis:17-3.5
     container_name: cultures_db_prod
     ports:                                                                      
-      - "127.0.0.1:5431:5431" 
+      - "127.0.0.1:5432:5432" 
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
