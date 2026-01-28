@@ -63,11 +63,11 @@
   }
 
   .info-modal-icon {
-    color: var(--mantine-color-dark-2);
+    color: var(--mantine-color-dark-4);
   }
 
   .info-modal-label {
-    color: var(--mantine-color-dark-2);
+    color: var(--mantine-color-dark-4);
     letter-spacing: 0.08em;
   }
 
