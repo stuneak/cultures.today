@@ -3,11 +3,12 @@ FROM node:20-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
-RUN apk add --no-cache libc6-compat
+# Do NOT install libc6-compat - it breaks Prisma on Alpine
+# Prisma uses musl-compiled binaries on Alpine
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm install
+RUN npm ci
 
 # Rebuild the source code only when needed
 FROM base AS builder
@@ -30,17 +31,25 @@ RUN adduser --system --uid 1001 nextjs
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/scripts/entrypoint.sh ./entrypoint.sh
 
-# prisma files 
+# Copy prisma files for migrations
 COPY --from=builder /app/prisma ./prisma
-# prisma and auth dependencies
+
+# Copy generated prisma client
+COPY --from=builder /app/src/generated ./src/generated
+
+# Copy prisma dependencies for migrations
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma/adapter-pg ./node_modules/@prisma/adapter-pg
 COPY --from=builder /app/node_modules/@prisma/client ./node_modules/@prisma/client
 COPY --from=builder /app/node_modules/@prisma/engines ./node_modules/@prisma/engines
 COPY --from=builder /app/node_modules/@auth/prisma-adapter ./node_modules/@auth/prisma-adapter
 COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
 COPY --from=builder /app/node_modules/valibot ./node_modules/valibot
+
+# Copy entrypoint script
+COPY --from=builder /app/scripts/entrypoint.sh ./entrypoint.sh
+RUN chmod +x ./entrypoint.sh
 
 USER nextjs
 

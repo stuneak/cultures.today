@@ -1,4 +1,4 @@
-import { PrismaClient, ContentType, CultureState } from "@prisma/client";
+import { PrismaClient } from "../src/generated/prisma";
 import { PrismaPg } from "@prisma/adapter-pg";
 import pg from "pg";
 
