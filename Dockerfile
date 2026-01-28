@@ -35,7 +35,7 @@ COPY --from=builder /app/scripts/entrypoint.sh ./entrypoint.sh
 
 # prisma files 
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/prisma.config.mjs ./prisma.config.mjs
+COPY --from=builder /app/prisma/prisma.config.mjs ./prisma.config.mjs
 # clean it 
 COPY --from=builder /app/node_modules/@prisma/adapter-pg ./node_modules/@prisma/adapter-pg
 COPY --from=builder /app/node_modules/@prisma/client ./node_modules/@prisma/client
