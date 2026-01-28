@@ -18,7 +18,7 @@ export function DrawingHints({
     <div className="fixed top-4 left-1/2 -translate-x-1/2 z-1 flex flex-col items-center gap-2">
       {/* Mode Toggle Button */}
       <Tooltip
-        label={showMode ? "Switch to Draw (S)" : "Switch to Pan (S)"}
+        label={showMode ? "Switch to Draw (W)" : "Switch to Pan (W)"}
         position="bottom"
       >
         <Button
@@ -46,10 +46,10 @@ export function DrawingHints({
       <Paper shadow="sm" p="xs" withBorder>
         <Text size="xs" ta="center">
           {showMode
-            ? "Pan/zoom the map. Press S to draw."
+            ? "Pan/zoom the map. Press W to draw."
             : brushMode === "add"
-              ? "Drag to paint. W: erase, S: pan, Esc: cancel, Enter: create"
-              : "Drag to erase. W: draw, S: pan, Esc: cancel, Enter: create"}
+              ? "Drag to paint. S: erase, W: pan, Esc: cancel, Enter: create"
+              : "Drag to erase. S: draw, W: pan, Esc: cancel, Enter: create"}
         </Text>
       </Paper>
     </div>

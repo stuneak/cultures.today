@@ -115,7 +115,7 @@ export function DrawingControls({
         <ActionIcon.Group orientation="vertical">
           {/* Add/Erase Vertical Switch */}
           <div className="mode-switch-vertical">
-            <Tooltip {...toolTipStyles} label="Draw mode (W)">
+            <Tooltip {...toolTipStyles} label="Draw mode (S)">
               <ActionIcon
                 {...actionIconStyles}
                 className={`mode-switch-option ${brushMode === "add" ? "active" : ""}`}
@@ -126,7 +126,7 @@ export function DrawingControls({
                 <IconBrush {...iconStyles} />
               </ActionIcon>
             </Tooltip>
-            <Tooltip {...toolTipStyles} label="Erase mode (W)">
+            <Tooltip {...toolTipStyles} label="Erase mode (S)">
               <ActionIcon
                 {...actionIconStyles}
                 className={`mode-switch-option ${brushMode === "erase" ? "active" : ""}`}

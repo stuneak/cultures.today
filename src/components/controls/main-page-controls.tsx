@@ -40,8 +40,8 @@ const toolTipStyles = {
 };
 
 const shortcuts: { keys: string[]; action: string; separator?: string }[] = [
-  { keys: ["S"], action: "Toggle pan / draw mode" },
-  { keys: ["W"], action: "Toggle draw / erase" },
+  { keys: ["W"], action: "Toggle pan / draw mode" },
+  { keys: ["S"], action: "Toggle draw / erase" },
   { keys: ["A"], action: "Decrease brush size" },
   { keys: ["D"], action: "Increase brush size" },
   { keys: ["Ctrl", "Z"], action: "Undo", separator: "+" },

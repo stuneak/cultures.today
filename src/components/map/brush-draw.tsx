@@ -543,9 +543,9 @@ export function BrushDraw({ onComplete, onCancel }: BrushDrawProps) {
         e.preventDefault();
         handleUndo();
       } else if (e.code === "KeyW") {
-        setBrushMode(brushMode === "add" ? "erase" : "add");
-      } else if (e.code === "KeyS") {
         setShowMode(!showMode);
+      } else if (e.code === "KeyS") {
+        setBrushMode(brushMode === "add" ? "erase" : "add");
       } else if (e.code === "KeyA") {
         setBrushSize(brushSize - 10);
       } else if (e.code === "KeyD") {
