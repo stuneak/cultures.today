@@ -1,36 +1,131 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Cultures.today
 
-## Getting Started
+An interactive web application for exploring and documenting cultures around the world through an interactive map interface.
 
-First, run the development server:
+## Overview
+
+Cultures.today enables users to discover cultures plotted on a world map, view detailed information including languages and multimedia content, and contribute their own cultural knowledge by drawing geographic boundaries and submitting culture data.
+
+## Features
+
+- **Interactive World Map** - MapLibre GL-based globe with culture boundaries overlaid
+- **Boundary Drawing Tool** - Draw custom geographic boundaries using a brush tool with add/erase modes and adjustable size
+- **Culture Details** - View languages, phrases with audio, flags, and multimedia content
+- **Culture Submission** - Multi-step wizard for submitting new cultures with validation
+- **Google Authentication** - OAuth login for user accounts and submissions
+- **Spatial Queries** - PostGIS-powered queries to find cultures at any map location
+
+## Tech Stack
+
+**Frontend:**
+- Next.js 16 (App Router)
+- React 19
+- Mantine 8 (UI components)
+- MapLibre GL (mapping)
+- Zustand (state management)
+- Tailwind CSS 4
+
+**Backend:**
+- Next.js API Routes
+- Prisma 7 with PostgreSQL
+- PostGIS (geospatial)
+- MinIO (S3-compatible storage)
+- NextAuth (authentication)
+
+## Prerequisites
+
+- Node.js 20+
+- Docker & Docker Compose
+- PostgreSQL with PostGIS (or use Docker)
+
+## Installation
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Install dependencies
+npm install
+
+# Copy environment template
+cp .env.example .env.local
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Configure `.env.local` with your credentials:
+- Google OAuth (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET)
+- NextAuth secret
+- Database URL
+- MinIO credentials
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Development
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+# Start database and MinIO
+docker-compose up -d
 
-## Learn More
+# Run migrations
+npm run db:migrate
 
-To learn more about Next.js, take a look at the following resources:
+# Start development server
+npm run dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Open [http://localhost:3000](http://localhost:3000)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Database Commands
 
-## Deploy on Vercel
+```bash
+npm run db:migrate   # Run migrations
+npm run db:reset     # Reset database
+npm run db:generate  # Generate Prisma client
+npm run db:studio    # Open Prisma Studio
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Production
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+# Build
+npm run build
+
+# Start
+npm start
+
+# Or with Docker
+docker-compose -f docker-compose.prod.yml up -d
+```
+
+## Project Structure
+
+```
+src/
+├── app/
+│   ├── api/           # API routes (auth, cultures, upload)
+│   ├── page.tsx       # Home page with map
+│   └── layout.tsx     # Root layout
+├── components/
+│   ├── map/           # Map and drawing components
+│   ├── culture/       # Culture modal and submission wizard
+│   ├── controls/      # UI controls
+│   └── providers/     # Context providers
+├── lib/               # Database, auth, storage utilities
+├── stores/            # Zustand state stores
+└── types/             # TypeScript types
+prisma/
+├── schema.prisma      # Database schema
+└── migrations/        # Database migrations
+```
+
+## Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `DATABASE_URL` | PostgreSQL connection string |
+| `GOOGLE_CLIENT_ID` | Google OAuth client ID |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret |
+| `NEXTAUTH_SECRET` | NextAuth encryption secret |
+| `NEXTAUTH_URL` | Application URL |
+| `NEXT_PUBLIC_MAP_STYLE` | MapLibre style URL |
+| `MINIO_ENDPOINT` | MinIO server endpoint |
+| `MINIO_ACCESS_KEY` | MinIO access key |
+| `MINIO_SECRET_KEY` | MinIO secret key |
+
+## License
+
+MIT
