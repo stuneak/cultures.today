@@ -40,8 +40,7 @@ COPY --from=builder /app/src/generated ./src/generated
 
 # Copy prisma dependencies for migrations
 COPY --from=builder /app/node_modules/@prisma/adapter-pg ./node_modules/@prisma/adapter-pg
-COPY --from=builder /app/node_modules/@prisma/client ./node_modules/@prisma/client
-COPY --from=builder /app/node_modules/@prisma/engines ./node_modules/@prisma/engines
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=builder /app/node_modules/@auth/prisma-adapter ./node_modules/@auth/prisma-adapter
 COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
 COPY --from=builder /app/node_modules/valibot ./node_modules/valibot
