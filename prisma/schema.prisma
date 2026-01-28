@@ -1,7 +1,6 @@
 // prisma/schema.prisma
 generator client {
   provider        = "prisma-client-js"
-  url        = env("DATABASE_URL")    
   previewFeatures = ["postgresqlExtensions"]
 }
 
