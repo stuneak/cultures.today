@@ -98,9 +98,7 @@ export function CultureModal({ slug, onClose }: CultureModalProps) {
                   alt={`${culture.name} flag`}
                   fill
                   className="object-contain rounded"
-                  unoptimized={getMediaUrl(culture.flagUrl).includes(
-                    "localhost",
-                  )}
+                  unoptimized={true}
                 />
               </div>
             )}
