@@ -15,7 +15,6 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Dummy URL for prisma generate (doesn't connect, just generates client)
 RUN npx prisma generate
 RUN npm run build
 
