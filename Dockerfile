@@ -39,10 +39,7 @@ COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/src/generated ./src/generated
 
 # Copy prisma dependencies for migrations
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
-COPY --from=builder /app/node_modules/@auth ./node_modules/@auth
-COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
-COPY --from=builder /app/node_modules/valibot ./node_modules/valibot
+COPY --from=builder /app/node_modules ./node_modules
 
 # Copy entrypoint script
 COPY --from=builder /app/scripts/entrypoint.sh ./entrypoint.sh
