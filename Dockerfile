@@ -38,6 +38,8 @@ COPY --from=builder /app/prisma ./prisma
 # Copy generated prisma client
 COPY --from=builder /app/src/generated ./src/generated
 
+COPY --from=builder /app/prisma/prisma.config.mjs ./prisma.config.mjs
+
 # Copy prisma dependencies for migrations
 COPY --from=builder /app/node_modules ./node_modules
 

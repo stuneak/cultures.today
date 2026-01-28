@@ -11,3 +11,4 @@ Dockerfile
 postgres_data
 data
 public/uploads
+root
