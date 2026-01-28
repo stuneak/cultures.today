@@ -53,12 +53,15 @@ export async function POST(request: NextRequest) {
         if (duration > MAX_VIDEO_DURATION) {
           return NextResponse.json(
             { error: "Video must be 5 minutes or less" },
-            { status: 400 }
+            { status: 400 },
           );
         }
       } catch (error) {
         console.error("Failed to check video duration:", error);
-        // Continue with upload even if duration check fails
+        return NextResponse.json(
+          { error: `Error during video duration check ${error}` },
+          { status: 400 },
+        );
       }
 
       // Then process
@@ -71,7 +74,10 @@ export async function POST(request: NextRequest) {
         );
       } catch (error) {
         console.error("Video processing failed, uploading original:", error);
-        // Fall back to uploading original if processing fails
+        return NextResponse.json(
+          { error: `Failed to process video ${error}` },
+          { status: 400 },
+        );
       }
     }
 
@@ -88,6 +94,10 @@ export async function POST(request: NextRequest) {
       } catch (error) {
         console.error("Flag processing failed, uploading original:", error);
         // Fall back to uploading original if processing fails
+        return NextResponse.json(
+          { error: `Failed to process flag or image ${error}` },
+          { status: 400 },
+        );
       }
     }
 

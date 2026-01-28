@@ -17,7 +17,7 @@ export async function getVideoDuration(inputBuffer: Buffer): Promise<number> {
     await writeFile(tempInput, inputBuffer);
 
     const { stdout } = await execAsync(
-      `/opt/homebrew/bin/ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${tempInput}"`
+      `ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${tempInput}"`
     );
 
     return parseFloat(stdout.trim());
@@ -41,7 +41,7 @@ export async function processVideo(
     await writeFile(tempInput, inputBuffer);
 
     // Convert to 16:9 720p, padding if necessary to maintain aspect ratio
-    const ffmpegCmd = `/opt/homebrew/bin/ffmpeg -i "${tempInput}" -vf "scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2:black" -c:v libx264 -preset fast -crf 23 -c:a aac -b:a 128k -y "${tempOutput}"`;
+    const ffmpegCmd = `ffmpeg -i "${tempInput}" -vf "scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2:black" -c:v libx264 -preset fast -crf 23 -c:a aac -b:a 128k -y "${tempOutput}"`;
 
     await execAsync(ffmpegCmd);
 
