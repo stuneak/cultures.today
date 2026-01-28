@@ -6,5 +6,11 @@ export function getMediaUrl(key: string | null): string {
   const protocol =
     process.env.NEXT_PUBLIC_MINIO_USE_SSL === "true" ? "https" : "http";
 
+  console.log("getMediaUrl, using values:", key, {
+    protocol,
+    endpoint,
+    bucket,
+    key,
+  });
   return `${protocol}://${endpoint}/${bucket}/${key}`;
 }

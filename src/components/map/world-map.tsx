@@ -25,7 +25,7 @@ export function WorldMap({
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<Map | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const { setMapInstance, setIsMapReady } = useMapStore();
+  const { setMapInstance, setIsMapReady, setIsMapIdle } = useMapStore();
 
   // Store callbacks in refs to avoid re-running useEffect
   const onCultureClickRef = useRef(onCultureClick);
@@ -104,11 +104,24 @@ export function WorldMap({
         });
 
         setIsLoading(false);
-        setIsMapReady(true);
+        // Wait for map to be fully idle (all tiles loaded) before enabling drawing
+        mapInstance.once("idle", () => {
+          setIsMapReady(true);
+          setIsMapIdle(true);
+        });
+
+        // Track map idle state for enabling/disabling draw button
+        mapInstance.on("movestart", () => {
+          setIsMapIdle(false);
+        });
+        mapInstance.on("idle", () => {
+          setIsMapIdle(true);
+        });
       } catch (error) {
         console.error("Failed to load cultures GeoJSON:", error);
         setIsLoading(false);
         setIsMapReady(true);
+        setIsMapIdle(true);
       }
     });
 
@@ -117,11 +130,12 @@ export function WorldMap({
 
     return () => {
       setIsMapReady(false);
+      setIsMapIdle(false);
       setMapInstance(null);
       mapInstance.remove();
       map.current = null;
     };
-  }, [setMapInstance, setIsMapReady]);
+  }, [setMapInstance, setIsMapReady, setIsMapIdle]);
 
   // Separate effect for click handler that depends on isDrawingMode
   useEffect(() => {

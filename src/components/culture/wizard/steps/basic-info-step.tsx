@@ -70,6 +70,8 @@ export function BasicInfoStep({
     setFlagPreview(null);
   };
 
+  console.log("BasicInfoStep render flagPreview:", flagPreview);
+
   return (
     <Stack gap="md">
       <TextInput

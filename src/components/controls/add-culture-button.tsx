@@ -53,13 +53,18 @@ export function DrawingBottomBar({
 
 export function AddCultureButton({ onStartDrawing }: AddCultureButtonProps) {
   const isMapReady = useMapStore((state) => state.isMapReady);
+  const isMapIdle = useMapStore((state) => state.isMapIdle);
+
+  const canDraw = isMapReady && isMapIdle;
+  const tooltipLabel = !isMapReady
+    ? "Map is loading..."
+    : !isMapIdle
+      ? "Wait for map to finish loading..."
+      : "Add culture";
 
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-1">
-      <Tooltip
-        label={isMapReady ? "Add culture" : "Map is loading..."}
-        position="top"
-      >
+      <Tooltip label={tooltipLabel} position="top">
         <Button
           variant="filled"
           size="lg"
@@ -67,7 +72,7 @@ export function AddCultureButton({ onStartDrawing }: AddCultureButtonProps) {
           radius="xl"
           color="blue"
           leftSection={<IconBrush size={20} />}
-          disabled={!isMapReady}
+          disabled={!canDraw}
         >
           Draw
         </Button>

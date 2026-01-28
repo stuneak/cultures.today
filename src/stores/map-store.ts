@@ -4,6 +4,7 @@ import type { Map } from "maplibre-gl";
 interface MapState {
   mapInstance: Map | null;
   isMapReady: boolean;
+  isMapIdle: boolean;
   isDrawingMode: boolean;
   currentPolygon: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon> | null;
   polygonHistory: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon>[];
@@ -12,6 +13,7 @@ interface MapState {
   showMode: boolean; // false = draw mode, true = pan mode
   setMapInstance: (map: Map | null) => void;
   setIsMapReady: (ready: boolean) => void;
+  setIsMapIdle: (idle: boolean) => void;
   setIsDrawingMode: (isDrawing: boolean) => void;
   setShowMode: (show: boolean) => void;
   setCurrentPolygon: (polygon: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon> | null) => void;
@@ -31,14 +33,16 @@ const MAX_HISTORY = 50;
 export const useMapStore = create<MapState>((set, get) => ({
   mapInstance: null,
   isMapReady: false,
+  isMapIdle: false,
   isDrawingMode: false,
   currentPolygon: null,
   polygonHistory: [],
   brushMode: "add",
   brushSize: 14, // Default to ~5km
   showMode: false,
-  setMapInstance: (map) => set({ mapInstance: map, isMapReady: false }),
+  setMapInstance: (map) => set({ mapInstance: map, isMapReady: false, isMapIdle: false }),
   setIsMapReady: (ready) => set({ isMapReady: ready }),
+  setIsMapIdle: (idle) => set({ isMapIdle: idle }),
   setShowMode: (show) => set({ showMode: show }),
   setIsDrawingMode: (isDrawing) =>
     set({
