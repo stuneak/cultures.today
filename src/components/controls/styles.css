@@ -15,24 +15,20 @@
   }
 }
 
-.dark {
-  @mixin dark {
-    display: none;
-  }
-
-  @mixin light {
-    display: block;
-  }
+[data-mantine-color-scheme="dark"] .dark {
+  display: none;
 }
 
-.light {
-  @mixin light {
-    display: none;
-  }
+[data-mantine-color-scheme="light"] .dark {
+  display: block;
+}
 
-  @mixin dark {
-    display: block;
-  }
+[data-mantine-color-scheme="light"] .light {
+  display: none;
+}
+
+[data-mantine-color-scheme="dark"] .light {
+  display: block;
 }
 
 /* Info Modal Styles */
@@ -47,7 +43,7 @@
     0 0 60px -15px rgba(0, 0, 0, 0.15);
 }
 
-@mixin light {
+[data-mantine-color-scheme="light"] {
   .info-modal-inner {
     background: linear-gradient(
       145deg,
@@ -119,7 +115,7 @@
   }
 }
 
-@mixin dark {
+[data-mantine-color-scheme="dark"] {
   .info-modal-inner {
     background: linear-gradient(
       145deg,
