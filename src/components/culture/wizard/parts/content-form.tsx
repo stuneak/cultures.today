@@ -3,6 +3,7 @@
 import { useState } from "react";
 import {
   TextInput,
+  Textarea,
   Stack,
   Group,
   FileButton,
@@ -92,8 +93,8 @@ export function ContentForm({
   return (
     <Card withBorder p="md">
       <Stack gap="sm">
-        <TextInput
-          label="Choose title for your content"
+        <Textarea
+          label="Let us know what this content is about"
           placeholder="e.g., 'Favorite Dishes', 'Traditional Clothing', 'Folk Tales'"
           required
           value={content.title}
