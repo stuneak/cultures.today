@@ -20,7 +20,13 @@ import {
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
-import { IconCheck, IconTrash, IconDeviceFloppy, IconUpload, IconX } from "@tabler/icons-react";
+import {
+  IconCheck,
+  IconTrash,
+  IconDeviceFloppy,
+  IconUpload,
+  IconX,
+} from "@tabler/icons-react";
 import { getMediaUrl } from "@/lib/media-url";
 import Image from "next/image";
 
@@ -80,7 +86,11 @@ interface CultureEditorProps {
   onDeleted: () => void;
 }
 
-export function CultureEditor({ slug, onUpdated, onDeleted }: CultureEditorProps) {
+export function CultureEditor({
+  slug,
+  onUpdated,
+  onDeleted,
+}: CultureEditorProps) {
   const [culture, setCulture] = useState<CultureDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -95,8 +105,10 @@ export function CultureEditor({ slug, onUpdated, onDeleted }: CultureEditorProps
   const [contents, setContents] = useState<EditableContent[]>([]);
 
   // Delete confirmation modal
-  const [deleteModalOpened, { open: openDeleteModal, close: closeDeleteModal }] =
-    useDisclosure(false);
+  const [
+    deleteModalOpened,
+    { open: openDeleteModal, close: closeDeleteModal },
+  ] = useDisclosure(false);
 
   const resetRef = useRef<() => void>(null);
 
@@ -120,7 +132,7 @@ export function CultureEditor({ slug, onUpdated, onDeleted }: CultureEditorProps
               translation: p.translation,
               audioUrl: p.audioUrl || undefined,
             })),
-          }))
+          })),
         );
         setContents(
           data.contents.map((c: Content) => ({
@@ -128,7 +140,7 @@ export function CultureEditor({ slug, onUpdated, onDeleted }: CultureEditorProps
             title: c.title,
             contentType: c.contentType,
             contentUrl: c.contentUrl,
-          }))
+          })),
         );
       })
       .catch((err) => {
@@ -180,43 +192,53 @@ export function CultureEditor({ slug, onUpdated, onDeleted }: CultureEditorProps
 
   const updateLanguageName = (langIndex: number, newName: string) => {
     setLanguages((prev) =>
-      prev.map((lang, i) => (i === langIndex ? { ...lang, name: newName } : lang))
+      prev.map((lang, i) =>
+        i === langIndex ? { ...lang, name: newName } : lang,
+      ),
     );
   };
 
-  const updatePhraseText = (langIndex: number, phraseIndex: number, newText: string) => {
+  const updatePhraseText = (
+    langIndex: number,
+    phraseIndex: number,
+    newText: string,
+  ) => {
     setLanguages((prev) =>
       prev.map((lang, i) =>
         i === langIndex
           ? {
               ...lang,
               phrases: lang.phrases.map((p, pi) =>
-                pi === phraseIndex ? { ...p, text: newText } : p
+                pi === phraseIndex ? { ...p, text: newText } : p,
               ),
             }
-          : lang
-      )
+          : lang,
+      ),
     );
   };
 
-  const updatePhraseTranslation = (langIndex: number, phraseIndex: number, newTranslation: string) => {
+  const updatePhraseTranslation = (
+    langIndex: number,
+    phraseIndex: number,
+    newTranslation: string,
+  ) => {
     setLanguages((prev) =>
       prev.map((lang, i) =>
         i === langIndex
           ? {
               ...lang,
               phrases: lang.phrases.map((p, pi) =>
-                pi === phraseIndex ? { ...p, translation: newTranslation } : p
+                pi === phraseIndex ? { ...p, translation: newTranslation } : p,
               ),
             }
-          : lang
-      )
+          : lang,
+      ),
     );
   };
 
   const updateContentTitle = (contentIndex: number, newTitle: string) => {
     setContents((prev) =>
-      prev.map((c, i) => (i === contentIndex ? { ...c, title: newTitle } : c))
+      prev.map((c, i) => (i === contentIndex ? { ...c, title: newTitle } : c)),
     );
   };
 
@@ -228,9 +250,12 @@ export function CultureEditor({ slug, onUpdated, onDeleted }: CultureEditorProps
     setLanguages((prev) =>
       prev.map((lang, i) =>
         i === langIndex
-          ? { ...lang, phrases: lang.phrases.filter((_, pi) => pi !== phraseIndex) }
-          : lang
-      )
+          ? {
+              ...lang,
+              phrases: lang.phrases.filter((_, pi) => pi !== phraseIndex),
+            }
+          : lang,
+      ),
     );
   };
 
@@ -267,7 +292,9 @@ export function CultureEditor({ slug, onUpdated, onDeleted }: CultureEditorProps
       if (!res.ok) throw new Error("Failed to save");
 
       // Refetch to get updated data
-      const updated = await fetch(`/api/admin/cultures/${slug}`).then((r) => r.json());
+      const updated = await fetch(`/api/admin/cultures/${slug}`).then((r) =>
+        r.json(),
+      );
       setCulture(updated);
 
       notifications.show({
@@ -368,27 +395,31 @@ export function CultureEditor({ slug, onUpdated, onDeleted }: CultureEditorProps
     description !== (culture.description || "") ||
     flagUrl !== culture.flagUrl;
 
-  const hasLanguageChanges = JSON.stringify(languages) !== JSON.stringify(
-    culture.languages.map((lang) => ({
-      id: lang.id,
-      name: lang.name,
-      phrases: lang.phrases.map((p) => ({
-        id: p.id,
-        text: p.text,
-        translation: p.translation,
-        audioUrl: p.audioUrl || undefined,
+  const hasLanguageChanges =
+    JSON.stringify(languages) !==
+    JSON.stringify(
+      culture.languages.map((lang) => ({
+        id: lang.id,
+        name: lang.name,
+        phrases: lang.phrases.map((p) => ({
+          id: p.id,
+          text: p.text,
+          translation: p.translation,
+          audioUrl: p.audioUrl || undefined,
+        })),
       })),
-    }))
-  );
+    );
 
-  const hasContentChanges = JSON.stringify(contents) !== JSON.stringify(
-    culture.contents.map((c) => ({
-      id: c.id,
-      title: c.title,
-      contentType: c.contentType,
-      contentUrl: c.contentUrl,
-    }))
-  );
+  const hasContentChanges =
+    JSON.stringify(contents) !==
+    JSON.stringify(
+      culture.contents.map((c) => ({
+        id: c.id,
+        title: c.title,
+        contentType: c.contentType,
+        contentUrl: c.contentUrl,
+      })),
+    );
 
   const hasChanges = hasBasicChanges || hasLanguageChanges || hasContentChanges;
 
@@ -418,7 +449,7 @@ export function CultureEditor({ slug, onUpdated, onDeleted }: CultureEditorProps
         <Paper p="md" withBorder>
           <Stack gap="md">
             <TextInput
-              label="Name"
+              label="What's your culture called? "
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
@@ -427,7 +458,7 @@ export function CultureEditor({ slug, onUpdated, onDeleted }: CultureEditorProps
             <TextInput label="Slug" value={culture.slug} disabled />
 
             <Textarea
-              label="Description"
+              label="What makes your culture special?"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               minRows={3}
@@ -492,7 +523,9 @@ export function CultureEditor({ slug, onUpdated, onDeleted }: CultureEditorProps
                   <Group gap="xs" mb="xs">
                     <TextInput
                       value={lang.name}
-                      onChange={(e) => updateLanguageName(langIndex, e.target.value)}
+                      onChange={(e) =>
+                        updateLanguageName(langIndex, e.target.value)
+                      }
                       size="sm"
                       style={{ flex: 1 }}
                       styles={{ input: { fontWeight: 500 } }}
@@ -510,14 +543,18 @@ export function CultureEditor({ slug, onUpdated, onDeleted }: CultureEditorProps
                   </Group>
                   <Stack gap="xs">
                     {lang.phrases.map((phrase, phraseIndex) => (
-                      <Paper key={phrase.id} p="sm" withBorder bg="gray.0">
+                      <Paper key={phrase.id} p="sm" withBorder>
                         <Group align="flex-start" gap="xs">
                           <Stack gap="xs" style={{ flex: 1 }}>
                             <TextInput
                               label="Original"
                               value={phrase.text}
                               onChange={(e) =>
-                                updatePhraseText(langIndex, phraseIndex, e.target.value)
+                                updatePhraseText(
+                                  langIndex,
+                                  phraseIndex,
+                                  e.target.value,
+                                )
                               }
                               size="sm"
                             />
@@ -525,7 +562,11 @@ export function CultureEditor({ slug, onUpdated, onDeleted }: CultureEditorProps
                               label="Translation"
                               value={phrase.translation}
                               onChange={(e) =>
-                                updatePhraseTranslation(langIndex, phraseIndex, e.target.value)
+                                updatePhraseTranslation(
+                                  langIndex,
+                                  phraseIndex,
+                                  e.target.value,
+                                )
                               }
                               size="sm"
                             />
@@ -544,7 +585,9 @@ export function CultureEditor({ slug, onUpdated, onDeleted }: CultureEditorProps
                               color="red"
                               variant="light"
                               mt={24}
-                              onClick={() => removePhrase(langIndex, phraseIndex)}
+                              onClick={() =>
+                                removePhrase(langIndex, phraseIndex)
+                              }
                             >
                               <IconX size={16} />
                             </ActionIcon>
@@ -562,7 +605,7 @@ export function CultureEditor({ slug, onUpdated, onDeleted }: CultureEditorProps
         {/* Contents */}
         <Paper p="md" withBorder>
           <Group gap="xs" mb="md">
-            <Text fw={600}>Content</Text>
+            <Text fw={600}>Let us know what this content is about</Text>
             <Badge size="sm" variant="light">
               {contents.length}
             </Badge>
@@ -582,16 +625,24 @@ export function CultureEditor({ slug, onUpdated, onDeleted }: CultureEditorProps
                 const youtubeId =
                   isYouTube && content.contentUrl
                     ? content.contentUrl.match(
-                        /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\s]+)/
+                        /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\s]+)/,
                       )?.[1]
                     : null;
 
                 return (
                   <Paper key={content.id} p="sm" withBorder>
-                    <Group justify="space-between" align="flex-start" mb="sm" gap="xs">
-                      <TextInput
+                    <Group
+                      justify="space-between"
+                      align="flex-start"
+                      mb="sm"
+                      gap="xs"
+                    >
+                      <Textarea
+                        rows={4}
                         value={content.title}
-                        onChange={(e) => updateContentTitle(contentIndex, e.target.value)}
+                        onChange={(e) =>
+                          updateContentTitle(contentIndex, e.target.value)
+                        }
                         size="sm"
                         style={{ flex: 1 }}
                         styles={{ input: { fontWeight: 500 } }}
@@ -638,7 +689,10 @@ export function CultureEditor({ slug, onUpdated, onDeleted }: CultureEditorProps
 
                     {/* Video player */}
                     {isVideo && content.contentUrl && (
-                      <video controls style={{ width: "100%", borderRadius: 8 }}>
+                      <video
+                        controls
+                        style={{ width: "100%", borderRadius: 8 }}
+                      >
                         <source
                           src={getMediaUrl(content.contentUrl)}
                           type="video/mp4"
