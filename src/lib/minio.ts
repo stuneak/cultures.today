@@ -81,3 +81,10 @@ export async function uploadFile(
 export async function deleteFile(key: string): Promise<void> {
   await minioClient.removeObject(BUCKET, key);
 }
+
+export async function deleteFiles(keys: string[]): Promise<void> {
+  if (keys.length === 0) return;
+
+  const objects = keys.map((key) => ({ name: key }));
+  await minioClient.removeObjects(BUCKET, objects);
+}
