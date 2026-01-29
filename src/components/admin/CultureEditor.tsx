@@ -122,6 +122,10 @@ export function CultureEditor({
   const [uploadingContentIndex, setUploadingContentIndex] = useState<
     number | null
   >(null);
+  const [uploadingAudioIndex, setUploadingAudioIndex] = useState<{
+    langIndex: number;
+    phraseIndex: number;
+  } | null>(null);
 
   // Editable fields
   const [name, setName] = useState("");
@@ -748,6 +752,65 @@ export function CultureEditor({
     }
   };
 
+  const handlePhraseAudioUpload = async (
+    file: File | null,
+    langIndex: number,
+    phraseIndex: number,
+  ) => {
+    if (!file || !culture) return;
+
+    setUploadingAudioIndex({ langIndex, phraseIndex });
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("category", "audio");
+      formData.append("cultureSlug", culture.slug);
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error("Upload failed");
+
+      const data = await res.json();
+      updatePhraseAudioUrl(langIndex, phraseIndex, data.url);
+
+      notifications.show({
+        message: "Audio uploaded",
+        color: "green",
+        icon: <IconCheck size={16} />,
+      });
+    } catch (err) {
+      console.error("Audio upload error:", err);
+      notifications.show({
+        message: "Failed to upload audio",
+        color: "red",
+      });
+    } finally {
+      setUploadingAudioIndex(null);
+    }
+  };
+
+  const updatePhraseAudioUrl = (
+    langIndex: number,
+    phraseIndex: number,
+    audioUrl: string | undefined,
+  ) => {
+    setLanguages((prev) =>
+      prev.map((lang, i) =>
+        i === langIndex
+          ? {
+              ...lang,
+              phrases: lang.phrases.map((p, pi) =>
+                pi === phraseIndex ? { ...p, audioUrl } : p,
+              ),
+            }
+          : lang,
+      ),
+    );
+  };
+
   const updateLanguageName = (langIndex: number, newName: string) => {
     setLanguages((prev) =>
       prev.map((lang, i) =>
@@ -1268,15 +1331,65 @@ export function CultureEditor({
                               }
                               size="sm"
                             />
-                            {phrase.audioUrl && (
-                              <Box mt="xs">
+                            <Box>
+                              <Text size="xs" fw={500} mb={4}>
+                                Audio
+                              </Text>
+                              <Group gap="xs" align="center">
+                                <FileButton
+                                  onChange={(file) =>
+                                    handlePhraseAudioUpload(
+                                      file,
+                                      langIndex,
+                                      phraseIndex,
+                                    )
+                                  }
+                                  accept="audio/*"
+                                >
+                                  {(props) => (
+                                    <Button
+                                      {...props}
+                                      variant="light"
+                                      size="xs"
+                                      leftSection={<IconUpload size={14} />}
+                                      loading={
+                                        uploadingAudioIndex?.langIndex ===
+                                          langIndex &&
+                                        uploadingAudioIndex?.phraseIndex ===
+                                          phraseIndex
+                                      }
+                                    >
+                                      {phrase.audioUrl ? "Change" : "Upload"}
+                                    </Button>
+                                  )}
+                                </FileButton>
+                                {phrase.audioUrl && (
+                                  <Tooltip label="Remove audio">
+                                    <ActionIcon
+                                      color="red"
+                                      variant="light"
+                                      size="sm"
+                                      onClick={() =>
+                                        updatePhraseAudioUrl(
+                                          langIndex,
+                                          phraseIndex,
+                                          undefined,
+                                        )
+                                      }
+                                    >
+                                      <IconX size={14} />
+                                    </ActionIcon>
+                                  </Tooltip>
+                                )}
+                              </Group>
+                              {phrase.audioUrl && (
                                 <audio
                                   controls
                                   src={getMediaUrl(phrase.audioUrl)}
-                                  style={{ width: "100%", height: 32 }}
+                                  style={{ width: "100%", height: 32, marginTop: 8 }}
                                 />
-                              </Box>
-                            )}
+                              )}
+                            </Box>
                           </Stack>
                           <Tooltip label="Remove phrase">
                             <ActionIcon
