@@ -36,8 +36,8 @@ export function LanguagesSection({ languages }: LanguagesSectionProps) {
             <div className="space-y-2">
               {language.phrases.map((phrase, phraseIndex) => (
                 <div key={phrase.id}>
-                  <div className="flex items-start justify-between gap-4 py-2">
-                    <div className="min-w-0 flex-1 break-words">
+                  <div className="flex flex-wrap items-start gap-4 py-2">
+                    <div className="min-w-0 flex-1 basis-[200px]">
                       <Text fw={500} size="md" style={{ wordBreak: "break-word" }}>
                         {phrase.text}
                       </Text>
@@ -45,7 +45,7 @@ export function LanguagesSection({ languages }: LanguagesSectionProps) {
                         {phrase.translation}
                       </Text>
                     </div>
-                    <audio controls className="h-8 shrink-0">
+                    <audio controls className="h-8 w-[300px] shrink-0">
                       <source
                         src={getMediaUrl(phrase.audioUrl)}
                         type="audio/mpeg"
