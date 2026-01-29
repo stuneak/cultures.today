@@ -94,12 +94,26 @@ export function ContentForm({
     <Card withBorder p="md">
       <Stack gap="sm">
         <Textarea
+          rows={4}
           label="Let us know what this content is about"
           placeholder="e.g., 'Favorite Dishes', 'Traditional Clothing', 'Folk Tales'"
           required
           value={content.title}
           onChange={(e) => onChange({ ...content, title: e.target.value })}
-          error={errors[`${errorPrefix}.title`]}
+          error={
+            content.title.length > 300
+              ? "Content title must be no longer than 300 characters"
+              : errors[`${errorPrefix}.title`]
+          }
+          description={
+            content.title.length <= 300 && !errors[`${errorPrefix}.title`]
+              ? `${content.title.length}/300`
+              : undefined
+          }
+          inputWrapperOrder={["label", "input", "description", "error"]}
+          styles={{
+            description: { textAlign: "right" },
+          }}
         />
 
         <Radio.Group

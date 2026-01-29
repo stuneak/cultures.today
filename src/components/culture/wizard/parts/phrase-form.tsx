@@ -124,7 +124,20 @@ export function PhraseForm({
           required
           value={phrase.text}
           onChange={(e) => onChange({ ...phrase, text: e.target.value })}
-          error={errors[`${errorPrefix}.text`]}
+          error={
+            phrase.text.length > 100
+              ? "Phrase must be no longer than 100 characters"
+              : errors[`${errorPrefix}.text`]
+          }
+          description={
+            phrase.text.length <= 100 && !errors[`${errorPrefix}.text`]
+              ? `${phrase.text.length}/100`
+              : undefined
+          }
+          inputWrapperOrder={["label", "input", "description", "error"]}
+          styles={{
+            description: { textAlign: "right" },
+          }}
         />
 
         <TextInput
@@ -134,7 +147,20 @@ export function PhraseForm({
           required
           value={phrase.translation}
           onChange={(e) => onChange({ ...phrase, translation: e.target.value })}
-          error={errors[`${errorPrefix}.translation`]}
+          error={
+            phrase.translation.length > 100
+              ? "Translation must be no longer than 100 characters"
+              : errors[`${errorPrefix}.translation`]
+          }
+          description={
+            phrase.translation.length <= 100 && !errors[`${errorPrefix}.translation`]
+              ? `${phrase.translation.length}/100`
+              : undefined
+          }
+          inputWrapperOrder={["label", "input", "description", "error"]}
+          styles={{
+            description: { textAlign: "right" },
+          }}
         />
 
         <div>

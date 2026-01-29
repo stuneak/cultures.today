@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Modal, Button, Group, Alert, Stack, Box } from "@mantine/core";
 import { IconAlertCircle, IconCheck } from "@tabler/icons-react";
+import { z } from "zod";
 import { BasicInfoStep } from "./steps/basic-info-step";
 import { LanguagesStep } from "./steps/languages-step";
 import { ContentsStep } from "./steps/contents-step";
@@ -12,6 +13,12 @@ import {
   generateTempSlug,
   type WizardFormData,
 } from "./types";
+import {
+  phraseSchema,
+  languageSchema,
+  contentSchema,
+  youtubeUrlSchema,
+} from "@/lib/validations/culture";
 
 interface CultureSubmitWizardProps {
   opened: boolean;
@@ -81,17 +88,29 @@ export function CultureSubmitWizard({
     setErrors(newErrors);
   };
 
+  // Step-specific schemas for validation
+  const basicInfoSchema = z.object({
+    name: z.string().min(2, "Name must be at least 2 characters").max(100),
+    description: z
+      .string()
+      .min(1, "Description is required")
+      .max(800, "Description must be no longer than 800 characters"),
+  });
+
   const validateStep = (step: number): boolean => {
     const newErrors: Record<string, string> = {};
 
     switch (step) {
       case 0: // Basic Info
-        if (!formData.name) {
-          newErrors.name = "Name is required";
-        }
-
-        if (!formData.description) {
-          newErrors.description = "Description is required";
+        const basicInfoResult = basicInfoSchema.safeParse({
+          name: formData.name,
+          description: formData.description,
+        });
+        if (!basicInfoResult.success) {
+          basicInfoResult.error.issues.forEach((issue) => {
+            const path = issue.path.join(".");
+            newErrors[path] = issue.message;
+          });
         }
         break;
 
@@ -100,22 +119,26 @@ export function CultureSubmitWizard({
           newErrors.languages = "At least one language is required";
         }
         formData.languages.forEach((lang, langIndex) => {
-          if (!lang.name.trim()) {
-            newErrors[`languages.${langIndex}.name`] = "Required";
-          }
-          if (lang.phrases.length === 0) {
-            newErrors[`languages.${langIndex}.phrases`] =
-              "At least one phrase required";
+          const langResult = languageSchema.safeParse(lang);
+          if (!langResult.success) {
+            langResult.error.issues.forEach((issue) => {
+              const path = issue.path.join(".");
+              if (path === "name") {
+                newErrors[`languages.${langIndex}.name`] = issue.message;
+              } else if (path === "phrases") {
+                newErrors[`languages.${langIndex}.phrases`] = issue.message;
+              }
+            });
           }
           lang.phrases.forEach((phrase, phraseIndex) => {
-            if (!phrase.text.trim()) {
-              newErrors[`languages.${langIndex}.phrases.${phraseIndex}.text`] =
-                "Required";
-            }
-            if (!phrase.translation.trim()) {
-              newErrors[
-                `languages.${langIndex}.phrases.${phraseIndex}.translation`
-              ] = "Required";
+            const phraseResult = phraseSchema.safeParse(phrase);
+            if (!phraseResult.success) {
+              phraseResult.error.issues.forEach((issue) => {
+                const field = String(issue.path[0]);
+                newErrors[
+                  `languages.${langIndex}.phrases.${phraseIndex}.${field}`
+                ] = issue.message;
+              });
             }
           });
         });
@@ -126,20 +149,26 @@ export function CultureSubmitWizard({
           newErrors.contents = "At least one content item is required";
         }
         formData.contents.forEach((content, contentIndex) => {
-          if (!content.title.trim()) {
-            newErrors[`contents.${contentIndex}.title`] = "Required";
+          const contentResult = contentSchema.safeParse(content);
+          if (!contentResult.success) {
+            contentResult.error.issues.forEach((issue) => {
+              const field = String(issue.path[0]);
+              if (field === "contentUrl" && !content.contentUrl) {
+                newErrors[`contents.${contentIndex}.contentUrl`] =
+                  content.contentType === "VIDEO_YOUTUBE"
+                    ? "YouTube URL required"
+                    : "File required";
+              } else {
+                newErrors[`contents.${contentIndex}.${field}`] = issue.message;
+              }
+            });
           }
-          if (!content.contentUrl) {
-            newErrors[`contents.${contentIndex}.contentUrl`] =
-              content.contentType === "VIDEO_YOUTUBE"
-                ? "YouTube URL required"
-                : "File required";
-          }
-          // Validate YouTube URL format
+          // Additional YouTube URL format validation
           if (content.contentType === "VIDEO_YOUTUBE" && content.contentUrl) {
-            const youtubeRegex =
-              /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)[\w-]+/;
-            if (!youtubeRegex.test(content.contentUrl)) {
+            const youtubeResult = youtubeUrlSchema.safeParse(
+              content.contentUrl,
+            );
+            if (!youtubeResult.success) {
               newErrors[`contents.${contentIndex}.contentUrl`] =
                 "Invalid YouTube URL";
             }
@@ -187,7 +216,7 @@ export function CultureSubmitWizard({
       // Prepare data for API
       const submitData = {
         name: formData.name,
-        description: formData.description || undefined,
+        description: formData.description,
         flagUrl: formData.flagUrl || undefined,
         boundaryGeoJson: formData.boundaryGeoJson,
         languages: formData.languages.map((lang) => ({

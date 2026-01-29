@@ -78,7 +78,20 @@ export function BasicInfoStep({
         required
         value={data.name}
         onChange={(e) => onChange({ name: e.target.value })}
-        error={errors.name}
+        error={
+          data.name.length > 100
+            ? "Name must be no longer than 100 characters"
+            : errors.name
+        }
+        description={
+          data.name.length <= 100 && !errors.name
+            ? `${data.name.length}/100`
+            : undefined
+        }
+        inputWrapperOrder={["label", "input", "description", "error"]}
+        styles={{
+          description: { textAlign: "right" },
+        }}
       />
 
       <Textarea
@@ -88,7 +101,20 @@ export function BasicInfoStep({
         required
         value={data.description}
         onChange={(e) => onChange({ description: e.target.value })}
-        error={errors.description}
+        error={
+          data.description.length > 800
+            ? "Description must be no longer than 800 characters"
+            : errors.description
+        }
+        description={
+          data.description.length <= 800 && !errors.description
+            ? `${data.description.length}/800`
+            : undefined
+        }
+        inputWrapperOrder={["label", "input", "description", "error"]}
+        styles={{
+          description: { textAlign: "right" },
+        }}
       />
 
       <div>

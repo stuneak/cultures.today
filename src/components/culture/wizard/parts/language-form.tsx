@@ -65,7 +65,20 @@ export function LanguageForm({
             style={{ flex: 1 }}
             value={language.name}
             onChange={(e) => onChange({ ...language, name: e.target.value })}
-            error={errors[`${errorPrefix}.name`]}
+            error={
+              language.name.length > 100
+                ? "Language name must be no longer than 100 characters"
+                : errors[`${errorPrefix}.name`]
+            }
+            description={
+              language.name.length <= 100 && !errors[`${errorPrefix}.name`]
+                ? `${language.name.length}/100`
+                : undefined
+            }
+            inputWrapperOrder={["label", "input", "description", "error"]}
+            styles={{
+              description: { textAlign: "right" },
+            }}
           />
           {canRemove && (
             <ActionIcon
