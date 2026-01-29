@@ -2,7 +2,7 @@ export interface PhraseFormData {
   id: string; // local ID for React keys
   text: string;
   translation: string;
-  audioUrl: string;
+  audioUrl?: string;
 }
 
 export interface LanguageFormData {
@@ -55,7 +55,7 @@ export const INITIAL_CONTENT: () => ContentFormData = () => ({
 });
 
 export const INITIAL_FORM_DATA: (boundaryGeoJson: string) => WizardFormData = (
-  boundaryGeoJson
+  boundaryGeoJson,
 ) => ({
   name: "",
   description: "",
@@ -66,5 +66,5 @@ export const INITIAL_FORM_DATA: (boundaryGeoJson: string) => WizardFormData = (
 });
 
 export function generateTempSlug(): string {
-  return `temp-${Date.now()}`;
+  return `uploaded-${Date.now()}`;
 }

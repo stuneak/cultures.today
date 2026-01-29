@@ -139,7 +139,7 @@ export function PhraseForm({
 
         <div>
           <Text size="xs" fw={500} mb={4}>
-            Audio Recording *
+            Audio Recording
           </Text>
 
           {/* IDLE state */}

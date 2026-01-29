@@ -7,7 +7,7 @@ interface Phrase {
   id: string;
   text: string;
   translation: string;
-  audioUrl: string;
+  audioUrl?: string;
 }
 
 interface Language {
@@ -45,12 +45,14 @@ export function LanguagesSection({ languages }: LanguagesSectionProps) {
                         {phrase.translation}
                       </Text>
                     </div>
-                    <audio controls className="h-8 w-[300px] shrink-0">
-                      <source
-                        src={getMediaUrl(phrase.audioUrl)}
-                        type="audio/mpeg"
-                      />
-                    </audio>
+                    {phrase.audioUrl && (
+                      <audio controls className="h-8 w-[300px] shrink-0">
+                        <source
+                          src={getMediaUrl(phrase.audioUrl)}
+                          type="audio/mpeg"
+                        />
+                      </audio>
+                    )}
                   </div>
                   {phraseIndex < language.phrases.length - 1 && <Divider />}
                 </div>

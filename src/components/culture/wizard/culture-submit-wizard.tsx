@@ -117,11 +117,6 @@ export function CultureSubmitWizard({
                 `languages.${langIndex}.phrases.${phraseIndex}.translation`
               ] = "Required";
             }
-            if (!phrase.audioUrl) {
-              newErrors[
-                `languages.${langIndex}.phrases.${phraseIndex}.audioUrl`
-              ] = "Audio required";
-            }
           });
         });
         break;

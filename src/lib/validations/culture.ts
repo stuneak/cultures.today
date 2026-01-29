@@ -21,7 +21,7 @@ export const youtubeUrlSchema = z.string().refine(
 export const phraseSchema = z.object({
   text: z.string().min(1, "Phrase text is required"),
   translation: z.string().min(1, "Translation is required"),
-  audioUrl: z.string().min(1, "Audio URL is required"),
+  audioUrl: z.string().optional(),
 });
 
 // Language schema with nested phrases
