@@ -15,7 +15,10 @@ interface CultureAtPoint {
 
 interface WorldMapProps {
   onCultureClick: (slug: string) => void;
-  onMultipleCulturesAtPoint: (cultures: CultureAtPoint[], lngLat: LngLat) => void;
+  onMultipleCulturesAtPoint: (
+    cultures: CultureAtPoint[],
+    lngLat: LngLat,
+  ) => void;
   initialCenter?: [number, number];
   initialZoom?: number;
 }
@@ -52,7 +55,7 @@ export function WorldMap({
       container: mapContainer.current,
       style: mapStyle,
       center: initialCenter ?? [9.753, 50.6844],
-      zoom: initialZoom ?? 6,
+      zoom: initialZoom ?? 3,
       minZoom: 3,
       maxZoom: 18,
     });

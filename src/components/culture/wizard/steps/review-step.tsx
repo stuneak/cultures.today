@@ -58,7 +58,7 @@ export function ReviewStep({ data }: ReviewStepProps) {
         ],
       },
       center: [0, 20],
-      zoom: 2,
+      zoom: 3,
       interactive: false,
     });
 

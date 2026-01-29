@@ -241,7 +241,7 @@ export function CultureEditor({
         layers: [{ id: "osm", type: "raster", source: "osm" }],
       },
       center: [0, 20],
-      zoom: 2,
+      zoom: 3,
       interactive: false,
     });
 
@@ -316,7 +316,7 @@ export function CultureEditor({
         layers: [{ id: "osm", type: "raster", source: "osm" }],
       },
       center: [0, 20],
-      zoom: 2,
+      zoom: 3,
     });
 
     editMapRef.current = map;
@@ -1386,7 +1386,11 @@ export function CultureEditor({
                                 <audio
                                   controls
                                   src={getMediaUrl(phrase.audioUrl)}
-                                  style={{ width: "100%", height: 32, marginTop: 8 }}
+                                  style={{
+                                    width: "100%",
+                                    height: 32,
+                                    marginTop: 8,
+                                  }}
                                 />
                               )}
                             </Box>
