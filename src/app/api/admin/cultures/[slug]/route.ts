@@ -35,7 +35,21 @@ export async function GET(
       return NextResponse.json({ error: "Culture not found" }, { status: 404 });
     }
 
-    return NextResponse.json(culture);
+    // Fetch boundary as GeoJSON using raw SQL
+    const boundaryResult = await db.$queryRaw<
+      Array<{ boundaryGeoJson: string | null }>
+    >`
+      SELECT ST_AsGeoJSON(boundary) as "boundaryGeoJson"
+      FROM cultures
+      WHERE id = ${culture.id}
+    `;
+
+    const boundaryGeoJson = boundaryResult[0]?.boundaryGeoJson || null;
+
+    return NextResponse.json({
+      ...culture,
+      boundaryGeoJson,
+    });
   } catch (error) {
     console.error("GET /api/admin/cultures/[slug] error:", error);
     return NextResponse.json(

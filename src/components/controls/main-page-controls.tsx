@@ -14,7 +14,9 @@ import {
   IconKeyboard,
   IconMap,
   IconCompass,
+  IconShield,
 } from "@tabler/icons-react";
+import Link from "next/link";
 import {
   ActionIcon,
   Tooltip,
@@ -255,6 +257,14 @@ function TopControls() {
                   My Profile
                 </Menu.Item> */}
                 {/* <Menu.Divider /> */}
+                <Menu.Item
+                  component={Link}
+                  href="/admin"
+                  leftSection={<IconShield size={14} />}
+                >
+                  Admin
+                </Menu.Item>
+                <Menu.Divider />
                 <Menu.Item
                   className="menu-item-color-dark-red"
                   // color="red"
