@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { WorldMap } from "@/components/map/world-map";
 import { CultureModal } from "@/components/culture/culture-modal";
 import { CultureSelectionPopup } from "@/components/map/culture-selection-popup";
@@ -9,7 +10,6 @@ import { MainPageControls } from "@/components/controls/main-page-controls";
 import { AddCultureButton } from "@/components/controls/add-culture-button";
 import { BrushDraw } from "@/components/map/brush-draw";
 import { useMapStore } from "@/stores/map-store";
-import type { LngLat } from "maplibre-gl";
 
 interface CultureAtPoint {
   id: string;
@@ -18,9 +18,24 @@ interface CultureAtPoint {
   flagUrl: string | null;
 }
 
-export default function HomePage() {
+function HomePageContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  // Parse initial values from URL
+  const initialCulture = searchParams.get("culture");
+  const initialZoom = searchParams.get("zoom")
+    ? parseFloat(searchParams.get("zoom")!)
+    : undefined;
+  const initialLng = searchParams.get("lng")
+    ? parseFloat(searchParams.get("lng")!)
+    : undefined;
+  const initialLat = searchParams.get("lat")
+    ? parseFloat(searchParams.get("lat")!)
+    : undefined;
+
   const [selectedCultureSlug, setSelectedCultureSlug] = useState<string | null>(
-    null
+    initialCulture
   );
   const [submitFormOpen, setSubmitFormOpen] = useState(false);
   const [overlappingCultures, setOverlappingCultures] = useState<
@@ -33,16 +48,47 @@ export default function HomePage() {
   const [drawnBoundary, setDrawnBoundary] =
     useState<GeoJSON.Feature<GeoJSON.MultiPolygon> | null>(null);
 
-  const { setIsDrawingMode, isDrawingMode, clearDrawing } = useMapStore();
+  const { setIsDrawingMode, isDrawingMode, clearDrawing, mapInstance } =
+    useMapStore();
 
-  const handleCultureClick = useCallback((slug: string) => {
-    setSelectedCultureSlug(slug);
-    setOverlappingCultures(null);
-    setPopupPosition(null);
-  }, []);
+  // Update URL when culture is selected
+  const updateUrl = useCallback(
+    (slug: string | null) => {
+      if (!slug) {
+        // Clear URL when modal is closed
+        router.replace("/", { scroll: false });
+        return;
+      }
+
+      const params = new URLSearchParams();
+      params.set("culture", slug);
+
+      // Add current map position
+      if (mapInstance) {
+        const center = mapInstance.getCenter();
+        const zoom = mapInstance.getZoom();
+        params.set("lng", center.lng.toFixed(4));
+        params.set("lat", center.lat.toFixed(4));
+        params.set("zoom", zoom.toFixed(2));
+      }
+
+      router.replace(`/?${params.toString()}`, { scroll: false });
+    },
+    [mapInstance, router]
+  );
+
+  const handleCultureClick = useCallback(
+    (slug: string) => {
+      setSelectedCultureSlug(slug);
+      setOverlappingCultures(null);
+      setPopupPosition(null);
+      updateUrl(slug);
+    },
+    [updateUrl]
+  );
 
   const handleMultipleCultures = useCallback(
-    (cultures: CultureAtPoint[], _lngLat: LngLat) => {
+    (cultures: CultureAtPoint[]) => {
       setOverlappingCultures(cultures);
       setPopupPosition({
         x: window.innerWidth / 2,
@@ -86,6 +132,12 @@ export default function HomePage() {
       <WorldMap
         onCultureClick={handleCultureClick}
         onMultipleCulturesAtPoint={handleMultipleCultures}
+        initialCenter={
+          initialLng !== undefined && initialLat !== undefined
+            ? [initialLng, initialLat]
+            : undefined
+        }
+        initialZoom={initialZoom}
       />
 
       {/* Right-side controls */}
@@ -115,7 +167,11 @@ export default function HomePage() {
       {/* Culture details modal */}
       <CultureModal
         slug={selectedCultureSlug}
-        onClose={() => setSelectedCultureSlug(null)}
+        onClose={() => {
+          setSelectedCultureSlug(null);
+          updateUrl(null);
+        }}
+        mapInstance={mapInstance}
       />
 
       {/* Culture submission wizard with pre-filled boundary */}
@@ -125,5 +181,19 @@ export default function HomePage() {
         initialBoundary={drawnBoundary}
       />
     </div>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="h-screen w-screen flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
+        </div>
+      }
+    >
+      <HomePageContent />
+    </Suspense>
   );
 }

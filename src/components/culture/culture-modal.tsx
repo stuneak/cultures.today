@@ -1,15 +1,28 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Modal, Text, Skeleton, Group, Title, Divider } from "@mantine/core";
+import {
+  Modal,
+  Text,
+  Skeleton,
+  Group,
+  Title,
+  Divider,
+  ActionIcon,
+  Tooltip,
+} from "@mantine/core";
+import { notifications } from "@mantine/notifications";
+import { IconShare, IconCheck } from "@tabler/icons-react";
 import { LanguagesSection } from "./sections/languages-section";
 import { ContentSection } from "./sections/content-section";
 import { getMediaUrl } from "@/lib/media-url";
 import Image from "next/image";
+import type { Map } from "maplibre-gl";
 
 interface CultureModalProps {
   slug: string | null;
   onClose: () => void;
+  mapInstance: Map | null;
 }
 
 interface Phrase {
@@ -42,10 +55,47 @@ interface CultureDetails {
   contents: Content[];
 }
 
-export function CultureModal({ slug, onClose }: CultureModalProps) {
+export function CultureModal({
+  slug,
+  onClose,
+  mapInstance,
+}: CultureModalProps) {
   const [culture, setCulture] = useState<CultureDetails | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const handleShare = async () => {
+    if (!slug) return;
+
+    const params = new URLSearchParams();
+    params.set("culture", slug);
+
+    if (mapInstance) {
+      const center = mapInstance.getCenter();
+      const zoom = mapInstance.getZoom();
+      params.set("lng", center.lng.toFixed(4));
+      params.set("lat", center.lat.toFixed(4));
+      params.set("zoom", zoom.toFixed(2));
+    }
+
+    const shareUrl = `${window.location.origin}/?${params.toString()}`;
+
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      notifications.show({
+        message: "Link copied to clipboard!",
+        color: "green",
+        icon: <IconCheck size={16} />,
+        autoClose: 2000,
+      });
+    } catch {
+      notifications.show({
+        message: "Failed to copy link",
+        color: "red",
+        autoClose: 2000,
+      });
+    }
+  };
 
   useEffect(() => {
     if (!slug) return;
@@ -90,19 +140,31 @@ export function CultureModal({ slug, onClose }: CultureModalProps) {
         loading ? (
           <Skeleton height={24} width={200} />
         ) : culture ? (
-          <Group gap="sm">
-            {culture.flagUrl && (
-              <div className="relative w-8 h-6">
-                <Image
-                  src={getMediaUrl(culture.flagUrl)}
-                  alt={`${culture.name} flag`}
-                  fill
-                  className="object-contain rounded"
-                  unoptimized={true}
-                />
-              </div>
-            )}
-            <Title order={3}>{culture.name}</Title>
+          <Group gap="sm" justify="space-between" style={{ width: "100%" }}>
+            <Group gap="sm">
+              {culture.flagUrl && (
+                <div className="relative w-8 h-6">
+                  <Image
+                    src={getMediaUrl(culture.flagUrl)}
+                    alt={`${culture.name} flag`}
+                    fill
+                    className="object-contain rounded"
+                    unoptimized={true}
+                  />
+                </div>
+              )}
+              <Title order={3}>{culture.name}</Title>
+            </Group>
+            <Tooltip label="Share" position="bottom">
+              <ActionIcon
+                variant="subtle"
+                color="gray"
+                onClick={handleShare}
+                aria-label="Share culture"
+              >
+                <IconShare size={18} />
+              </ActionIcon>
+            </Tooltip>
           </Group>
         ) : null
       }

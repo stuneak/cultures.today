@@ -16,11 +16,15 @@ interface CultureAtPoint {
 interface WorldMapProps {
   onCultureClick: (slug: string) => void;
   onMultipleCulturesAtPoint: (cultures: CultureAtPoint[], lngLat: LngLat) => void;
+  initialCenter?: [number, number];
+  initialZoom?: number;
 }
 
 export function WorldMap({
   onCultureClick,
   onMultipleCulturesAtPoint,
+  initialCenter,
+  initialZoom,
 }: WorldMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<Map | null>(null);
@@ -47,8 +51,8 @@ export function WorldMap({
     map.current = new maplibregl.Map({
       container: mapContainer.current,
       style: mapStyle,
-      center: [9.753, 50.6844],
-      zoom: 6,
+      center: initialCenter ?? [9.753, 50.6844],
+      zoom: initialZoom ?? 6,
       minZoom: 3,
       maxZoom: 18,
     });
