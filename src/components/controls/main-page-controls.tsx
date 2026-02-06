@@ -267,14 +267,18 @@ function TopControls() {
                   My Profile
                 </Menu.Item> */}
                 {/* <Menu.Divider /> */}
-                <Link href="/admin" style={{ textDecoration: 'none', color: 'inherit' }}>
-                  <Menu.Item
-                    leftSection={<IconShield size={14} />}
-                  >
-                    Admin
-                  </Menu.Item>
-                </Link>
-                <Menu.Divider />
+                {session.user.isAdmin && (
+                  <>
+                    <Link href="/admin" style={{ textDecoration: 'none', color: 'inherit' }}>
+                      <Menu.Item
+                        leftSection={<IconShield size={14} />}
+                      >
+                        Admin
+                      </Menu.Item>
+                    </Link>
+                    <Menu.Divider />
+                  </>
+                )}
                 <Menu.Item
                   className="menu-item-color-dark-red"
                   // color="red"
