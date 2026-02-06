@@ -2,6 +2,8 @@
 
 An interactive web application for exploring and documenting cultures around the world through an interactive map interface.
 
+![Cultures.today Screenshot](screenshot.png)
+
 ## Overview
 
 Cultures.today enables users to discover cultures plotted on a world map, view detailed information including languages and multimedia content, and contribute their own cultural knowledge by drawing geographic boundaries and submitting culture data.

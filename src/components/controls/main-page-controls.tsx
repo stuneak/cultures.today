@@ -29,6 +29,7 @@ import {
   Group,
   Kbd,
   Divider,
+  Anchor,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useSession, signIn, signOut } from "next-auth/react";
@@ -206,6 +207,15 @@ function InfoModal({
             <Text size="xs" c="dimmed" ta="center" mt={4}>
               Contact: stuneak@gmail.com
             </Text>
+            <Group justify="center" gap="xs" mt={4}>
+              <Anchor href="/privacy" size="xs" c="dimmed" component="a">
+                Privacy
+              </Anchor>
+              <Text size="xs" c="dimmed">·</Text>
+              <Anchor href="/terms" size="xs" c="dimmed" component="a">
+                Terms
+              </Anchor>
+            </Group>
           </Box>
         </Box>
       </Box>
@@ -257,13 +267,13 @@ function TopControls() {
                   My Profile
                 </Menu.Item> */}
                 {/* <Menu.Divider /> */}
-                <Menu.Item
-                  component={Link}
-                  href="/admin"
-                  leftSection={<IconShield size={14} />}
-                >
-                  Admin
-                </Menu.Item>
+                <Link href="/admin" style={{ textDecoration: 'none', color: 'inherit' }}>
+                  <Menu.Item
+                    leftSection={<IconShield size={14} />}
+                  >
+                    Admin
+                  </Menu.Item>
+                </Link>
                 <Menu.Divider />
                 <Menu.Item
                   className="menu-item-color-dark-red"
