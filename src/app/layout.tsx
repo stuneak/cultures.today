@@ -20,6 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <meta name="google-site-verification" content="D3WrN07BKXpbyGUsfKW49789Fc3XXYUlaOujd-YHx8w" />
         <ColorSchemeScript defaultColorScheme="auto" />
       </head>
       <body className={geist.className}>
